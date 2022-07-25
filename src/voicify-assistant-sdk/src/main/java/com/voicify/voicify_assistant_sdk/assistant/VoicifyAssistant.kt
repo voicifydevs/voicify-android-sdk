@@ -1,7 +1,6 @@
 package com.voicify.voicify_assistant_sdk.assistant
 
 import com.voicify.voicify_assistant_sdk.models.*
-import kotlinx.coroutines.*
 import okhttp3.*
 import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -9,6 +8,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.util.UUID
 
+@Suppress("unused")
 class VoicifyAssistant(
     var speechToTextProvider: VoicifySpeechToTextProvider?,
     var textToSpeechProvider: VoicifyTextToSpeechProvider?,
@@ -42,7 +42,7 @@ class VoicifyAssistant(
         this.userAttributes = userAttributes
         this.currentSessionInfo = null
         this.currentSessionInfo = null
-        if(settings?.initializeWithWelcomeMessage)
+        if(settings.initializeWithWelcomeMessage)
         {
             makeWelcomeMessage(null)
         }
@@ -143,13 +143,14 @@ class VoicifyAssistant(
                         override fun onFailure(call: Call, e: IOException) {
 
                         }
+                        @Suppress("unchecked_cast")
                         override fun onResponse(call: Call, response: Response) {
                             val sessionDataResult = response.body?.string()
                             val sessionDataResponse: VoicifySessionData =
                                 gson.fromJson(sessionDataResult, VoicifySessionData::class.java)
                             currentSessionInfo = sessionDataResponse
-                            var effects: Array<VoicifySessionEffect> = sessionDataResponse?.sessionAttributes?.get("effects") as Array<VoicifySessionEffect>
-                            effects.filter {e -> e.requestId == request.requestId}?.forEach { effect ->
+                            val effects: Array<VoicifySessionEffect> = sessionDataResponse.sessionAttributes?.get("effects") as Array<VoicifySessionEffect>
+                            effects.filter {e -> e.requestId == request.requestId}.forEach { effect ->
                                 effectHandlers?.filter { e -> e.effect == effect.effectName }?.forEach { handle -> handle.callback(effect.data) }
                             }
                         }
@@ -172,20 +173,20 @@ class VoicifyAssistant(
                         }
                     })
                     responseHandlers?.forEach { handle -> handle(assistantResponse) }
-                    if(assistantResponse?.audioFile != null)
+                    if(assistantResponse.audioFile != null)
                     {
                         audioHandlers?.forEach { handle -> handle(assistantResponse.audioFile) }
                     }
-                    if(assistantResponse?.videoFile != null)
+                    if(assistantResponse.videoFile != null)
                     {
                         videoHandlers?.forEach { handle -> handle(assistantResponse.videoFile) }
                     }
-                    if(assistantResponse?.endSession != null)
+                    if(assistantResponse.endSession)
                     {
                         endSessionHandlers?.forEach { handle -> handle(assistantResponse) }
                     }
 
-                    if(settings.autoRunConversation && settings.useVoiceInput && !assistantResponse.endSession && inputType == "Speech" && (textToSpeechProvider == null || settings.useOutputSpeech == null))
+                    if(settings.autoRunConversation && settings.useVoiceInput && !assistantResponse.endSession && inputType == "Speech" && (textToSpeechProvider == null || !settings.useOutputSpeech))
                     {
                         speechToTextProvider?.startListening?.invoke()
                     }
@@ -251,7 +252,7 @@ class VoicifyAssistant(
             id = this.userId as String,
             name = this.userId,
             additionalUserAttributes = this.userAttributes,
-            accessToken = this?.accessToken
+            accessToken = this.accessToken
         )
     }
 
@@ -268,12 +269,12 @@ class VoicifyAssistant(
 
     fun addSessionAttribute(key: String, value: Any)
     {
-        this?.sessionAttributes?.plus(Pair(key, value))
+        this.sessionAttributes?.plus(Pair(key, value))
     }
 
     fun addUserAttributes(key: String, value: Any)
     {
-        this?.userAttributes?.plus(Pair(key,value))
+        this.userAttributes?.plus(Pair(key,value))
     }
 
     fun addAccessToken(value: String)

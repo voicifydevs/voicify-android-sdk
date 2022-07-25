@@ -1,9 +1,9 @@
 package com.voicify.voicify_assistant_sdk.assistant
 
-data class VoicifyTextToSpeechProvider (
-    val initialize: (locale: String) -> Unit,
-    val speakSsml: (ssml: String) -> Unit,
-    val addFinishListener: (callback: () -> Unit) -> Unit,
-    val clearHandlers: () -> Unit,
-    val stop: () -> Unit,
-)
+interface VoicifyTextToSpeechProvider {
+    val initialize: (locale: String) -> Unit
+    val speakSsml: (ssml: String) -> Unit
+    val addFinishListener: (callback: () -> Unit) -> Unit
+    val clearHandlers: () -> Unit
+    val stop: () -> Unit
+}

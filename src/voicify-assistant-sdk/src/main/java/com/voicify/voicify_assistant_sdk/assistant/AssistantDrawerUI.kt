@@ -65,71 +65,19 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val drawerLayout = container.findViewById<RelativeLayout>(R.id.drawer)
         val micImageView = container.findViewById<ImageView>(R.id.micImageView)
         val spokenTextView = container.findViewById<TextView>(R.id.spokenTextView)
+        var voicifySTT = VoicifySTTProvider(requireContext() ,requireActivity())
+        voicifySTT.initialize("en-US");
         spokenTextView.setBackgroundColor(Color.parseColor("#80000000"))
+        voicifySTT.addPartialListener { partialResult ->
+            spokenTextView.text = partialResult
+        }
         micImageView.setOnClickListener{
-            if(ContextCompat.checkSelfPermission(this.requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-            {
-                checkPermission();
-            }
-            val speechRecognizer = SpeechRecognizer.createSpeechRecognizer(requireContext());
-
-            val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-            speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-            speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-            speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
-
-            speechRecognizer.setRecognitionListener(object :  RecognitionListener{
-                override fun onReadyForSpeech(params: Bundle?) {
-                    Log.d("JAMES", "Ready")
-                }
-
-                override fun onBeginningOfSpeech() {
-                    Log.d("JAMES", "Speech Began")
-                }
-
-                override fun onRmsChanged(rmsdB: Float) {
-                    Log.d("JAMES", rmsdB.toString())
-                }
-
-                override fun onBufferReceived(buffer: ByteArray?) {
-                    Log.d("JAMES", "The buffer was received")
-                }
-
-                override fun onEndOfSpeech() {
-                    Log.d("JAMES", "Speech ended")
-                }
-
-                override fun onError(error: Int) {
-                    Log.d("JAMES", "There was an error")
-                }
-
-                override fun onResults(results: Bundle?) {
-                    Log.d("JAMES", "The results are in")
-                }
-
-                override fun onPartialResults(partialResults: Bundle?) {
-                    spokenTextView.text = (partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.get(0))
-                }
-
-                override fun onEvent(eventType: Int, params: Bundle?) {
-                    Log.d("JAMES", "An event happend")
-                }
-            })
-            speechRecognizer.startListening(speechRecognizerIntent);
+            voicifySTT.startListening()
         }
         drawerLayout.setBackgroundColor(Color.parseColor(toolBarProps.backgroundColor));
         Picasso.get().load("https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/daca643f-6730-4af5-8817-8d9d0d9db0b5/mic-image.png").into(container.findViewById<ImageButton>(R.id.micImageView))
         // Inflate the layout for this fragment
         return container
-    }
-
-    fun checkPermission(){
-        var permissions: Array<String> = emptyArray()
-        permissions = permissions.plus(Manifest.permission.RECORD_AUDIO)
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-        {
-            ActivityCompat.requestPermissions(requireActivity(), permissions , 1 )
-        }
     }
 
     companion object {

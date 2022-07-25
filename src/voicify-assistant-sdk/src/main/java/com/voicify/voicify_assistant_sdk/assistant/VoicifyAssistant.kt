@@ -32,7 +32,7 @@ class VoicifyAssistant(
 
     fun initializeAndStart() {
         textToSpeechProvider?.initialize?.invoke(settings.locale)
-        speechToTextProvider?.initialize?.invoke(settings.locale)
+        speechToTextProvider?.initialize(settings.locale)
     }
 
     fun startNewSession(sessionId: String?, userId: String?, sessionAttributes: Map<String, Any>?, userAttributes: Map<String, Any>?) {
@@ -49,37 +49,37 @@ class VoicifyAssistant(
     }
 
     fun onEffect(effectName: String, callback: (data: Any) -> Unit){
-        this.effectHandlers?.plus(EffectModel(effectName, callback))
+        effectHandlers = effectHandlers?.plus(EffectModel(effectName, callback))
     }
 
     fun onError(callback: (error: String) -> Unit)
     {
-        this.errorHandlers?.plus(callback)
+        errorHandlers = errorHandlers?.plus(callback)
     }
 
     fun onRequestStarted(callback: (request: CustomAssistantRequest) -> Unit)
     {
-        this.requestStartedHandlers?.plus(callback)
+        requestStartedHandlers = requestStartedHandlers?.plus(callback)
     }
 
     fun onResponseReceived(callback: (response: CustomAssistantResponse) -> Unit)
     {
-        this.responseHandlers?.plus(callback)
+        responseHandlers = responseHandlers?.plus(callback)
     }
 
     fun onSessionEnded(callback: (response: CustomAssistantResponse) -> Unit)
     {
-        this.endSessionHandlers?.plus(callback)
+        endSessionHandlers = endSessionHandlers?.plus(callback)
     }
 
     fun onPlayVideo(callback: (mediaItem: MediaItemModel) -> Unit)
     {
-        this.videoHandlers?.plus(callback)
+        videoHandlers = videoHandlers?.plus(callback)
     }
 
     fun onPlayAudio(callback: (mediaItem: MediaItemModel) -> Unit)
     {
-        this.audioHandlers?.plus(callback)
+        audioHandlers = audioHandlers?.plus(callback)
     }
 
     fun clearHandlers()
@@ -119,7 +119,7 @@ class VoicifyAssistant(
                                     && inputType == "Speech" && settings.useOutputSpeech &&
                                     speechToTextProvider != null) && !assistantResponse.endSession
                         ) {
-                            speechToTextProvider?.startListening?.invoke()
+                            speechToTextProvider?.startListening()
                         }
                     }
                     if(textToSpeechProvider!= null && settings.useOutputSpeech)
@@ -188,7 +188,7 @@ class VoicifyAssistant(
 
                     if(settings.autoRunConversation && settings.useVoiceInput && !assistantResponse.endSession && inputType == "Speech" && (textToSpeechProvider == null || !settings.useOutputSpeech))
                     {
-                        speechToTextProvider?.startListening?.invoke()
+                        speechToTextProvider?.startListening()
                     }
                     customAssistantResponse = assistantResponse
                     return

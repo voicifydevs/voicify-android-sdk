@@ -65,11 +65,34 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val drawerLayout = container.findViewById<RelativeLayout>(R.id.drawer)
         val micImageView = container.findViewById<ImageView>(R.id.micImageView)
         val spokenTextView = container.findViewById<TextView>(R.id.spokenTextView)
-        var voicifySTT = VoicifySTTProvider(requireContext() ,requireActivity())
+        val voicifyTTS = VoicifyTTSProvider(VoicifyTextToSpeechSettings(appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
+        appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
+        voice = "",
+        serverRootUrl = "https://assistant.voicify.com",
+        provider = "Google"))
+        voicifyTTS.initialize("en-US")
+        val voicifySTT = VoicifySTTProvider(requireContext() ,requireActivity())
         voicifySTT.initialize("en-US");
+        val assistant = VoicifyAssistant(voicifySTT, voicifyTTS, VoicifyAssistantSettings(
+            appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
+            appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
+            serverRootUrl = "https://assistant.voicify.com",
+            locale = "en-US",
+            channel = "My App",
+            device = "My Device",
+            autoRunConversation = true,
+            initializeWithWelcomeMessage = false,
+            useVoiceInput = true,
+            useOutputSpeech = true))
+        assistant.initializeAndStart();
+        assistant.startNewSession(null, null, null, null)
         spokenTextView.setBackgroundColor(Color.parseColor("#80000000"))
         voicifySTT.addPartialListener { partialResult ->
             spokenTextView.text = partialResult
+        }
+        voicifySTT.addFinalResultListener { fullResult ->
+            //voicifyTTS.speakSsml(fullResult.toString())
+            assistant.makeTextRequest(fullResult.toString(), null, "Speech")
         }
         micImageView.setOnClickListener{
             voicifySTT.startListening()

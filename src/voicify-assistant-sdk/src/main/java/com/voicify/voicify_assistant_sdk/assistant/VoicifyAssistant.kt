@@ -1,5 +1,7 @@
 package com.voicify.voicify_assistant_sdk.assistant
 
+import android.util.Log
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.voicify.voicify_assistant_sdk.models.*
 import okhttp3.*
 import com.google.gson.Gson
@@ -31,7 +33,7 @@ class VoicifyAssistant(
     var currentUserInfo: VoicifyUserData? = null
 
     fun initializeAndStart() {
-        textToSpeechProvider?.initialize?.invoke(settings.locale)
+        textToSpeechProvider?.initialize(settings.locale)
         speechToTextProvider?.initialize(settings.locale)
     }
 
@@ -93,28 +95,28 @@ class VoicifyAssistant(
         this.errorHandlers = emptyArray()
     }
 
-    fun makeRequest (request: CustomAssistantRequest, inputType: String): CustomAssistantResponse?
+    fun makeRequest (request: CustomAssistantRequest, inputType: String)
     {
-            var customAssistantResponse: CustomAssistantResponse? = null
-            textToSpeechProvider?.stop?.invoke()
+            textToSpeechProvider?.stop()
             requestStartedHandlers?.forEach {handle ->  handle.invoke(request)}
             val gson = Gson()
             val assistantRequestJsonString = gson.toJson(request)
-            val assistantBody = assistantRequestJsonString.toRequestBody("application/json;charset=utf-8".toMediaTypeOrNull())
+            val assistantRequestBody = assistantRequestJsonString.toRequestBody("application/json;charset=utf-8".toMediaTypeOrNull())
             val assistantRequest = Request.Builder()
                 .url("${settings.serverRootUrl}/api/customAssistant/handlerequest?applicationId=${settings.appId}&applicationSecret=${settings.appKey}")
-                .method("POST", assistantBody)
+                .method("POST", assistantRequestBody)
                 .build()
             client.newCall(assistantRequest).enqueue(object : Callback{
                 override fun onFailure(call: Call, e: IOException) {
 
                 }
                 override fun onResponse(call: Call, response: Response) {
+                    Log.d("JAMES", "0")
                     val assistantResult = response.body?.string()
                     val assistantResponse: CustomAssistantResponse =
                         gson.fromJson(assistantResult, CustomAssistantResponse::class.java)
-                    textToSpeechProvider?.clearHandlers?.invoke()
-                    textToSpeechProvider?.addFinishListener?.invoke {
+                    textToSpeechProvider?.clearHandlers()
+                    textToSpeechProvider?.addFinishListener {
                         if ((settings.autoRunConversation && settings.useVoiceInput
                                     && inputType == "Speech" && settings.useOutputSpeech &&
                                     speechToTextProvider != null) && !assistantResponse.endSession
@@ -126,81 +128,97 @@ class VoicifyAssistant(
                     {
                         if(assistantResponse.ssml != null)
                         {
-                            textToSpeechProvider?.speakSsml?.invoke(assistantResponse.ssml)
+                            textToSpeechProvider?.speakSsml(assistantResponse.ssml)
                         }
                         else if(assistantResponse.outputSpeech != null)
                         {
-                            textToSpeechProvider?.speakSsml?.invoke("<speak>${assistantResponse.outputSpeech}</speak>")
+                            textToSpeechProvider?.speakSsml("<speak>${assistantResponse.outputSpeech}</speak>")
                         }
                     }
-
+                    Log.d("JAMES", "1")
                     val sessionDataRequest = Request.Builder()
-                        .url("${settings.serverRootUrl}/api/UserProfile/${userId}?applicationId=$settings.appId}&applicationSecret=${settings.appKey}")
+                        .url("${settings.serverRootUrl}/api/UserProfile/session/${sessionId}?applicationId=${settings.appId}&applicationSecret=${settings.appKey}")
                         .addHeader("Content-Type","application/json")
                         .get()
                         .build()
+                    Log.d("JAMES", sessionDataRequest.toString())
                     client.newCall(sessionDataRequest).enqueue(object : Callback{
                         override fun onFailure(call: Call, e: IOException) {
 
                         }
                         @Suppress("unchecked_cast")
                         override fun onResponse(call: Call, response: Response) {
-                            val sessionDataResult = response.body?.string()
-                            val sessionDataResponse: VoicifySessionData =
-                                gson.fromJson(sessionDataResult, VoicifySessionData::class.java)
-                            currentSessionInfo = sessionDataResponse
-                            val effects: Array<VoicifySessionEffect> = sessionDataResponse.sessionAttributes?.get("effects") as Array<VoicifySessionEffect>
-                            effects.filter {e -> e.requestId == request.requestId}.forEach { effect ->
-                                effectHandlers?.filter { e -> e.effect == effect.effectName }?.forEach { handle -> handle.callback(effect.data) }
+                            if(response.code == 200)
+                            {
+                                val sessionDataResult = response.body?.string()
+                                Log.d("JAMES", sessionDataResult!!)
+                                val sessionDataResponse: VoicifySessionData =
+                                    gson.fromJson(sessionDataResult, VoicifySessionData::class.java)
+                                //I wasnt able to directly cast to Voicify Session Effect here....
+                                //the deserializer automatically fills the Any type with linked tree maps,
+                                //and since the session data can be anything, when trying to cast to Array<VoicifySessionEffect>
+                                //it was throwing an exception. Only work around i could think to do was to serialize just the effects
+                                //and then use gson to deserialize again
+                                val effectsString = gson.toJson(sessionDataResponse.sessionAttributes?.get("effects"))
+                                val effects: Array<VoicifySessionEffect> =
+                                    gson.fromJson(effectsString, Array<VoicifySessionEffect>::class.java)
+                                currentSessionInfo = sessionDataResponse
+                                Log.d("JAMES", currentSessionInfo.toString())
+                                Log.d("JAMES", effects[0].effectName.toString())
+                                effects.filter {e -> e.requestId == request.requestId}.forEach { effect ->
+                                    effectHandlers?.filter { e -> e.effect == effect.effectName }?.forEach { handle -> handle.callback(effect.data) }
+                                }
                             }
+                            Log.d("JAMES", "3")
+                            val userDataRequest = Request.Builder()
+                                .url("${settings.serverRootUrl}/api/UserProfile/${userId}?applicationId=${settings.appId}&applicationSecret=${settings.appKey}")
+                                .addHeader("Content-Type","application/json")
+                                .get()
+                                .build()
+                            client.newCall(userDataRequest).enqueue(object : Callback{
+                                override fun onFailure(call: Call, e: IOException) {
+
+                                }
+                                override fun onResponse(call: Call, response: Response) {
+                                    Log.d("JAMES", "4")
+                                    if(response.code == 200)
+                                    {
+                                        val userDataResult = response.body?.string()
+                                        val userDataResponse: VoicifyUserData =
+                                            gson.fromJson(userDataResult, VoicifyUserData::class.java)
+                                        currentUserInfo = userDataResponse
+                                    }
+                                }
+                            })
+                            responseHandlers?.forEach { handle -> handle(assistantResponse) }
+                            if(assistantResponse.audioFile != null)
+                            {
+                                audioHandlers?.forEach { handle -> handle(assistantResponse.audioFile) }
+                            }
+                            if(assistantResponse.videoFile != null)
+                            {
+                                videoHandlers?.forEach { handle -> handle(assistantResponse.videoFile) }
+                            }
+                            if(assistantResponse.endSession)
+                            {
+                                endSessionHandlers?.forEach { handle -> handle(assistantResponse) }
+                            }
+
+                            if(settings.autoRunConversation && settings.useVoiceInput && !assistantResponse.endSession && inputType == "Speech" && (textToSpeechProvider == null || !settings.useOutputSpeech))
+                            {
+                                speechToTextProvider?.startListening()
+                            }
+                            Log.d("JAMES", "5")
                         }
                     })
-
-                    val userDataRequest = Request.Builder()
-                        .url("${settings.serverRootUrl}/api/UserProfile/${userId}?applicationId=${settings.appId}&applicationSecret=${settings.appKey}")
-                        .addHeader("Content-Type","application/json")
-                        .get()
-                        .build()
-                    client.newCall(userDataRequest).enqueue(object : Callback{
-                        override fun onFailure(call: Call, e: IOException) {
-
-                        }
-                        override fun onResponse(call: Call, response: Response) {
-                            val userDataResult = response.body?.string()
-                            val userDataResponse: VoicifyUserData =
-                                gson.fromJson(userDataResult, VoicifyUserData::class.java)
-                            currentUserInfo = userDataResponse
-                        }
-                    })
-                    responseHandlers?.forEach { handle -> handle(assistantResponse) }
-                    if(assistantResponse.audioFile != null)
-                    {
-                        audioHandlers?.forEach { handle -> handle(assistantResponse.audioFile) }
-                    }
-                    if(assistantResponse.videoFile != null)
-                    {
-                        videoHandlers?.forEach { handle -> handle(assistantResponse.videoFile) }
-                    }
-                    if(assistantResponse.endSession)
-                    {
-                        endSessionHandlers?.forEach { handle -> handle(assistantResponse) }
-                    }
-
-                    if(settings.autoRunConversation && settings.useVoiceInput && !assistantResponse.endSession && inputType == "Speech" && (textToSpeechProvider == null || !settings.useOutputSpeech))
-                    {
-                        speechToTextProvider?.startListening()
-                    }
-                    customAssistantResponse = assistantResponse
-                    return
                 }
             })
-        return customAssistantResponse
     }
 
-    fun makeTextRequest(text: String, requestAttributes: Map<String, Any>?, inputType: String): CustomAssistantResponse?
+    fun makeTextRequest(text: String, requestAttributes: Map<String, Any>?, inputType: String)
     {
         val request = generateTextRequest(text, requestAttributes)
-        return makeRequest(request, inputType)
+        makeRequest(request, inputType)
     }
 
     fun generateTextRequest(text: String, requestAttributes: Map<String, Any>?): CustomAssistantRequest
@@ -222,10 +240,10 @@ class VoicifyAssistant(
         )
     }
 
-    fun makeWelcomeMessage(requestAttributes: Map<String, Any>?): CustomAssistantResponse?
+    fun makeWelcomeMessage(requestAttributes: Map<String, Any>?)
     {
         val request = generateWelcomeRequest(requestAttributes)
-        return makeRequest(request, "")
+        makeRequest(request, "")
     }
 
     fun generateWelcomeRequest (requestAttributes: Map<String, Any>?): CustomAssistantRequest {

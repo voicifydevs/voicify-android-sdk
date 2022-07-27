@@ -16,8 +16,7 @@ import androidx.core.content.ContextCompat
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantRequest
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantResponse
 import java.util.*
-//requireContext()
-//requireActivity()
+
 class VoicifySTTProvider (private val context: Context, private val activity: Activity) : VoicifySpeechToTextProvider{
     private var speechStartHandlers: Array<() -> Unit>? = emptyArray()
     private var speechPartialHandlers: Array<(partialResult: String?) -> Unit>? = emptyArray()

@@ -7,7 +7,9 @@
         <entry key="app/src/main/res/layout/content_main.xml" value="0.1644021739130435" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.1644021739130435" />
         <entry key="app/src/main/res/layout/fragment_second.xml" value="0.1109375" />
-        <entry key="voicify-assistant-sdk/src/main/res/layout/fragment_assistant_drawer_u_i.xml" value="0.673880076548358" />
+        <entry key="voicify-assistant-sdk/src/main/res/drawable/ic_launcher_background.xml" value="0.1365" />
+        <entry key="voicify-assistant-sdk/src/main/res/drawable/spoken_text_view_corner_radius.xml" value="0.1365" />
+        <entry key="voicify-assistant-sdk/src/main/res/layout/fragment_assistant_drawer_u_i.xml" value="0.27095184326171873" />
       </map>
     </option>
   </component>

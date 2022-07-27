@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,53 +8,132 @@
     tools:context=".assistant.AssistantDrawerUI">
 
     <!-- TODO: Update blank fragment layout -->
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/drawer"
         android:layout_width="match_parent"
-        android:layout_height="350dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
+        android:layout_height="300dp"
         android:background="@android:color/white"
+        android:orientation="vertical"
         android:paddingLeft="16dp"
-        android:paddingTop="24dp"
+        android:paddingTop="16dp"
         android:paddingRight="16dp"
-        android:paddingBottom="24dp">
+        android:paddingBottom="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
 
-        <TextView
-            android:id="@+id/spokenTextView"
+        <LinearLayout
+            android:id="@+id/headerLayout"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="100dp"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/speakTextView"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="214dp"
-            android:text="@string/speak"
-            android:textColor="#3E77A5"
-            android:textSize="12sp" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/drawerWelcomeTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/closeAssistantImageView"
+                android:layout_width="21dp"
+                android:layout_height="20dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/bodyLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="60dp">
+
+            <TextView
+                android:id="@+id/assistantStateTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/spokenTextView"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:textColor="#ffffff"
+                android:textSize="12sp"
+                android:layout_marginTop="4dp"/>
+
+        </LinearLayout>
 
         <ImageView
-            android:id="@+id/micImageView"
-            android:layout_width="40dp"
-            android:layout_height="38dp"
-            android:layout_below="@+id/speakTextView"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginStart="0dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="24dp"
-            android:contentDescription="mic"
-            tools:src="https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/daca643f-6730-4af5-8817-8d9d0d9db0b5/mic-image.png" />
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:src="@drawable/dotted_line"
+            android:layerType="software" />
 
-    </RelativeLayout>
+        <LinearLayout
+            android:id="@+id/footerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp">
+
+            <LinearLayout
+                android:id="@+id/speakLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/speakTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/speak"
+                    android:textColor="#3E77A5"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:id="@+id/micImageView"
+                    android:layout_width="40dp"
+                    android:layout_height="38dp"
+                    android:layout_marginTop="12dp"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_marginLeft="26dp"
+                android:id="@+id/typeLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/typeTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TYPE"
+                    android:textColor="#3E77A5"
+                    android:textSize="12sp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="12dp">
+                    <EditText
+                        android:id="@+id/inputTextMessage"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPersonName"
+                        android:layout_weight="1"/>
+                    <ImageView
+                        android:id="@+id/sendMessageButtonImageView"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
 
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

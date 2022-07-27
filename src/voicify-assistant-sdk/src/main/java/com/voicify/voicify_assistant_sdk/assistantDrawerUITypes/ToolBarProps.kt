@@ -1,5 +1,7 @@
 package com.voicify.voicify_assistant_sdk.assistantDrawerUITypes
 
-data class ToolBar(
+import java.io.Serializable
+
+data class ToolBarProps(
     val backgroundColor: String? = null
-)
+) : Serializable

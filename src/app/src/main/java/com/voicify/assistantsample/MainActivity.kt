@@ -3,8 +3,10 @@ package com.voicify.assistantsample
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.voicify.assistantsample.databinding.ActivityMainBinding
-import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.ToolBar
+import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.ToolBarProps
 import com.voicify.voicify_assistant_sdk.assistant.AssistantDrawerUI
+import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.BodyProps
+import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.HeaderProps
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,8 +21,8 @@ class MainActivity : AppCompatActivity() {
             if (savedInstanceState == null) {
                 if(!isAssitantOpen)
                 {
-                    val modalBottomSheet = AssistantDrawerUI.newInstance("HELLO TO THE WORLD", "LEGGO", ToolBar(backgroundColor = "#ffffff"))
-                    modalBottomSheet.show(supportFragmentManager, "")
+                    val modalBottomSheet = AssistantDrawerUI.newInstance(HeaderProps(backgroundColor = "#ffffff"), BodyProps(backgroundColor = "#ffffff"), ToolBarProps(backgroundColor = "#ffffff"))
+                    modalBottomSheet.show(supportFragmentManager, "assistantDrawerUI")
 //                    var transaction = supportFragmentManager.beginTransaction()
 //                    transaction.add(R.id.relative_container, assistantDrawer)
 //                    transaction.commit()

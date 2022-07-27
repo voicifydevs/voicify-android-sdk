@@ -37,7 +37,7 @@ class VoicifyAssistant(
         speechToTextProvider?.initialize(settings.locale)
     }
 
-    fun startNewSession(sessionId: String?, userId: String?, sessionAttributes: Map<String, Any>?, userAttributes: Map<String, Any>?) {
+    fun startNewSession(sessionId: String? = null, userId: String? = null, sessionAttributes: Map<String, Any>? = null, userAttributes: Map<String, Any>? = null) {
         this.sessionId = sessionId ?: UUID.randomUUID().toString()
         this.userId = userId ?: UUID.randomUUID().toString()
         this.sessionAttributes = sessionAttributes

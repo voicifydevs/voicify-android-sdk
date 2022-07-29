@@ -1,7 +1,9 @@
 package com.voicify.voicify_assistant_sdk.assistant
 
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
@@ -10,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -53,6 +56,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -61,9 +65,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         //Layouts
         val drawerLayout = container.findViewById<LinearLayout>(R.id.drawerLayout)
+        //val micImageLayout = container.findViewById<LinearLayout>(R.id.micImageLayout)
 
         drawerLayout.setBackgroundColor(Color.parseColor(toolBarProps?.backgroundColor));
-        
+
         //Image Views
         val micImageView = container.findViewById<ImageView>(R.id.micImageView)
         val closeAssistantImageView = container.findViewById<ImageView>(R.id.closeAssistantImageView)
@@ -90,6 +95,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         spokenTextViewStyle.cornerRadius = 24f
         spokenTextViewStyle.setColor(Color.parseColor("#80000000"))
         spokenTextView.background = spokenTextViewStyle
+
+        val micImageViewStyle = GradientDrawable()
+        micImageViewStyle.setColor(Color.parseColor("#1f1e7eb9"))
+        micImageViewStyle.cornerRadius = 100f
+
 
         //initialization
         val voicifyTTS = VoicifyTTSProvider(VoicifyTextToSpeechSettings(
@@ -128,6 +138,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
 
         voicifySTT.addSpeechReadyListener {
+            micImageView.background = micImageViewStyle
             assistantStateTextView.text = "Listening..."
         }
 
@@ -147,6 +158,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     params.height = metrics?.heightPixels as Int
                     drawerLayout.layoutParams = params
                     bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
+                    assistantStateTextView.text = ""
+                    drawerWelcomeTextView.text = ""
+                    spokenTextView.text = ""
                 }
             }
         }

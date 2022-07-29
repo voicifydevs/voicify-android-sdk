@@ -26,10 +26,19 @@ class VoicifySTTProvider (private val context: Context, private val activity: Ac
     private var speechErrorHandlers: Array<(error: String) -> Unit>? = emptyArray()
     //private var speechRecognizedHandlers: Array<() -> Unit>? = emptyArray()
     private var speechVolumeHandlers: Array<(volume: Float) -> Unit>? = emptyArray()
-    private var speechRecognizer: SpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(context);
+    private var locale: String = ""
+    private var speechRecognizer: SpeechRecognizer? = SpeechRecognizer.createSpeechRecognizer(context);
     private val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 
     override fun initialize (locale: String) {
+
+    }
+
+    override fun startListening(){
+        if(speechRecognizer != null)  //have to do this because if the speech recognizer ever gets destroyed we need to recreate each time to account for that
+        {                             //checked the react native voice package and they do it the same way
+            speechRecognizer?.destroy()
+        }
         if(ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
         {
             checkPermission();
@@ -38,8 +47,7 @@ class VoicifySTTProvider (private val context: Context, private val activity: Ac
         speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale);
         speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
-
-        speechRecognizer.setRecognitionListener(object : RecognitionListener {
+        speechRecognizer?.setRecognitionListener(object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {
                 Log.d("JAMES", "Ready")
                 speechReadyHandlers?.forEach { handle -> handle() }
@@ -90,22 +98,19 @@ class VoicifySTTProvider (private val context: Context, private val activity: Ac
             }
 
         })
-    }
-
-    override fun startListening(){
-        speechRecognizer.startListening(speechRecognizerIntent);
+        speechRecognizer?.startListening(speechRecognizerIntent);
     }
 
     override fun stopListening() {
-        speechRecognizer.stopListening()
+        speechRecognizer?.stopListening()
     }
 
     fun cancelListening() {
-        speechRecognizer.cancel();
+        speechRecognizer?.cancel();
     }
 
     fun destoryInstance(){
-        speechRecognizer.destroy()
+        speechRecognizer?.destroy()
     }
 
     fun addStartListener (callback: () -> Unit) {

@@ -2,7 +2,6 @@ package com.voicify.voicify_assistant_sdk.assistant
 
 import android.annotation.SuppressLint
 import android.content.DialogInterface
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
@@ -18,6 +17,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -75,16 +75,16 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val container = inflater.inflate(R.layout.fragment_assistant_drawer_u_i, container, false)
+        val window = inflater.inflate(R.layout.fragment_assistant_drawer_u_i, container, false)
 
         //Layouts
-        val drawerLayout = container.findViewById<LinearLayout>(R.id.drawerLayout)
+        val drawerLayout = window.findViewById<LinearLayout>(R.id.drawerLayout)
         drawerLayout.setBackgroundColor(Color.parseColor(toolBarProps?.backgroundColor));
 
         //Image Views
-        val micImageView = container.findViewById<ImageView>(R.id.micImageView)
-        val closeAssistantImageView = container.findViewById<ImageView>(R.id.closeAssistantImageView)
-        val sendMessageImageView = container.findViewById<ImageView>(R.id.sendMessageButtonImageView)
+        val micImageView = window.findViewById<ImageView>(R.id.micImageView)
+        val closeAssistantImageView = window.findViewById<ImageView>(R.id.closeAssistantImageView)
+        val sendMessageImageView = window.findViewById<ImageView>(R.id.sendMessageButtonImageView)
 
         loadImageFromUrl(if(assistantSettingProps?.initializeWithText == false) "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/daca643f-6730-4af5-8817-8d9d0d9db0b5/mic-image.png"
         else "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/3f10b6d7-eb71-4427-adbc-aadacbe8940e/mic-image-1-.png", micImageView)
@@ -93,12 +93,12 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         else "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/7a39bc6f-eef5-4185-bcf8-2a645aff53b2/Send-3-.png", sendMessageImageView)
 
         //Text Views
-        val assistantStateTextView = container.findViewById<TextView>(R.id.assistantStateTextView)
-        val spokenTextView = container.findViewById<TextView>(R.id.spokenTextView)
-        val drawerWelcomeTextView = container.findViewById<TextView>(R.id.drawerWelcomeTextView)
-        val typeTextView = container.findViewById<TextView>(R.id.typeTextView)
-        val speakTextView = container.findViewById<TextView>(R.id.speakTextView)
-        val inputTextMessageEditTextView = container.findViewById<EditText>(R.id.inputTextMessage)
+        val assistantStateTextView = window.findViewById<TextView>(R.id.assistantStateTextView)
+        val spokenTextView = window.findViewById<TextView>(R.id.spokenTextView)
+        val drawerWelcomeTextView = window.findViewById<TextView>(R.id.drawerWelcomeTextView)
+        val typeTextView = window.findViewById<TextView>(R.id.typeTextView)
+        val speakTextView = window.findViewById<TextView>(R.id.speakTextView)
+        val inputTextMessageEditTextView = window.findViewById<EditText>(R.id.inputTextMessage)
 
         typeTextView.setTextColor(if(assistantSettingProps?.initializeWithText == false) Color.parseColor("#8F97A1") else Color.parseColor("#3E77A5"))
         drawerWelcomeTextView.text = "How can i help?"
@@ -119,8 +119,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         micImageViewStyle.setColor(Color.parseColor("#1f1e7eb9"))
         micImageViewStyle.cornerRadius = 100f
 
-        val inputTextMessageEditTextViewLineColor = ColorStateList.valueOf(Color.parseColor("#707174"))
-        inputTextMessageEditTextView.backgroundTintList = inputTextMessageEditTextViewLineColor
+//        val inputTextMessageEditTextViewLineColor = ColorStateList.valueOf(Color.parseColor("#707174"))
+//        inputTextMessageEditTextView.backgroundTintList = inputTextMessageEditTextViewLineColor
+
+        val inputTextMessageEditTextViewStyle = GradientDrawable()
+        inputTextMessageEditTextViewStyle.setColor(Color.parseColor("#1f1e7eb9"))
 
         //initialization
         voicifyTTS = VoicifyTTSProvider(VoicifyTextToSpeechSettings(
@@ -203,6 +206,14 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             if(!isUsingSpeech)
             {
                 isUsingSpeech = true
+                val scale = requireContext().resources.displayMetrics.density
+                val pixels = (350 * scale + 0.5f)
+                val drawerLayoutParms = drawerLayout.layoutParams
+                inputTextMessageEditTextView.setBackgroundColor(Color.TRANSPARENT)
+                drawerLayoutParms.height = pixels.toInt()
+                drawerLayout.layoutParams = drawerLayoutParms
+                spokenTextView.isVisible = true
+                assistantStateTextView.isVisible = true
                 speakTextView.setTextColor(Color.parseColor("#3E77A5"))
                 typeTextView.setTextColor(Color.parseColor("#8F97A1"))
                 loadImageFromUrl("https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/daca643f-6730-4af5-8817-8d9d0d9db0b5/mic-image.png", micImageView)
@@ -237,7 +248,15 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                         }
                         if(isUsingSpeech)
                         {
+                            val scale = requireContext().resources.displayMetrics.density
+                            val pixels = (200 * scale + 0.5f)
+                            inputTextMessageEditTextView.setBackgroundColor(Color.parseColor("#1f1e7eb9"))
                             isUsingSpeech = false
+                            spokenTextView.isVisible = false
+                            assistantStateTextView.isVisible = false;
+                            val drawerLayoutParms = drawerLayout.layoutParams
+                            drawerLayoutParms.height = pixels.toInt()
+                            drawerLayout.layoutParams = drawerLayoutParms
                             speakTextView.setTextColor(Color.parseColor("#8F97A1"))
                             typeTextView.setTextColor(Color.parseColor("#3E77A5"))
                             loadImageFromUrl("https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/3f10b6d7-eb71-4427-adbc-aadacbe8940e/mic-image-1-.png", micImageView)
@@ -256,7 +275,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
 
         // Inflate the layout for this fragment
-        return container
+        return window
     }
 
     private fun cancelSpeech() {

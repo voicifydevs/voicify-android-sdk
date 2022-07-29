@@ -19,6 +19,7 @@ import java.util.*
 
 class VoicifySTTProvider (private val context: Context, private val activity: Activity) : VoicifySpeechToTextProvider{
     private var speechStartHandlers: Array<() -> Unit>? = emptyArray()
+    private var speechReadyHandlers: Array<() -> Unit?> = emptyArray()
     private var speechPartialHandlers: Array<(partialResult: String?) -> Unit>? = emptyArray()
     private var speechEndHandlers: Array<() -> Unit>? = emptyArray()
     private var speechResultsHandlers: Array<(fullResult: String?) -> Unit>? = emptyArray()
@@ -41,6 +42,7 @@ class VoicifySTTProvider (private val context: Context, private val activity: Ac
         speechRecognizer.setRecognitionListener(object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {
                 Log.d("JAMES", "Ready")
+                speechReadyHandlers?.forEach { handle -> handle() }
             }
 
             override fun onBeginningOfSpeech() {
@@ -49,8 +51,13 @@ class VoicifySTTProvider (private val context: Context, private val activity: Ac
             }
 
             override fun onRmsChanged(rmsdB: Float) {
-                Log.d("JAMES", rmsdB.toString())
-                speechVolumeHandlers?.forEach { handle -> handle(rmsdB) }
+
+                //bug on android where volume reports as negative
+                if(rmsdB >= 0)
+                {
+                    Log.d("JAMES", rmsdB.toString())
+                    speechVolumeHandlers?.forEach { handle -> handle(rmsdB) }
+                }
             }
 
             override fun onBufferReceived(buffer: ByteArray?) {
@@ -105,6 +112,9 @@ class VoicifySTTProvider (private val context: Context, private val activity: Ac
         speechStartHandlers = speechStartHandlers?.plus(callback)
     }
 
+    fun addSpeechReadyListener (callback: () -> Unit) {
+        speechReadyHandlers = speechReadyHandlers?.plus(callback)
+    }
     override  fun addPartialListener (callback: (partialResult: String?) -> Unit) {
         speechPartialHandlers = speechPartialHandlers?.plus(callback)
     }
@@ -132,6 +142,7 @@ class VoicifySTTProvider (private val context: Context, private val activity: Ac
         speechResultsHandlers = emptyArray()
         speechErrorHandlers = emptyArray()
         speechVolumeHandlers = emptyArray()
+        speechReadyHandlers = emptyArray()
     }
     private fun checkPermission(){
          var permissions: Array<String> = emptyArray()

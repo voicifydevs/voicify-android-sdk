@@ -39,6 +39,7 @@
                 android:textStyle="italic" />
 
             <Space
+                android:id="@+id/headerSpace"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
@@ -50,6 +51,7 @@
         </LinearLayout>
 
         <Space
+            android:id="@+id/bodySpace"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
@@ -78,6 +80,7 @@
         </LinearLayout>
 
         <ImageView
+            android:id="@+id/dashedLineImageView"
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:layout_marginTop="20dp"
@@ -131,6 +134,7 @@
                     android:textSize="12sp" />
 
                 <LinearLayout
+                    android:id="@+id/sendTextLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"

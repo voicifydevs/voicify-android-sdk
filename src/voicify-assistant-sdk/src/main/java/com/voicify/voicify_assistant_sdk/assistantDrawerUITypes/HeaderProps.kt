@@ -5,5 +5,5 @@ import java.io.Serializable
 data class HeaderProps(
     val backgroundColor: String? = null,
     val assistantName: String? = null,
-    val assistantNameFontSize: Number? = null
+    val assistantNameFontSize: Int? = null
 ) : Serializable

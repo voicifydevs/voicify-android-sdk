@@ -16,6 +16,8 @@ import android.view.*
 import android.view.View.OnTouchListener
 import android.widget.*
 import androidx.annotation.RequiresApi
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.Guideline
 import androidx.core.view.marginTop
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -58,6 +60,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private var voicifyTTS: VoicifyTTSProvider? = null
     private var sendMessageTextView: TextView? = null
     private var receiveMessageTextView: TextView? = null
+    private var scale: Float = 0f
     //private var assistantState: AssistantState = AssistantState.Start
     private var bottomSheetBehavior : BottomSheetBehavior<View>? = null
 
@@ -78,7 +81,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         val window = inflater.inflate(R.layout.fragment_assistant_drawer_u_i, container, false)
-
+        scale = requireContext().resources.displayMetrics.density
         //Layouts
         val drawerLayout = window.findViewById<LinearLayout>(R.id.drawerLayout)
         val fullScreenBodyLayout = window.findViewById<RelativeLayout>(R.id.bodyLayout)
@@ -191,7 +194,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             {
                 sendMessageTextViewParams.addRule(RelativeLayout.BELOW, receiveMessageTextView?.id!!)
             }
-            sendMessageTextViewParams.setMargins(0,8,0,0)
+            sendMessageTextViewParams.setMargins(0,getPixelsFromDp(12),0,0)
             sendMessageTextView?.setTextColor(Color.WHITE)
             sendMessageTextView?.layoutParams = sendMessageTextViewParams
             sendMessageTextView?.setPadding(10,10,10,10)
@@ -241,8 +244,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     assistantNameTextView.visibility = View.VISIBLE
                     fullScreenBodyLayout.visibility = View.VISIBLE
                     bodySpaceView.visibility = View.GONE
-
-
+                    
                     receiveMessageTextView = TextView(context)
                     receiveMessageTextView?.id = View.generateViewId()
                     val receiveMessageTextViewParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
@@ -250,10 +252,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     receiveMessageTextViewParams.addRule(RelativeLayout.BELOW,
                         sendMessageTextView?.id!!
                     )
-                    receiveMessageTextViewParams.setMargins(0,8,0,0)
-                    receiveMessageTextView?.setTextColor(Color.BLACK)
+                    receiveMessageTextViewParams.setMargins(0,getPixelsFromDp(12),0,0)
                     receiveMessageTextView?.layoutParams = receiveMessageTextViewParams
                     receiveMessageTextView?.setPadding(0,10,0,0)
+                    receiveMessageTextView?.setTextColor(Color.BLACK)
                     receiveMessageTextView?.setBackgroundColor(Color.parseColor("#0d000000"))
                     receiveMessageTextView?.text = response.displayText
                     receiveMessageTextView?.textSize = 14f
@@ -267,12 +269,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             if(!isUsingSpeech)
             {
                 isUsingSpeech = true
-                val scale = requireContext().resources.displayMetrics.density
-                val pixels = (350 * scale + 0.5f)
-                val drawerLayoutParms = drawerLayout.layoutParams
+                val drawerLayoutParams = drawerLayout.layoutParams
                 inputTextMessageEditTextView.setBackgroundColor(Color.TRANSPARENT)
-                drawerLayoutParms.height = pixels.toInt()
-                drawerLayout.layoutParams = drawerLayoutParms
+                drawerLayoutParams.height = getPixelsFromDp(350)
+                drawerLayout.layoutParams = drawerLayoutParams
                 spokenTextView.visibility = View.VISIBLE
                 assistantStateTextView.visibility = View.VISIBLE
                 speakTextView.setTextColor(Color.parseColor("#3E77A5"))
@@ -307,17 +307,15 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                             spokenTextView.text = ""
                         }
                         if (isUsingSpeech) {
-                            val scale = requireContext().resources.displayMetrics.density
-                            val pixels = (200 * scale + 0.5f)
                             inputTextMessageEditTextView.setBackgroundColor(Color.parseColor("#1f1e7eb9"))
                             isUsingSpeech = false
                             //spokenTextView.isVisible = false
                             spokenTextView.visibility = View.GONE
                             //assistantStateTextView.isVisible = false;
                             assistantStateTextView.visibility = View.GONE
-                            val drawerLayoutParms = drawerLayout.layoutParams
-                            drawerLayoutParms.height = pixels.toInt()
-                            drawerLayout.layoutParams = drawerLayoutParms
+                            val drawerLayoutParams = drawerLayout.layoutParams
+                            drawerLayoutParams.height = getPixelsFromDp(200)
+                            drawerLayout.layoutParams = drawerLayoutParams
                             speakTextView.setTextColor(Color.parseColor("#8F97A1"))
                             typeTextView.setTextColor(Color.parseColor("#3E77A5"))
                             loadImageFromUrl(
@@ -357,6 +355,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
     private fun loadImageFromUrl(url: String, view: ImageView){
         Picasso.get().load(url).into(view)
+    }
+
+    private fun getPixelsFromDp(dp: Int): Int {
+        return (dp * scale + 0.5f).toInt()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

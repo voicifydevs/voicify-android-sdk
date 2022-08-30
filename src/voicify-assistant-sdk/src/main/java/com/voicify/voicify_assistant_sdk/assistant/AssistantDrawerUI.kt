@@ -284,6 +284,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 }
             }
         }
+
         //Views
         micImageView.setOnClickListener{
             if(!isUsingSpeech)
@@ -342,9 +343,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             messagesScrollView.post {
                 messagesScrollView.fullScroll(View.FOCUS_DOWN)
             }
+            val inputText = inputTextMessageEditTextView.text.toString()
             inputTextMessageEditTextView.setText("")
             hideKeyboard()
-            assistant.makeTextRequest(inputTextMessageEditTextView.toString(), null, "Text")
+            assistant.makeTextRequest(inputText,null, "Text")
         }
 
         inputTextMessageEditTextView.setOnTouchListener(object : OnTouchListener {

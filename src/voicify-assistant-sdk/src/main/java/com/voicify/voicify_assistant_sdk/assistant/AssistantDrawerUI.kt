@@ -146,9 +146,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         fullScreenBodyLayoutStyle.setColor(Color.parseColor("#F4F4F6"))
         fullScreenBodyLayout.background = fullScreenBodyLayoutStyle
 
-//        val inputTextMessageEditTextViewLineColor = ColorStateList.valueOf(Color.parseColor("#707174"))
-//        inputTextMessageEditTextView.backgroundTintList = inputTextMessageEditTextViewLineColor
-
         val inputTextMessageEditTextViewStyle = GradientDrawable()
         inputTextMessageEditTextViewStyle.setColor(Color.parseColor("#1f1e7eb9"))
 
@@ -281,6 +278,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             if(!isUsingSpeech)
             {
                 isUsingSpeech = true
+                sendTextLayout.setBackgroundColor(Color.TRANSPARENT)
                 dashedLineImageView.visibility = View.VISIBLE;
                 hideKeyboard()
                 val drawerLayoutParams = drawerLayout.layoutParams
@@ -345,7 +343,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                             spokenTextView.text = ""
                         }
                         if (isUsingSpeech) {
-                            //inputTextMessageEditTextView.setBackgroundColor(Color.parseColor("#1f1e7eb9"))
                             sendTextLayout.setBackgroundColor(Color.parseColor("#1f1e7eb9"))
                             isUsingSpeech = false
                             if(!isDrawer)

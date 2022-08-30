@@ -69,15 +69,28 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
+
         <RelativeLayout
-            android:id="@+id/bodyLayout"
+            android:id="@+id/bodyLayoutContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="gone"
-            android:paddingHorizontal="12dp"
             android:layout_weight="1">
-
+            <ScrollView
+                android:id="@+id/bodyLayoutScrollView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="true">
+                <RelativeLayout
+                    android:id="@+id/bodyLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="12dp"
+                    android:paddingBottom="8dp">
+                </RelativeLayout>
+            </ScrollView>
         </RelativeLayout>
 
         <LinearLayout

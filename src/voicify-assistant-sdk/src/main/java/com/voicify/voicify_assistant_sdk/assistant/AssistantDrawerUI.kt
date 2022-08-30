@@ -89,9 +89,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         //Layouts
         val drawerLayout = window.findViewById<LinearLayout>(R.id.drawerLayout)
         val fullScreenBodyLayout = window.findViewById<RelativeLayout>(R.id.bodyLayout)
+        val fullScreenBodyContainerLayout = window.findViewById<RelativeLayout>(R.id.bodyLayoutContainer)
         val sendTextLayout = window.findViewById<LinearLayout>(R.id.sendTextLayout)
         val drawerFooterLayout = window.findViewById<LinearLayout>(R.id.drawerFooterLayout)
 
+        val messagesScrollView = window.findViewById<ScrollView>(R.id.bodyLayoutScrollView)
         drawerLayout.setBackgroundColor(Color.parseColor(toolBarProps?.backgroundColor));
 
         //Image Views
@@ -132,7 +134,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         assistantNameTextView.text = headerProps?.assistantName ?: ""
         assistantNameTextView.textSize = headerProps?.assistantNameFontSize?.toFloat() ?: 18f
 
-        //Styles
+        //Create Styles
         val spokenTextViewStyle = GradientDrawable()
         spokenTextViewStyle.cornerRadius = 24f
         spokenTextViewStyle.setColor(Color.parseColor("#80000000"))
@@ -149,7 +151,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val fullScreenBodyLayoutStyle = GradientDrawable()
         fullScreenBodyLayoutStyle.setStroke(4, Color.parseColor("#CBCCD2"))
         fullScreenBodyLayoutStyle.setColor(Color.parseColor("#F4F4F6"))
-        fullScreenBodyLayout.background = fullScreenBodyLayoutStyle
+        fullScreenBodyContainerLayout.background = fullScreenBodyLayoutStyle
 
         val inputTextMessageEditTextViewStyle = GradientDrawable()
         inputTextMessageEditTextViewStyle.setColor(Color.parseColor("#1f1e7eb9"))
@@ -205,7 +207,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             sendMessageTextView?.text = fullResult
             sendMessageTextView?.textSize = 14f
             fullScreenBodyLayout.addView(sendMessageTextView)
-
+            messagesScrollView.post {
+                messagesScrollView.fullScroll(View.FOCUS_DOWN)
+            }
             assistantStateTextView.text = "Processing..."
             assistant.makeTextRequest(fullResult.toString(), null, "Speech")
         }
@@ -253,7 +257,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     spokenTextView.text = ""
                     assistantAvatarImageView.visibility = View.VISIBLE
                     assistantNameTextView.visibility = View.VISIBLE
-                    fullScreenBodyLayout.visibility = View.VISIBLE
+                    fullScreenBodyContainerLayout.visibility = View.VISIBLE
                     bodySpaceView.visibility = View.GONE
 
                     receiveMessageTextView = TextView(context)
@@ -271,6 +275,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     receiveMessageTextView?.text = response.displayText
                     receiveMessageTextView?.textSize = 14f
                     fullScreenBodyLayout.addView(receiveMessageTextView)
+                    messagesScrollView.post {
+                        messagesScrollView.fullScroll(View.FOCUS_DOWN)
+                    }
                 }
             }
         }
@@ -289,7 +296,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 }
                 else{
                     val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                    drawerFooterLayoutParams.setMargins(0,0,0,0)
+                    drawerFooterLayoutParams.setMargins(0,getPixelsFromDp(20),0,0)
                     drawerFooterLayout.layoutParams = drawerFooterLayoutParams
                 }
                 drawerLayout.layoutParams = drawerLayoutParams
@@ -328,6 +335,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             sendMessageTextView?.text = inputTextMessageEditTextView.text
             sendMessageTextView?.textSize = 14f
             fullScreenBodyLayout.addView(sendMessageTextView)
+            messagesScrollView.post {
+                messagesScrollView.fullScroll(View.FOCUS_DOWN)
+            }
             inputTextMessageEditTextView.setText("")
             hideKeyboard()
             assistant.makeTextRequest(inputTextMessageEditTextView.toString(), null, "Text")
@@ -352,6 +362,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                             isUsingSpeech = false
                             if(!isDrawer)
                             {
+                                val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                                drawerFooterLayoutParams.setMargins(0,0,0,0)
+                                drawerFooterLayout.layoutParams = drawerFooterLayoutParams
                                 dashedLineImageView.visibility = View.INVISIBLE;
                             }
                             //spokenTextView.isVisible = false
@@ -378,7 +391,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     }
                 }
                 v?.performClick()
-
                 return v?.onTouchEvent(event) ?: true
             }
         })

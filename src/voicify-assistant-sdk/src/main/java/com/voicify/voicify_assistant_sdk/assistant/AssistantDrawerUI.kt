@@ -323,6 +323,12 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             }
         }
 
+        assistantSettingProps?.effects?.forEach { effect ->
+            assistant.onEffect(effect) { data ->
+                assistantSettingProps?.onEffect?.invoke(effect, data)
+            }
+        }
+
         sendMessageImageView.setOnClickListener{
             sendMessageTextView = TextView(context)
             sendMessageTextView?.id = View.generateViewId()

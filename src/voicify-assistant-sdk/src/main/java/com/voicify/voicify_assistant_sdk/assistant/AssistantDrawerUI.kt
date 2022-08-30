@@ -2,6 +2,8 @@ package com.voicify.voicify_assistant_sdk.assistant
 
 import android.annotation.SuppressLint
 import android.app.ActionBar
+import android.app.Activity
+import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Color
 import android.graphics.Paint
@@ -14,6 +16,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.view.View.OnTouchListener
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -56,6 +59,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private var assistantSettingProps: AssistantSettingsProps? = null
     private var assistantIsListening: Boolean = false
     private var isUsingSpeech: Boolean = false
+    private var isDrawer: Boolean = true
     private var voicifySTT: VoicifySTTProvider? = null
     private var voicifyTTS: VoicifyTTSProvider? = null
     private var sendMessageTextView: TextView? = null
@@ -85,6 +89,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         //Layouts
         val drawerLayout = window.findViewById<LinearLayout>(R.id.drawerLayout)
         val fullScreenBodyLayout = window.findViewById<RelativeLayout>(R.id.bodyLayout)
+        val sendTextLayout = window.findViewById<LinearLayout>(R.id.sendTextLayout)
 
         drawerLayout.setBackgroundColor(Color.parseColor(toolBarProps?.backgroundColor));
 
@@ -93,6 +98,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val closeAssistantImageView = window.findViewById<ImageView>(R.id.closeAssistantImageView)
         val sendMessageImageView = window.findViewById<ImageView>(R.id.sendMessageButtonImageView)
         val assistantAvatarImageView = window.findViewById<ImageView>(R.id.assistantAvatarImageView)
+        val dashedLineImageView = window.findViewById<ImageView>(R.id.dashedLineImageView)
 
         loadImageFromUrl(if(assistantSettingProps?.initializeWithText == false) "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/daca643f-6730-4af5-8817-8d9d0d9db0b5/mic-image.png"
         else "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/3f10b6d7-eb71-4427-adbc-aadacbe8940e/mic-image-1-.png", micImageView)
@@ -113,6 +119,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         //Space Views
         val bodySpaceView = window.findViewById<Space>(R.id.bodySpace)
 
+        //set Text View Styles
         typeTextView.setTextColor(if(assistantSettingProps?.initializeWithText == false) Color.parseColor("#8F97A1") else Color.parseColor("#3E77A5"))
         drawerWelcomeTextView.text = "How can i help?"
         drawerWelcomeTextView.setTextColor(Color.parseColor("#8F97A1"))
@@ -231,12 +238,17 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             if(!response.endSession)
             {
                 activity?.runOnUiThread{
+                    bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
+                    if(!isUsingSpeech)
+                    {
+                        dashedLineImageView.visibility = View.INVISIBLE;
+                    }
+                    isDrawer = false
                     micImageView.setBackgroundColor(Color.TRANSPARENT)
                     val metrics = activity?.resources?.displayMetrics
                     var params = drawerLayout.layoutParams
                     params.height = metrics?.heightPixels as Int
                     drawerLayout.layoutParams = params
-                    bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
                     assistantStateTextView.text = ""
                     drawerWelcomeTextView.text = ""
                     spokenTextView.text = ""
@@ -244,7 +256,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     assistantNameTextView.visibility = View.VISIBLE
                     fullScreenBodyLayout.visibility = View.VISIBLE
                     bodySpaceView.visibility = View.GONE
-                    
+
                     receiveMessageTextView = TextView(context)
                     receiveMessageTextView?.id = View.generateViewId()
                     val receiveMessageTextViewParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
@@ -269,9 +281,14 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             if(!isUsingSpeech)
             {
                 isUsingSpeech = true
+                dashedLineImageView.visibility = View.VISIBLE;
+                hideKeyboard()
                 val drawerLayoutParams = drawerLayout.layoutParams
-                inputTextMessageEditTextView.setBackgroundColor(Color.TRANSPARENT)
-                drawerLayoutParams.height = getPixelsFromDp(350)
+                //inputTextMessageEditTextView.setBackgroundColor(Color.TRANSPARENT)
+                if(isDrawer)
+                {
+                    drawerLayoutParams.height = getPixelsFromDp(350)
+                }
                 drawerLayout.layoutParams = drawerLayoutParams
                 spokenTextView.visibility = View.VISIBLE
                 assistantStateTextView.visibility = View.VISIBLE
@@ -289,7 +306,28 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 cancelSpeech()
                 assistantStateTextView.text = "I didn't catch that..."
             }
+        }
 
+        sendMessageImageView.setOnClickListener{
+            sendMessageTextView = TextView(context)
+            sendMessageTextView?.id = View.generateViewId()
+            val sendMessageTextViewParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
+            sendMessageTextViewParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            if(receiveMessageTextView != null)
+            {
+                sendMessageTextViewParams.addRule(RelativeLayout.BELOW, receiveMessageTextView?.id!!)
+            }
+            sendMessageTextViewParams.setMargins(0,getPixelsFromDp(12),0,0)
+            sendMessageTextView?.setTextColor(Color.WHITE)
+            sendMessageTextView?.layoutParams = sendMessageTextViewParams
+            sendMessageTextView?.setPadding(10,10,10,10)
+            sendMessageTextView?.setBackgroundColor(Color.parseColor("#80000000"))
+            sendMessageTextView?.text = inputTextMessageEditTextView.text
+            sendMessageTextView?.textSize = 14f
+            fullScreenBodyLayout.addView(sendMessageTextView)
+            inputTextMessageEditTextView.setText("")
+            hideKeyboard()
+            assistant.makeTextRequest(inputTextMessageEditTextView.toString(), null, "Text")
         }
 
         inputTextMessageEditTextView.setOnTouchListener(object : OnTouchListener {
@@ -307,14 +345,22 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                             spokenTextView.text = ""
                         }
                         if (isUsingSpeech) {
-                            inputTextMessageEditTextView.setBackgroundColor(Color.parseColor("#1f1e7eb9"))
+                            //inputTextMessageEditTextView.setBackgroundColor(Color.parseColor("#1f1e7eb9"))
+                            sendTextLayout.setBackgroundColor(Color.parseColor("#1f1e7eb9"))
                             isUsingSpeech = false
+                            if(!isDrawer)
+                            {
+                                dashedLineImageView.visibility = View.INVISIBLE;
+                            }
                             //spokenTextView.isVisible = false
                             spokenTextView.visibility = View.GONE
                             //assistantStateTextView.isVisible = false;
                             assistantStateTextView.visibility = View.GONE
                             val drawerLayoutParams = drawerLayout.layoutParams
-                            drawerLayoutParams.height = getPixelsFromDp(200)
+                            if(isDrawer) {
+                                drawerLayoutParams.height = getPixelsFromDp(200)
+                            }
+
                             drawerLayout.layoutParams = drawerLayoutParams
                             speakTextView.setTextColor(Color.parseColor("#8F97A1"))
                             typeTextView.setTextColor(Color.parseColor("#3E77A5"))
@@ -335,13 +381,25 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             }
         })
 
-
         closeAssistantImageView.setOnClickListener{
             dismiss()
         }
 
         // Inflate the layout for this fragment
         return window
+    }
+
+    fun Fragment.hideKeyboard() {
+        view?.let { activity?.hideKeyboard(it) }
+    }
+
+    fun Activity.hideKeyboard() {
+        hideKeyboard(currentFocus ?: View(this))
+    }
+
+    fun Context.hideKeyboard(view: View) {
+        val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     private fun cancelSpeech() {

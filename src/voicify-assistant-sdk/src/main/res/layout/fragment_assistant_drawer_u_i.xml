@@ -167,8 +167,10 @@
                         android:id="@+id/sendTextLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:orientation="horizontal">
+                        android:layout_marginTop="4dp"
+                        android:orientation="horizontal"
+                        android:paddingTop="8dp"
+                        android:paddingHorizontal="8dp">
 
                         <EditText
                             android:id="@+id/inputTextMessage"

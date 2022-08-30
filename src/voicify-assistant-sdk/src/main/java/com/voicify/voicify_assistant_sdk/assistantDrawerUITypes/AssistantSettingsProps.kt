@@ -1,5 +1,6 @@
 package com.voicify.voicify_assistant_sdk.assistantDrawerUITypes
 
+import com.voicify.voicify_assistant_sdk.models.CustomAssistantResponse
 import java.io.Serializable
 
 data class AssistantSettingsProps(
@@ -13,4 +14,6 @@ data class AssistantSettingsProps(
     val initializeWithWelcomeMessage: Boolean,
     val useVoiceInput: Boolean,
     val useOutputSpeech: Boolean,
-    val initializeWithText: Boolean? = false) : Serializable
+    val initializeWithText: Boolean? = false,
+    val effects: Array<String>? = emptyArray(),
+    val onEffect: ((effect: String, data: Any) -> Unit)? = null): Serializable

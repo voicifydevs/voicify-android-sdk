@@ -37,7 +37,9 @@ class MainActivity : AppCompatActivity() {
                             initializeWithWelcomeMessage = false,
                             useVoiceInput = true,
                             useOutputSpeech = true,
-                            initializeWithText = false)
+                            initializeWithText = false,
+                            effects = arrayOf("Play"),
+                            )
                     )
                     voiceAssistant.show(supportFragmentManager, "assistantDrawerUI")
                     //modalBottomSheet.dismiss()

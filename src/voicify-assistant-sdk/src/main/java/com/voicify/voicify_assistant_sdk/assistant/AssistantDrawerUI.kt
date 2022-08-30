@@ -238,9 +238,12 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             if(!response.endSession)
             {
                 activity?.runOnUiThread{
-                    val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                    drawerFooterLayoutParams.setMargins(0,0,0,0)
-                    drawerFooterLayout.layoutParams = drawerFooterLayoutParams
+                    if(!isUsingSpeech)
+                    {
+                        val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                        drawerFooterLayoutParams.setMargins(0,0,0,0)
+                        drawerFooterLayout.layoutParams = drawerFooterLayoutParams
+                    }
                     bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
                     if(!isUsingSpeech)
                     {
@@ -309,6 +312,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             }
             if(!assistantIsListening)
             {
+                voicifyTTS?.stop()
                 voicifySTT?.startListening()
             }
             else

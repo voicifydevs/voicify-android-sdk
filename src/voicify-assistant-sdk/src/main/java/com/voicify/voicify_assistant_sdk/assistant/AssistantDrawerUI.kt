@@ -90,6 +90,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val drawerLayout = window.findViewById<LinearLayout>(R.id.drawerLayout)
         val fullScreenBodyLayout = window.findViewById<RelativeLayout>(R.id.bodyLayout)
         val sendTextLayout = window.findViewById<LinearLayout>(R.id.sendTextLayout)
+        val drawerFooterLayout = window.findViewById<LinearLayout>(R.id.drawerFooterLayout)
 
         drawerLayout.setBackgroundColor(Color.parseColor(toolBarProps?.backgroundColor));
 
@@ -141,6 +142,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         micImageViewStyle.setColor(Color.parseColor("#1f1e7eb9"))
         micImageViewStyle.cornerRadius = 100f
 
+        val sendTextLayoutStyle = GradientDrawable()
+        sendTextLayoutStyle.setColor(Color.parseColor("#1f1e7eb9"))
+        sendTextLayoutStyle.cornerRadius = 24f
+
         val fullScreenBodyLayoutStyle = GradientDrawable()
         fullScreenBodyLayoutStyle.setStroke(4, Color.parseColor("#CBCCD2"))
         fullScreenBodyLayoutStyle.setColor(Color.parseColor("#F4F4F6"))
@@ -184,12 +189,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         voicifySTT?.addFinalResultListener { fullResult ->
             assistantIsListening = false
             spokenTextView.text = fullResult
-
-//            val sendMessageSpace = Space(context)
-//            val sendMessageSpaceLayoutParams= LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
-//            sendMessageSpaceLayoutParams.weight = 1f
-//            sendMessageSpace.layoutParams = sendMessageSpaceLayoutParams
-//            fullScreenBodyLayout.addView(sendMessageSpace)
             sendMessageTextView = TextView(context)
             sendMessageTextView?.id = View.generateViewId()
             val sendMessageTextViewParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
@@ -235,6 +234,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             if(!response.endSession)
             {
                 activity?.runOnUiThread{
+                    val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                    drawerFooterLayoutParams.setMargins(0,0,0,0)
+                    drawerFooterLayout.layoutParams = drawerFooterLayoutParams
                     bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
                     if(!isUsingSpeech)
                     {
@@ -274,7 +276,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
         //Views
         micImageView.setOnClickListener{
-
             if(!isUsingSpeech)
             {
                 isUsingSpeech = true
@@ -282,10 +283,14 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 dashedLineImageView.visibility = View.VISIBLE;
                 hideKeyboard()
                 val drawerLayoutParams = drawerLayout.layoutParams
-                //inputTextMessageEditTextView.setBackgroundColor(Color.TRANSPARENT)
                 if(isDrawer)
                 {
                     drawerLayoutParams.height = getPixelsFromDp(350)
+                }
+                else{
+                    val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                    drawerFooterLayoutParams.setMargins(0,0,0,0)
+                    drawerFooterLayout.layoutParams = drawerFooterLayoutParams
                 }
                 drawerLayout.layoutParams = drawerLayoutParams
                 spokenTextView.visibility = View.VISIBLE
@@ -343,7 +348,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                             spokenTextView.text = ""
                         }
                         if (isUsingSpeech) {
-                            sendTextLayout.setBackgroundColor(Color.parseColor("#1f1e7eb9"))
+                            sendTextLayout.background = sendTextLayoutStyle
                             isUsingSpeech = false
                             if(!isDrawer)
                             {

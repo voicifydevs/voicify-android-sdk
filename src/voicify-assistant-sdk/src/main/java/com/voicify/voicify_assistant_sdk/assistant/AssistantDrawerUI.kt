@@ -330,29 +330,32 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
 
         sendMessageImageView.setOnClickListener{
-            sendMessageTextView = TextView(context)
-            sendMessageTextView?.id = View.generateViewId()
-            val sendMessageTextViewParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
-            sendMessageTextViewParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            if(receiveMessageTextView != null)
+            if(inputTextMessageEditTextView.text.toString().isNotEmpty())
             {
-                sendMessageTextViewParams.addRule(RelativeLayout.BELOW, receiveMessageTextView?.id!!)
+                sendMessageTextView = TextView(context)
+                sendMessageTextView?.id = View.generateViewId()
+                val sendMessageTextViewParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
+                sendMessageTextViewParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+                if(receiveMessageTextView != null)
+                {
+                    sendMessageTextViewParams.addRule(RelativeLayout.BELOW, receiveMessageTextView?.id!!)
+                }
+                sendMessageTextViewParams.setMargins(0,getPixelsFromDp(12),0,0)
+                sendMessageTextView?.setTextColor(Color.WHITE)
+                sendMessageTextView?.layoutParams = sendMessageTextViewParams
+                sendMessageTextView?.setPadding(10,10,10,10)
+                sendMessageTextView?.setBackgroundColor(Color.parseColor("#80000000"))
+                sendMessageTextView?.text = inputTextMessageEditTextView.text
+                sendMessageTextView?.textSize = 14f
+                fullScreenBodyLayout.addView(sendMessageTextView)
+                messagesScrollView.post {
+                    messagesScrollView.fullScroll(View.FOCUS_DOWN)
+                }
+                val inputText = inputTextMessageEditTextView.text.toString()
+                inputTextMessageEditTextView.setText("")
+                hideKeyboard()
+                assistant.makeTextRequest(inputText,null, "Text")
             }
-            sendMessageTextViewParams.setMargins(0,getPixelsFromDp(12),0,0)
-            sendMessageTextView?.setTextColor(Color.WHITE)
-            sendMessageTextView?.layoutParams = sendMessageTextViewParams
-            sendMessageTextView?.setPadding(10,10,10,10)
-            sendMessageTextView?.setBackgroundColor(Color.parseColor("#80000000"))
-            sendMessageTextView?.text = inputTextMessageEditTextView.text
-            sendMessageTextView?.textSize = 14f
-            fullScreenBodyLayout.addView(sendMessageTextView)
-            messagesScrollView.post {
-                messagesScrollView.fullScroll(View.FOCUS_DOWN)
-            }
-            val inputText = inputTextMessageEditTextView.text.toString()
-            inputTextMessageEditTextView.setText("")
-            hideKeyboard()
-            assistant.makeTextRequest(inputText,null, "Text")
         }
 
         inputTextMessageEditTextView.setOnTouchListener(object : OnTouchListener {

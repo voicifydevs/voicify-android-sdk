@@ -26,31 +26,31 @@ class MainActivity : AppCompatActivity() {
         }
         binding.assistantMic.setOnClickListener {
             if (savedInstanceState == null) {
-                    val voiceAssistant = AssistantDrawerUI.newInstance(
-                        HeaderProps(
-                        backgroundColor = "#ffffff",
-                        assistantName = "Voicify",
-                        assistantNameFontSize = 18),
-                        BodyProps(backgroundColor = "#ffffff"),
-                        ToolBarProps(backgroundColor = "#ffffff"),
-                        AssistantSettingsProps(
-                            appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
-                            appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
-                            serverRootUrl = "https://assistant.voicify.com",
-                            locale = "en-US",
-                            channel = "My App",
-                            device = "My Device",
-                            autoRunConversation = true,
-                            initializeWithWelcomeMessage = false,
-                            useVoiceInput = true,
-                            useOutputSpeech = true,
-                            initializeWithText = false,
-                            effects = arrayOf("Play"),
-                            onEffect = onEffect
-                            )
-                    )
-                    voiceAssistant.show(supportFragmentManager, "assistantDrawerUI")
-                    //modalBottomSheet.dismiss()
+                val voiceAssistant = AssistantDrawerUI.newInstance(
+                    HeaderProps(
+                    backgroundColor = "#ffffff",
+                    assistantName = "Voicify",
+                    assistantNameFontSize = 18),
+                    BodyProps(backgroundColor = "#ffffff"),
+                    ToolBarProps(backgroundColor = "#ffffff"),
+                    AssistantSettingsProps(
+                        appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
+                        appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
+                        serverRootUrl = "https://assistant.voicify.com",
+                        locale = "en-US",
+                        channel = "My App",
+                        device = "My Device",
+                        autoRunConversation = true,
+                        initializeWithWelcomeMessage = false,
+                        useVoiceInput = true,
+                        useOutputSpeech = true,
+                        initializeWithText = false,
+                        effects = arrayOf("Play"),
+                        onEffect = onEffect
+                        )
+                )
+                voiceAssistant.show(supportFragmentManager, "assistantDrawerUI")
+                //modalBottomSheet.dismiss()
             }
         }
     }

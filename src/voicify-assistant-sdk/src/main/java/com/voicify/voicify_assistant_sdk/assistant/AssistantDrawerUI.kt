@@ -1,16 +1,11 @@
 package com.voicify.voicify_assistant_sdk.assistant
 
 import android.annotation.SuppressLint
-import android.app.ActionBar
 import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.ShapeDrawable
-import android.graphics.drawable.shapes.RectShape
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -19,18 +14,15 @@ import android.view.View.OnTouchListener
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.annotation.RequiresApi
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.Guideline
-import androidx.core.view.marginTop
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.squareup.picasso.Picasso
 import com.voicify.voicify_assistant_sdk.R
-import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.AssistantSettingsProps
-import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.BodyProps
-import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.HeaderProps
-import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.ToolBarProps
+import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.*
+import com.voicify.voicify_assistant_sdk.components.MessagesRecyclerViewAdapter
 import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.*
 import java.util.*
 
@@ -62,8 +54,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private var isDrawer: Boolean = true
     private var voicifySTT: VoicifySTTProvider? = null
     private var voicifyTTS: VoicifyTTSProvider? = null
-    private var sendMessageTextView: TextView? = null
-    private var receiveMessageTextView: TextView? = null
     private var scale: Float = 0f
     //private var assistantState: AssistantState = AssistantState.Start
     private var bottomSheetBehavior : BottomSheetBehavior<View>? = null
@@ -88,12 +78,16 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         scale = requireContext().resources.displayMetrics.density
         //Layouts
         val drawerLayout = window.findViewById<LinearLayout>(R.id.drawerLayout)
-        val fullScreenBodyLayout = window.findViewById<RelativeLayout>(R.id.bodyLayout)
-        val fullScreenBodyContainerLayout = window.findViewById<RelativeLayout>(R.id.bodyLayoutContainer)
         val sendTextLayout = window.findViewById<LinearLayout>(R.id.sendTextLayout)
         val drawerFooterLayout = window.findViewById<LinearLayout>(R.id.drawerFooterLayout)
 
-        val messagesScrollView = window.findViewById<ScrollView>(R.id.bodyLayoutScrollView)
+        val messagesRecyclerView = window.findViewById<RecyclerView>(R.id.messagesRecyclerView)
+
+        val messagesList = ArrayList<Message>()
+        val messagesRecyclerViewAdapter = MessagesRecyclerViewAdapter(messagesList)
+        val layoutManager = LinearLayoutManager(context)
+        messagesRecyclerView.layoutManager = layoutManager
+        messagesRecyclerView.adapter = messagesRecyclerViewAdapter
         drawerLayout.setBackgroundColor(Color.parseColor(toolBarProps?.backgroundColor));
 
         //Image Views
@@ -151,7 +145,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val fullScreenBodyLayoutStyle = GradientDrawable()
         fullScreenBodyLayoutStyle.setStroke(4, Color.parseColor("#CBCCD2"))
         fullScreenBodyLayoutStyle.setColor(Color.parseColor("#F4F4F6"))
-        fullScreenBodyContainerLayout.background = fullScreenBodyLayoutStyle
+        messagesRecyclerView.background = fullScreenBodyLayoutStyle
 
         val inputTextMessageEditTextViewStyle = GradientDrawable()
         inputTextMessageEditTextViewStyle.setColor(Color.parseColor("#1f1e7eb9"))
@@ -191,25 +185,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         voicifySTT?.addFinalResultListener { fullResult ->
             assistantIsListening = false
             spokenTextView.text = fullResult
-            sendMessageTextView = TextView(context)
-            sendMessageTextView?.id = View.generateViewId()
-            val sendMessageTextViewParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
-            sendMessageTextViewParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            if(receiveMessageTextView != null)
-            {
-                sendMessageTextViewParams.addRule(RelativeLayout.BELOW, receiveMessageTextView?.id!!)
-            }
-            sendMessageTextViewParams.setMargins(0,getPixelsFromDp(12),0,0)
-            sendMessageTextView?.setTextColor(Color.WHITE)
-            sendMessageTextView?.layoutParams = sendMessageTextViewParams
-            sendMessageTextView?.setPadding(10,10,10,10)
-            sendMessageTextView?.setBackgroundColor(Color.parseColor("#80000000"))
-            sendMessageTextView?.text = fullResult
-            sendMessageTextView?.textSize = 14f
-            fullScreenBodyLayout.addView(sendMessageTextView)
-            messagesScrollView.post {
-                messagesScrollView.fullScroll(View.FOCUS_DOWN)
-            }
+            messagesList.add(Message(fullResult as String, "Sent"))
+            messagesRecyclerViewAdapter.notifyItemInserted(messagesRecyclerViewAdapter.itemCount)
             assistantStateTextView.text = "Processing..."
             assistant.makeTextRequest(fullResult.toString(), null, "Speech")
         }
@@ -249,6 +226,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     {
                         dashedLineImageView.visibility = View.INVISIBLE;
                     }
+                    Log.d("JAMES", response.toString())
                     isDrawer = false
                     micImageView.setBackgroundColor(Color.TRANSPARENT)
                     val metrics = activity?.resources?.displayMetrics
@@ -260,27 +238,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     spokenTextView.text = ""
                     assistantAvatarImageView.visibility = View.VISIBLE
                     assistantNameTextView.visibility = View.VISIBLE
-                    fullScreenBodyContainerLayout.visibility = View.VISIBLE
+                    messagesRecyclerView.visibility = View.VISIBLE
                     bodySpaceView.visibility = View.GONE
 
-                    receiveMessageTextView = TextView(context)
-                    receiveMessageTextView?.id = View.generateViewId()
-                    val receiveMessageTextViewParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
-                    receiveMessageTextViewParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-                    receiveMessageTextViewParams.addRule(RelativeLayout.BELOW,
-                        sendMessageTextView?.id!!
-                    )
-                    receiveMessageTextViewParams.setMargins(0,getPixelsFromDp(12),0,0)
-                    receiveMessageTextView?.layoutParams = receiveMessageTextViewParams
-                    receiveMessageTextView?.setPadding(0,10,0,0)
-                    receiveMessageTextView?.setTextColor(Color.BLACK)
-                    receiveMessageTextView?.setBackgroundColor(Color.parseColor("#0d000000"))
-                    receiveMessageTextView?.text = response.displayText
-                    receiveMessageTextView?.textSize = 14f
-                    fullScreenBodyLayout.addView(receiveMessageTextView)
-                    messagesScrollView.post {
-                        messagesScrollView.fullScroll(View.FOCUS_DOWN)
-                    }
+                    messagesList.add(Message(response.displayText?.trim() as String, "Received"))
+                    messagesRecyclerViewAdapter.notifyItemInserted(messagesRecyclerViewAdapter.itemCount)
                 }
             }
         }
@@ -332,25 +294,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         sendMessageImageView.setOnClickListener{
             if(inputTextMessageEditTextView.text.toString().isNotEmpty())
             {
-                sendMessageTextView = TextView(context)
-                sendMessageTextView?.id = View.generateViewId()
-                val sendMessageTextViewParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
-                sendMessageTextViewParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                if(receiveMessageTextView != null)
-                {
-                    sendMessageTextViewParams.addRule(RelativeLayout.BELOW, receiveMessageTextView?.id!!)
-                }
-                sendMessageTextViewParams.setMargins(0,getPixelsFromDp(12),0,0)
-                sendMessageTextView?.setTextColor(Color.WHITE)
-                sendMessageTextView?.layoutParams = sendMessageTextViewParams
-                sendMessageTextView?.setPadding(10,10,10,10)
-                sendMessageTextView?.setBackgroundColor(Color.parseColor("#80000000"))
-                sendMessageTextView?.text = inputTextMessageEditTextView.text
-                sendMessageTextView?.textSize = 14f
-                fullScreenBodyLayout.addView(sendMessageTextView)
-                messagesScrollView.post {
-                    messagesScrollView.fullScroll(View.FOCUS_DOWN)
-                }
+                messagesList.add(Message(inputTextMessageEditTextView.text.toString(), "Sent"))
+                messagesRecyclerViewAdapter.notifyItemInserted(messagesRecyclerViewAdapter.itemCount)
+                messagesRecyclerViewAdapter.notifyItemInserted(messagesRecyclerViewAdapter.itemCount)
                 val inputText = inputTextMessageEditTextView.text.toString()
                 inputTextMessageEditTextView.setText("")
                 hideKeyboard()

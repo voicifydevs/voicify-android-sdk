@@ -69,28 +69,38 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
-        <RelativeLayout
-            android:id="@+id/bodyLayoutContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone"
-            android:layout_weight="1">
-            <ScrollView
-                android:id="@+id/bodyLayoutScrollView"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/messagesRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:fillViewport="true">
-                <RelativeLayout
-                    android:id="@+id/bodyLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingHorizontal="12dp"
-                    android:paddingBottom="8dp">
-                </RelativeLayout>
-            </ScrollView>
-        </RelativeLayout>
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingHorizontal="4dp"
+                android:visibility="gone"
+                android:orientation="vertical">
+
+            </androidx.recyclerview.widget.RecyclerView>
+<!--        <RelativeLayout-->
+<!--            android:id="@+id/bodyLayoutContainer"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="vertical"-->
+<!--            android:visibility="gone"-->
+<!--            android:layout_weight="1">-->
+<!--            <ScrollView-->
+<!--                android:id="@+id/bodyLayoutScrollView"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:fillViewport="true">-->
+<!--                <RelativeLayout-->
+<!--                    android:id="@+id/bodyLayout"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="vertical"-->
+<!--                    android:paddingHorizontal="12dp"-->
+<!--                    android:paddingBottom="8dp">-->
+<!--                </RelativeLayout>-->
+<!--            </ScrollView>-->
+<!--        </RelativeLayout>-->
 
         <LinearLayout
             android:id="@+id/toolbarLayout"

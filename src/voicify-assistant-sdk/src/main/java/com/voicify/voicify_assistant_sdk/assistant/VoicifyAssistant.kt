@@ -160,12 +160,15 @@ class VoicifyAssistant(
                                 //it was throwing an exception. Only work around i could think to do was to serialize just the effects
                                 //and then use gson to deserialize again
                                 val effectsString = gson.toJson(sessionDataResponse.sessionAttributes?.get("effects"))
-                                val effects: Array<VoicifySessionEffect> =
-                                    gson.fromJson(effectsString, Array<VoicifySessionEffect>::class.java)
+                                var effects: Array<VoicifySessionEffect>? = null
+                                if (effectsString.isNotEmpty())
+                                {
+                                    effects =  gson.fromJson(effectsString, Array<VoicifySessionEffect>::class.java)
+                                }
                                 currentSessionInfo = sessionDataResponse
                                 Log.d("JAMES", currentSessionInfo.toString())
-                                Log.d("JAMES", effects[0].effectName.toString())
-                                effects.filter {e -> e.requestId == request.requestId}.forEach { effect ->
+                                Log.d("JAMES", effects?.get(0)?.effectName.toString())
+                                effects?.filter {e -> e.requestId == request.requestId}?.forEach { effect ->
                                     effectHandlers?.filter { e -> e.effect == effect.effectName }?.forEach { handle -> handle.callback(effect.data) }
                                 }
                             }

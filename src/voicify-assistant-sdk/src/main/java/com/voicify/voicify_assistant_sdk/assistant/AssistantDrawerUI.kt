@@ -1,5 +1,7 @@
 package com.voicify.voicify_assistant_sdk.assistant
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -8,12 +10,16 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.*
 import android.view.View.OnTouchListener
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.annotation.RequiresApi
+import androidx.core.animation.doOnEnd
+import androidx.core.view.setMargins
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,6 +31,8 @@ import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.*
 import com.voicify.voicify_assistant_sdk.components.MessagesRecyclerViewAdapter
 import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.*
 import java.util.*
+import kotlin.concurrent.schedule
+import kotlin.math.roundToInt
 
 
 //https://medium.com/voice-tech-podcast/android-speech-to-text-tutorial-8f6fa71606ac -> speech recognition tutorial
@@ -55,6 +63,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private var voicifySTT: VoicifySTTProvider? = null
     private var voicifyTTS: VoicifyTTSProvider? = null
     private var scale: Float = 0f
+    private var canRun = true
+    private var isSpeaking = false;
+    private var speakingVolume = 0f
     //private var assistantState: AssistantState = AssistantState.Start
     private var bottomSheetBehavior : BottomSheetBehavior<View>? = null
 
@@ -80,6 +91,14 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val drawerLayout = window.findViewById<LinearLayout>(R.id.drawerLayout)
         val sendTextLayout = window.findViewById<LinearLayout>(R.id.sendTextLayout)
         val drawerFooterLayout = window.findViewById<LinearLayout>(R.id.drawerFooterLayout)
+        val speakingAnimationBar1 = window.findViewById<View>(R.id.speakingAnimationBar1)
+        val speakingAnimationBar2 = window.findViewById<View>(R.id.speakingAnimationBar2)
+        val speakingAnimationBar3 = window.findViewById<View>(R.id.speakingAnimationBar3)
+        val speakingAnimationBar4 = window.findViewById<View>(R.id.speakingAnimationBar4)
+        val speakingAnimationBar5 = window.findViewById<View>(R.id.speakingAnimationBar5)
+        val speakingAnimationBar6 = window.findViewById<View>(R.id.speakingAnimationBar6)
+        val speakingAnimationBar7 = window.findViewById<View>(R.id.speakingAnimationBar7)
+        val speakingAnimationBar8 = window.findViewById<View>(R.id.speakingAnimationBar8)
 
         val messagesRecyclerView = window.findViewById<RecyclerView>(R.id.messagesRecyclerView)
 
@@ -113,9 +132,15 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val inputTextMessageEditTextView = window.findViewById<EditText>(R.id.inputTextMessage)
         val assistantNameTextView = window.findViewById<TextView>(R.id.assistantNameTextView)
 
-        //Space Views
-        val bodySpaceView = window.findViewById<Space>(R.id.bodySpace)
-
+        //set View styles
+        speakingAnimationBar1.setBackgroundColor(Color.parseColor("#80000000"))
+        speakingAnimationBar2.setBackgroundColor(Color.parseColor("#80000000"))
+        speakingAnimationBar3.setBackgroundColor(Color.parseColor("#80000000"))
+        speakingAnimationBar4.setBackgroundColor(Color.parseColor("#80000000"))
+        speakingAnimationBar5.setBackgroundColor(Color.parseColor("#80000000"))
+        speakingAnimationBar6.setBackgroundColor(Color.parseColor("#80000000"))
+        speakingAnimationBar7.setBackgroundColor(Color.parseColor("#80000000"))
+        speakingAnimationBar8.setBackgroundColor(Color.parseColor("#80000000"))
         //set Text View Styles
         typeTextView.setTextColor(if(assistantSettingProps?.initializeWithText == false) Color.parseColor("#8F97A1") else Color.parseColor("#3E77A5"))
         drawerWelcomeTextView.text = "How can i help?"
@@ -183,12 +208,16 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             spokenTextView.text = partialResult
         }
         voicifySTT?.addFinalResultListener { fullResult ->
+            clearAnimationValues()
             assistantIsListening = false
             spokenTextView.text = fullResult
             messagesList.add(Message(fullResult as String, "Sent"))
             messagesRecyclerViewAdapter.notifyItemInserted(messagesRecyclerViewAdapter.itemCount)
             assistantStateTextView.text = "Processing..."
             assistant.makeTextRequest(fullResult.toString(), null, "Speech")
+        }
+        voicifySTT?.addEndListener {
+
         }
         voicifySTT?.addSpeechReadyListener {
             micImageView.background = micImageViewStyle
@@ -197,6 +226,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
         voicifySTT?.addErrorListener { error ->
             Log.d("JAMES", error)
+            clearAnimationValues()
             if (error == "7")
             {
                 assistantIsListening = false
@@ -204,12 +234,47 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 assistantStateTextView.text = "I didn't catch that..."
             }
         }
-        //        voicifySTT.addVolumeListener { volume ->
-//            if(assistantState != AssistantState.Speaking)
-//            {
-//                //assistantState = AssistantState.Speaking
-//            }
-//        }
+        voicifySTT?.addVolumeListener { volume ->
+            Log.d("JAMES", volume.toString())
+            val rnd1 = (1..(volume.roundToInt() * 2 + 1)).random().toFloat()
+            val rnd2 = (1..(volume.roundToInt() * 3 + 1)).random().toFloat()
+            val rnd3 = (1..(volume.roundToInt() * 5 + 1)).random().toFloat()
+            val rnd4 = (1..(volume.roundToInt() * 6 + 1)).random().toFloat()
+            val rnd5 = (1..(volume.roundToInt() * 6 + 1 )).random().toFloat()
+            val rnd6 = (1..(volume.roundToInt() * 5 + 1)).random().toFloat()
+            val rnd7 = (1..(volume.roundToInt() * 3 + 1)).random().toFloat()
+            val rnd8 = (1..(volume.roundToInt() * 2 + 1)).random().toFloat()
+            val duration = 100L
+            val bar1 = ObjectAnimator.ofFloat(speakingAnimationBar1, "scaleY", rnd1)
+            bar1.duration = duration
+            val bar2 = ObjectAnimator.ofFloat(speakingAnimationBar2, "scaleY", rnd2)
+            bar2.duration = duration
+            val bar3 = ObjectAnimator.ofFloat(speakingAnimationBar3, "scaleY", rnd3)
+            bar3.duration = duration
+            val bar4 = ObjectAnimator.ofFloat(speakingAnimationBar4, "scaleY", rnd4)
+            bar4.duration = duration
+            val bar5 = ObjectAnimator.ofFloat(speakingAnimationBar5, "scaleY", rnd5)
+            bar5.duration = duration
+            val bar6 = ObjectAnimator.ofFloat(speakingAnimationBar6, "scaleY", rnd6)
+            bar6.duration = duration
+            val bar7 = ObjectAnimator.ofFloat(speakingAnimationBar7, "scaleY", rnd7)
+            bar7.duration = duration
+            val bar8 = ObjectAnimator.ofFloat(speakingAnimationBar8, "scaleY", rnd8)
+            bar8.duration = duration
+            AnimatorSet().apply {
+                playTogether(bar1, bar2, bar3,bar4,bar5,bar6,bar7,bar8)
+                if(canRun)
+                {
+                    Log.d("JAMES", "STARTING")
+                    start()
+                    canRun = false
+                }
+               doOnEnd {
+                   Log.d("JAMES", "ENDING")
+                   canRun = true
+               }
+            }
+        }
         //Assistant
         assistant.onResponseReceived { response ->
             if(!response.endSession)
@@ -239,8 +304,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     assistantAvatarImageView.visibility = View.VISIBLE
                     assistantNameTextView.visibility = View.VISIBLE
                     messagesRecyclerView.visibility = View.VISIBLE
-                    bodySpaceView.visibility = View.GONE
-
                     messagesList.add(Message(response.displayText?.trim() as String, "Received"))
                     messagesRecyclerViewAdapter.notifyItemInserted(messagesRecyclerViewAdapter.itemCount)
                 }
@@ -402,6 +465,30 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val touchOutsideView =
             dialog!!.window!!.decorView.findViewById<View>(R.id.touch_outside)
         touchOutsideView.setOnClickListener(null) // dont allow modal to close when touched outside
+    }
+
+    private fun clearAnimationValues(){
+        val duration = 1L
+        val bar1 = ObjectAnimator.ofFloat(speakingAnimationBar1, "scaleY", 1f)
+        bar1.duration = duration
+        val bar2 = ObjectAnimator.ofFloat(speakingAnimationBar2, "scaleY", 1f)
+        bar2.duration = duration
+        val bar3 = ObjectAnimator.ofFloat(speakingAnimationBar3, "scaleY", 1f)
+        bar3.duration = duration
+        val bar4 = ObjectAnimator.ofFloat(speakingAnimationBar4, "scaleY", 1f)
+        bar4.duration = duration
+        val bar5 = ObjectAnimator.ofFloat(speakingAnimationBar5, "scaleY", 1f)
+        bar5.duration = duration
+        val bar6 = ObjectAnimator.ofFloat(speakingAnimationBar6, "scaleY", 1f)
+        bar6.duration = duration
+        val bar7 = ObjectAnimator.ofFloat(speakingAnimationBar7, "scaleY", 1f)
+        bar7.duration = duration
+        val bar8 = ObjectAnimator.ofFloat(speakingAnimationBar8, "scaleY", 1f)
+        bar8.duration = duration
+        AnimatorSet().apply {
+            playTogether(bar1, bar2, bar3,bar4,bar5,bar6,bar7,bar8)
+            start()
+        }
     }
 
     override fun onDismiss(dialog: DialogInterface) {

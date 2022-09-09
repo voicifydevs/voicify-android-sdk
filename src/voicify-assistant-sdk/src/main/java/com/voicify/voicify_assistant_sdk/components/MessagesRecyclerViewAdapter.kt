@@ -2,18 +2,13 @@ package com.voicify.voicify_assistant_sdk.components
 
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.ShapeDrawable
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.Space
-import android.widget.TextView
+import android.widget.*
 import androidx.annotation.NonNull
-import androidx.core.view.marginBottom
 import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.Message
 import com.voicify.voicify_assistant_sdk.R
 
@@ -24,6 +19,7 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
         var messageTextView: TextView = view.findViewById(R.id.messageTextView)
         var messagesContainerLinearLayout: LinearLayout = view.findViewById(R.id.messagesContainerLinearLayout)
         var messagesSpace: Space = view.findViewById(R.id.messagesSpace)
+        var messagesAvatar: ImageView = view.findViewById(R.id.messagesAssistantAvatarImageView)
     }
     @NonNull
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
@@ -36,8 +32,10 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
         val messageTextView = holder.messageTextView
         val messagesContainerLinearLayout = holder.messagesContainerLinearLayout
         val messagesSpace = holder.messagesSpace
+        val messagesAvatar = holder.messagesAvatar
         if(message.origin == "Sent")
         {
+            messagesAvatar.visibility = View.GONE
             val messagesTextViewStyle = GradientDrawable()
             messagesTextViewStyle.shape = GradientDrawable.RECTANGLE
             val cornerRadaii = floatArrayOf(18f,18f,0f,0f,18f,18f,18f,18f)
@@ -55,6 +53,8 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
         }
         else
         {
+            messagesAvatar.visibility = View.VISIBLE
+            Picasso.get().load("https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png").into(messagesAvatar)
             val messagesTextViewStyle = GradientDrawable()
             messagesTextViewStyle.shape = GradientDrawable.RECTANGLE
             val cornerRadaii = floatArrayOf(0f,0f,18f,18f,18f,18f,18f,18f)

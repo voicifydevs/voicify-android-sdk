@@ -61,11 +61,8 @@ class VoicifySTTProvider (private val context: Context, private val activity: Ac
             override fun onRmsChanged(rmsdB: Float) {
 
                 //bug on android where volume reports as negative
-                if(rmsdB >= 0)
-                {
-                    Log.d("JAMES", rmsdB.toString())
-                    speechVolumeHandlers?.forEach { handle -> handle(rmsdB) }
-                }
+                speechVolumeHandlers?.forEach { handle -> handle(if (rmsdB < 0 ) .1f else rmsdB )}
+
             }
 
             override fun onBufferReceived(buffer: ByteArray?) {

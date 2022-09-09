@@ -16,7 +16,7 @@
         android:background="@android:color/white"
         android:orientation="vertical"
         android:paddingTop="16dp"
-        android:paddingBottom="24dp"
+        android:paddingBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -29,7 +29,6 @@
             android:paddingRight="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="8dp"
             android:orientation="horizontal">
 
             <ImageView
@@ -64,44 +63,21 @@
                 android:layout_height="25dp" />
         </LinearLayout>
 
-        <Space
-            android:id="@+id/bodySpace"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/messagesRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingHorizontal="4dp"
-                android:visibility="gone"
-                android:orientation="vertical">
+<!--        <Space-->
+<!--            android:id="@+id/bodySpace"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="0dp"-->
+<!--            android:layout_weight="1" />-->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/messagesRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingHorizontal="4dp"
+            android:visibility="gone"
+            android:orientation="vertical">
 
-            </androidx.recyclerview.widget.RecyclerView>
-<!--        <RelativeLayout-->
-<!--            android:id="@+id/bodyLayoutContainer"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="vertical"-->
-<!--            android:visibility="gone"-->
-<!--            android:layout_weight="1">-->
-<!--            <ScrollView-->
-<!--                android:id="@+id/bodyLayoutScrollView"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:fillViewport="true">-->
-<!--                <RelativeLayout-->
-<!--                    android:id="@+id/bodyLayout"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:orientation="vertical"-->
-<!--                    android:paddingHorizontal="12dp"-->
-<!--                    android:paddingBottom="8dp">-->
-<!--                </RelativeLayout>-->
-<!--            </ScrollView>-->
-<!--        </RelativeLayout>-->
-
+        </androidx.recyclerview.widget.RecyclerView>
         <LinearLayout
             android:id="@+id/toolbarLayout"
             android:layout_width="match_parent"
@@ -115,6 +91,67 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/speakingAnimation"
+                    android:layout_width="match_parent"
+                    android:layout_marginVertical="10dp"
+                    android:layout_height="40dp"
+                    android:layout_marginRight="28dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal">
+                    <View
+                        android:id="@+id/speakingAnimationBar1"
+                        android:layout_width="4dp"
+                        android:layout_height="1dp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_gravity="bottom">
+                    </View>
+                    <View
+                        android:id="@+id/speakingAnimationBar2"
+                        android:layout_width="4dp"
+                        android:layout_height="1dp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_gravity="bottom">
+                    </View>
+
+                    <View
+                        android:id="@+id/speakingAnimationBar3"
+                        android:layout_width="4dp"
+                        android:layout_height="1dp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_gravity="bottom" />
+                    <View
+                        android:id="@+id/speakingAnimationBar4"
+                        android:layout_width="4dp"
+                        android:layout_height="1dp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_gravity="bottom" />
+                    <View
+                        android:id="@+id/speakingAnimationBar5"
+                        android:layout_width="4dp"
+                        android:layout_height="1dp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_gravity="bottom" />
+                    <View
+                        android:id="@+id/speakingAnimationBar6"
+                        android:layout_width="4dp"
+                        android:layout_height="1dp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_gravity="bottom" />
+                    <View
+                        android:id="@+id/speakingAnimationBar7"
+                        android:layout_width="4dp"
+                        android:layout_height="1dp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_gravity="bottom" />
+                    <View
+                        android:id="@+id/speakingAnimationBar8"
+                        android:layout_width="4dp"
+                        android:layout_height="1dp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_gravity="bottom" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/assistantStateTextView"

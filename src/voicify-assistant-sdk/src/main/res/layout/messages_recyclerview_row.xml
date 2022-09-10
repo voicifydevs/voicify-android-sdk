@@ -9,15 +9,20 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:visibility="gone"/>
-    <ImageView
-        android:id="@+id/messagesAssistantAvatarImageView"
-        android:layout_width="22dp"
-        android:layout_height="22dp"
-        android:visibility="gone"/>
+    <LinearLayout
+        android:id="@+id/assistantAvatarBackgroundLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <ImageView
+            android:id="@+id/messagesAssistantAvatarImageView"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:visibility="gone"/>
+        </LinearLayout>
     <TextView
         android:id="@+id/messageTextView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"/>
+        android:layout_height="wrap_content" />
 </LinearLayout>

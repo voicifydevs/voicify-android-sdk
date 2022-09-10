@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
                 val voiceAssistant = AssistantDrawerUI.newInstance(
                     HeaderProps(
                     backgroundColor = "#ffffff",
-                    assistantName = "Voicify",
+                    assistantName = "Voicify Assistant",
                     assistantNameFontSize = 18),
                     BodyProps(backgroundColor = "#ffffff"),
                     ToolBarProps(backgroundColor = "#ffffff"),

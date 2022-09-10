@@ -10,8 +10,6 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.*
 import android.view.View.OnTouchListener
@@ -19,7 +17,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.core.animation.doOnEnd
-import androidx.core.view.setMargins
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -31,7 +28,6 @@ import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.*
 import com.voicify.voicify_assistant_sdk.components.MessagesRecyclerViewAdapter
 import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.*
 import java.util.*
-import kotlin.concurrent.schedule
 import kotlin.math.roundToInt
 
 
@@ -64,6 +60,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private var voicifyTTS: VoicifyTTSProvider? = null
     private var scale: Float = 0f
     private var canRun = true
+    private var animation: AnimatorSet? = null
     private var isSpeaking = false;
     private var speakingVolume = 0f
     //private var assistantState: AssistantState = AssistantState.Start
@@ -90,6 +87,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         //Layouts
         val drawerLayout = window.findViewById<LinearLayout>(R.id.drawerLayout)
         val sendTextLayout = window.findViewById<LinearLayout>(R.id.sendTextLayout)
+        val speakingAnimationLayout = window.findViewById<LinearLayout>(R.id.speakingAnimation)
+        val assistantAvatarBackground = window.findViewById<LinearLayout>(R.id.assistantAvatarBackgroundLayout)
         val drawerFooterLayout = window.findViewById<LinearLayout>(R.id.drawerFooterLayout)
         val speakingAnimationBar1 = window.findViewById<View>(R.id.speakingAnimationBar1)
         val speakingAnimationBar2 = window.findViewById<View>(R.id.speakingAnimationBar2)
@@ -152,8 +151,16 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         isUsingSpeech = assistantSettingProps?.initializeWithText == false
         assistantNameTextView.text = headerProps?.assistantName ?: ""
         assistantNameTextView.textSize = headerProps?.assistantNameFontSize?.toFloat() ?: 18f
+        assistantNameTextView.setTextColor(Color.parseColor("#000000"))
 
         //Create Styles
+        val avatarBackgroundStyle = GradientDrawable()
+        avatarBackgroundStyle.cornerRadius = 48f
+        avatarBackgroundStyle.setStroke(4, Color.parseColor("#CBCCD2"))
+        avatarBackgroundStyle.setColor(Color.parseColor("#ffffff"))
+        assistantAvatarBackground.background = avatarBackgroundStyle
+        assistantAvatarBackground.setPadding(12,12,12,12)
+
         val spokenTextViewStyle = GradientDrawable()
         spokenTextViewStyle.cornerRadius = 24f
         spokenTextViewStyle.setColor(Color.parseColor("#80000000"))
@@ -261,7 +268,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             bar7.duration = duration
             val bar8 = ObjectAnimator.ofFloat(speakingAnimationBar8, "scaleY", rnd8)
             bar8.duration = duration
-            AnimatorSet().apply {
+            animation = AnimatorSet().apply {
                 playTogether(bar1, bar2, bar3,bar4,bar5,bar6,bar7,bar8)
                 if(canRun)
                 {
@@ -286,6 +293,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                         drawerFooterLayoutParams.setMargins(0,0,0,0)
                         drawerFooterLayout.layoutParams = drawerFooterLayoutParams
                     }
+                    assistantAvatarBackground.visibility = View.VISIBLE
                     bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
                     if(!isUsingSpeech)
                     {
@@ -312,16 +320,18 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         //Views
         micImageView.setOnClickListener{
+            clearAnimationValues()
             if(!isUsingSpeech)
             {
                 isUsingSpeech = true
+                speakingAnimationLayout.visibility = View.VISIBLE
                 sendTextLayout.setBackgroundColor(Color.TRANSPARENT)
                 dashedLineImageView.visibility = View.VISIBLE;
                 hideKeyboard()
                 val drawerLayoutParams = drawerLayout.layoutParams
                 if(isDrawer)
                 {
-                    drawerLayoutParams.height = getPixelsFromDp(350)
+                    drawerLayoutParams.height = getPixelsFromDp(305)
                 }
                 else{
                     val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
@@ -382,6 +392,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                             spokenTextView.text = ""
                         }
                         if (isUsingSpeech) {
+                            speakingAnimationLayout.visibility = View.GONE
                             sendTextLayout.background = sendTextLayoutStyle
                             isUsingSpeech = false
                             if(!isDrawer)
@@ -397,7 +408,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                             assistantStateTextView.visibility = View.GONE
                             val drawerLayoutParams = drawerLayout.layoutParams
                             if(isDrawer) {
-                                drawerLayoutParams.height = getPixelsFromDp(200)
+                                drawerLayoutParams.height = getPixelsFromDp(180)
                             }
 
                             drawerLayout.layoutParams = drawerLayoutParams
@@ -468,7 +479,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     }
 
     private fun clearAnimationValues(){
-        val duration = 1L
+        animation?.end()
+        val duration = 20L
         val bar1 = ObjectAnimator.ofFloat(speakingAnimationBar1, "scaleY", 1f)
         bar1.duration = duration
         val bar2 = ObjectAnimator.ofFloat(speakingAnimationBar2, "scaleY", 1f)

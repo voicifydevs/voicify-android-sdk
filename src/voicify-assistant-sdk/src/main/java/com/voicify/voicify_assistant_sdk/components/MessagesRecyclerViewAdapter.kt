@@ -20,6 +20,7 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
         var messagesContainerLinearLayout: LinearLayout = view.findViewById(R.id.messagesContainerLinearLayout)
         var messagesSpace: Space = view.findViewById(R.id.messagesSpace)
         var messagesAvatar: ImageView = view.findViewById(R.id.messagesAssistantAvatarImageView)
+        val assistantAvatarBackgroundLayout = view.findViewById<LinearLayout>(R.id.assistantAvatarBackgroundLayout)
     }
     @NonNull
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
@@ -33,8 +34,10 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
         val messagesContainerLinearLayout = holder.messagesContainerLinearLayout
         val messagesSpace = holder.messagesSpace
         val messagesAvatar = holder.messagesAvatar
+        val avatarBackground = holder.assistantAvatarBackgroundLayout
         if(message.origin == "Sent")
         {
+            avatarBackground.visibility = View.GONE
             messagesAvatar.visibility = View.GONE
             val messagesTextViewStyle = GradientDrawable()
             messagesTextViewStyle.shape = GradientDrawable.RECTANGLE
@@ -44,29 +47,40 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             messageTextView.background = messagesTextViewStyle
             messagesSpace.visibility = View.VISIBLE
             val messagesContainerLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            messagesContainerLayoutParams.setMargins(0, 24, 0 , 0)
+            messagesContainerLayoutParams.setMargins(0, 60, 0 , 0)
             messagesContainerLayoutParams.marginStart = 150
             messagesContainerLinearLayout.layoutParams = messagesContainerLayoutParams
-            messageTextView.setPadding(10,10,10,10)
+            messageTextView.setPadding(20,20,20,20)
             messageTextView.setTextColor(Color.WHITE)
             messageTextView.textSize = 14f
         }
         else
         {
+            val avatarBackgroundStyle = GradientDrawable()
+            avatarBackgroundStyle.cornerRadius = 38f
+            avatarBackgroundStyle.setStroke(4, Color.parseColor("#CBCCD2"))
+            avatarBackgroundStyle.setColor(Color.parseColor("#ffffff"))
+            avatarBackground.background = avatarBackgroundStyle
+            avatarBackground.setPadding(12,12,12,12)
+            avatarBackground.visibility = View.VISIBLE
             messagesAvatar.visibility = View.VISIBLE
             Picasso.get().load("https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png").into(messagesAvatar)
             val messagesTextViewStyle = GradientDrawable()
             messagesTextViewStyle.shape = GradientDrawable.RECTANGLE
+            messagesTextViewStyle.setStroke(4, Color.parseColor("#CBCCD2"))
             val cornerRadaii = floatArrayOf(0f,0f,18f,18f,18f,18f,18f,18f)
             messagesTextViewStyle.cornerRadii = cornerRadaii
             messagesTextViewStyle.setColor(Color.parseColor("#0d000000"))
             messageTextView.background = messagesTextViewStyle
             val messagesContainerLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            messagesContainerLayoutParams.setMargins(0, 24, 0 , 0)
+            messagesContainerLayoutParams.setMargins(0, 60, 0 , 0)
             messagesContainerLayoutParams.marginEnd = 150
             messagesSpace.visibility = View.GONE
             messagesContainerLinearLayout.layoutParams = messagesContainerLayoutParams
-            messageTextView.setPadding(10,10,10,10)
+            val messagesTextViewLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            messagesTextViewLayoutParams.setMargins(20,40,0,0)
+            messageTextView.layoutParams = messagesTextViewLayoutParams
+            messageTextView.setPadding(20,20,20,20)
             messageTextView.setTextColor(Color.BLACK)
             messageTextView.textSize = 14f
         }

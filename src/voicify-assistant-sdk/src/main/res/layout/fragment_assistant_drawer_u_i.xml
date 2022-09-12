@@ -15,8 +15,6 @@
         android:layout_height="305dp"
         android:background="@android:color/white"
         android:orientation="vertical"
-        android:paddingTop="16dp"
-        android:paddingBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -25,8 +23,6 @@
         app:layout_constraintVertical_bias="0.0">
         <LinearLayout
             android:id="@+id/headerLayout"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
@@ -78,7 +74,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/messagesRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:paddingHorizontal="12dp"
             android:visibility="gone"
@@ -89,9 +85,7 @@
             android:id="@+id/toolbarLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp">
+            android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/drawerBodyLayout"
@@ -203,17 +197,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="@string/speak"
-                        android:textColor="#3E77A5"
-                        android:textSize="12sp" />
+                        android:text="@string/speak" />
 
                     <ImageView
                         android:id="@+id/micImageView"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:layout_gravity="center"
-                        android:layout_marginTop="12dp"
-                        android:padding="4dp" />
+                        android:layout_marginTop="12dp" />
                 </LinearLayout>
 
                 <LinearLayout

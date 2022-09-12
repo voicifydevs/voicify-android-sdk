@@ -10,7 +10,7 @@
         <entry key="voicify-assistant-sdk/src/main/res/drawable/dotted_line.xml" value="0.1" />
         <entry key="voicify-assistant-sdk/src/main/res/drawable/ic_launcher_background.xml" value="0.1365" />
         <entry key="voicify-assistant-sdk/src/main/res/drawable/spoken_text_view_corner_radius.xml" value="0.1365" />
-        <entry key="voicify-assistant-sdk/src/main/res/layout/fragment_assistant_drawer_u_i.xml" value="0.1" />
+        <entry key="voicify-assistant-sdk/src/main/res/layout/fragment_assistant_drawer_u_i.xml" value="0.32053375244140636" />
         <entry key="voicify-assistant-sdk/src/main/res/layout/messages_recyclerview_row.xml" value="0.1470713980333476" />
       </map>
     </option>

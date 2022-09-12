@@ -11,9 +11,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.Message
 import com.voicify.voicify_assistant_sdk.R
+import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.BodyProps
 
 //TODO: PASS IN MESSAGES PROPS HERE
-internal class MessagesRecyclerViewAdapter(private var messagesList: List<Message>) :
+internal class MessagesRecyclerViewAdapter(private var messagesList: List<Message>, private var bodyProps: BodyProps?) :
     RecyclerView.Adapter<MessagesRecyclerViewAdapter.MyViewHolder>() {
     internal inner class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         var messageTextView: TextView = view.findViewById(R.id.messageTextView)
@@ -41,9 +42,10 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             messagesAvatar.visibility = View.GONE
             val messagesTextViewStyle = GradientDrawable()
             messagesTextViewStyle.shape = GradientDrawable.RECTANGLE
-            val cornerRadaii = floatArrayOf(18f,18f,0f,0f,18f,18f,18f,18f)
+            messagesTextViewStyle.setStroke(bodyProps?.messageSentBorderWidth ?: 0, Color.parseColor(bodyProps?.messageSentBorderColor ?: "#00ffffff"))
+            val cornerRadaii = floatArrayOf(bodyProps?.messageSentBorderTopLeftRadius ?: 18f,bodyProps?.messageSentBorderTopLeftRadius ?: 18f,bodyProps?.messageSentBorderTopRightRadius ?: 0f,bodyProps?.messageSentBorderTopRightRadius ?: 0f, bodyProps?.messageSentBorderBottomLeftRadius ?: 18f,bodyProps?.messageSentBorderBottomLeftRadius ?: 18f,bodyProps?.messageSentBorderBottomRightRadius ?: 18f, bodyProps?.messageSentBorderBottomRightRadius ?: 18f)
             messagesTextViewStyle.cornerRadii = cornerRadaii
-            messagesTextViewStyle.setColor(Color.parseColor("#80000000"))
+            messagesTextViewStyle.setColor(Color.parseColor(bodyProps?.messageSentBackgroundColor ?: "#80000000"))
             messageTextView.background = messagesTextViewStyle
             messagesSpace.visibility = View.VISIBLE
             val messagesContainerLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
@@ -51,26 +53,29 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             messagesContainerLayoutParams.marginStart = 150
             messagesContainerLinearLayout.layoutParams = messagesContainerLayoutParams
             messageTextView.setPadding(20,20,20,20)
-            messageTextView.setTextColor(Color.WHITE)
-            messageTextView.textSize = 14f
+            messageTextView.setTextColor(Color.parseColor(bodyProps?.messageSentTextColor ?: "#ffffff"))
+            messageTextView.textSize = bodyProps?.messageSentFontSize ?: 14f
         }
         else
         {
             val avatarBackgroundStyle = GradientDrawable()
-            avatarBackgroundStyle.cornerRadius = 38f
-            avatarBackgroundStyle.setStroke(4, Color.parseColor("#CBCCD2"))
+            avatarBackgroundStyle.cornerRadius = bodyProps?.assistantImageBorderRadius ?: 38f
+            avatarBackgroundStyle.setStroke(bodyProps?.assistantImageBorderWidth ?: 4, Color.parseColor(bodyProps?.assistantImageBorderColor ?: "#CBCCD2"))
             avatarBackgroundStyle.setColor(Color.parseColor("#ffffff"))
             avatarBackground.background = avatarBackgroundStyle
             avatarBackground.setPadding(12,12,12,12)
             avatarBackground.visibility = View.VISIBLE
             messagesAvatar.visibility = View.VISIBLE
-            Picasso.get().load("https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png").into(messagesAvatar)
+            if(!bodyProps?.assistantImage.isNullOrEmpty())
+            {
+                Picasso.get().load("https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png").into(messagesAvatar)
+            }
             val messagesTextViewStyle = GradientDrawable()
             messagesTextViewStyle.shape = GradientDrawable.RECTANGLE
-            messagesTextViewStyle.setStroke(4, Color.parseColor("#CBCCD2"))
-            val cornerRadaii = floatArrayOf(0f,0f,18f,18f,18f,18f,18f,18f)
+            messagesTextViewStyle.setStroke(bodyProps?.messageReceivedBorderWidth ?: 4, Color.parseColor(bodyProps?.messageReceivedBorderColor ?: "#CBCCD2"))
+            val cornerRadaii = floatArrayOf(bodyProps?.messageReceivedBorderTopLeftRadius ?: 0f, bodyProps?.messageReceivedBorderTopLeftRadius ?: 0f,bodyProps?.messageReceivedBorderTopRightRadius ?: 18f,bodyProps?.messageReceivedBorderTopRightRadius ?: 18f, bodyProps?.messageReceivedBorderBottomLeftRadius ?: 18f,bodyProps?.messageReceivedBorderBottomLeftRadius ?: 18f,bodyProps?.messageReceivedBorderBottomRightRadius ?: 18f,bodyProps?.messageReceivedBorderBottomRightRadius ?: 18f)
             messagesTextViewStyle.cornerRadii = cornerRadaii
-            messagesTextViewStyle.setColor(Color.parseColor("#0d000000"))
+            messagesTextViewStyle.setColor(Color.parseColor(bodyProps?.messageReceivedBackgroundColor ?: "#0d000000"))
             messageTextView.background = messagesTextViewStyle
             val messagesContainerLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             messagesContainerLayoutParams.setMargins(0, 60, 0 , 0)
@@ -81,8 +86,8 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             messagesTextViewLayoutParams.setMargins(20,40,0,0)
             messageTextView.layoutParams = messagesTextViewLayoutParams
             messageTextView.setPadding(20,20,20,20)
-            messageTextView.setTextColor(Color.BLACK)
-            messageTextView.textSize = 14f
+            messageTextView.setTextColor(Color.parseColor(bodyProps?.messageReceivedTextColor ?: "#000000"))
+            messageTextView.textSize = bodyProps?.messageReceivedFontSize ?: 14f
         }
         messageTextView.text = message.message
     }

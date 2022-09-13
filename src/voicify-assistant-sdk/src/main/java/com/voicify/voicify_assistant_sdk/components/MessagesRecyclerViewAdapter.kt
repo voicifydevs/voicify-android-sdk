@@ -13,7 +13,6 @@ import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.Message
 import com.voicify.voicify_assistant_sdk.R
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.BodyProps
 
-//TODO: PASS IN MESSAGES PROPS HERE
 internal class MessagesRecyclerViewAdapter(private var messagesList: List<Message>, private var bodyProps: BodyProps?) :
     RecyclerView.Adapter<MessagesRecyclerViewAdapter.MyViewHolder>() {
     internal inner class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -21,9 +20,9 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
         var messagesContainerLinearLayout: LinearLayout = view.findViewById(R.id.messagesContainerLinearLayout)
         var messagesSpace: Space = view.findViewById(R.id.messagesSpace)
         var messagesAvatar: ImageView = view.findViewById(R.id.messagesAssistantAvatarImageView)
-        val assistantAvatarBackgroundLayout = view.findViewById<LinearLayout>(R.id.assistantAvatarBackgroundLayout)
+        val assistantAvatarBackgroundLayout: LinearLayout = view.findViewById(R.id.assistantAvatarBackgroundLayout)
     }
-    @NonNull
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val itemView = LayoutInflater.from(parent.context)
             .inflate(R.layout.messages_recyclerview_row, parent, false)
@@ -68,7 +67,7 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             messagesAvatar.visibility = View.VISIBLE
             if(!bodyProps?.assistantImage.isNullOrEmpty())
             {
-                Picasso.get().load("https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png").into(messagesAvatar)
+                Picasso.get().load(bodyProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png").into(messagesAvatar)
             }
             val messagesTextViewStyle = GradientDrawable()
             messagesTextViewStyle.shape = GradientDrawable.RECTANGLE

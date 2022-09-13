@@ -25,9 +25,11 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.squareup.picasso.Picasso
 import com.voicify.voicify_assistant_sdk.R
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.*
+import com.voicify.voicify_assistant_sdk.components.HintsRecyclerViewAdapter
 import com.voicify.voicify_assistant_sdk.components.MessagesRecyclerViewAdapter
 import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.*
-import java.util.*
+import okhttp3.internal.notifyAll
+import kotlin.collections.ArrayList
 import kotlin.math.roundToInt
 
 
@@ -84,6 +86,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         scale = requireContext().resources.displayMetrics.density
         //Linear Layouts
         val drawerLayout = window.findViewById<LinearLayout>(R.id.drawerLayout)
+        val bodyContainerLayout = window.findViewById<LinearLayout>(R.id.bodyContainerLayout)
         val headerLayout = window.findViewById<LinearLayout>(R.id.headerLayout)
         val toolBarLayout = window.findViewById<LinearLayout>(R.id.toolbarLayout)
         val sendTextLayout = window.findViewById<LinearLayout>(R.id.sendTextLayout)
@@ -103,12 +106,41 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         // Recycler Views
         val messagesRecyclerView = window.findViewById<RecyclerView>(R.id.messagesRecyclerView)
+        val hintsRecyclerView = window.findViewById<RecyclerView>(R.id.hintsRecyclerView)
+        val hintsList = ArrayList<String>()
         val messagesList = ArrayList<Message>()
         val messagesRecyclerViewAdapter = MessagesRecyclerViewAdapter(messagesList, bodyProps)
-        val layoutManager = LinearLayoutManager(context)
-        messagesRecyclerView.layoutManager = layoutManager
-        messagesRecyclerView.adapter = messagesRecyclerViewAdapter
 
+        voicifyTTS = VoicifyTTSProvider(VoicifyTextToSpeechSettings(
+            appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
+            appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
+            voice = "",
+            serverRootUrl = "https://assistant.voicify.com",
+            provider = "google"))
+        voicifySTT = VoicifySTTProvider(requireContext(), requireActivity())
+        val assistant = VoicifyAssistant(voicifySTT, voicifyTTS, VoicifyAssistantSettings(
+            appId = assistantSettingProps!!.appId,
+            appKey = assistantSettingProps!!.appKey,
+            serverRootUrl = assistantSettingProps!!.serverRootUrl,
+            locale = assistantSettingProps!!.locale,
+            channel = assistantSettingProps!!.channel,
+            device = assistantSettingProps!!.device,
+            autoRunConversation = assistantSettingProps!!.autoRunConversation,
+            initializeWithWelcomeMessage = assistantSettingProps!!.initializeWithWelcomeMessage,
+            useVoiceInput = assistantSettingProps!!.useVoiceInput,
+            useOutputSpeech = assistantSettingProps!!.useOutputSpeech))
+
+        val onHintClicked: (String) -> Unit = {  hint ->
+            messagesList.add(Message(hint, "Sent"))
+            messagesRecyclerViewAdapter.notifyItemInserted(if(messagesRecyclerViewAdapter.itemCount == 0) messagesRecyclerViewAdapter.itemCount + 1 else messagesRecyclerViewAdapter.itemCount)
+            hideKeyboard()
+            assistant.makeTextRequest(hint ,null, "Text")
+        }
+        val hintsRecyclerViewAdapter = HintsRecyclerViewAdapter(hintsList, bodyProps, onHintClicked)
+        messagesRecyclerView.layoutManager = LinearLayoutManager(context)
+        messagesRecyclerView.adapter = messagesRecyclerViewAdapter
+        hintsRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        hintsRecyclerView.adapter = hintsRecyclerViewAdapter
         //Image Views
         val micImageView = window.findViewById<ImageView>(R.id.micImageView)
         val closeAssistantImageView = window.findViewById<ImageView>(R.id.closeAssistantImageView)
@@ -116,11 +148,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val assistantAvatarImageView = window.findViewById<ImageView>(R.id.assistantAvatarImageView)
         val dashedLineImageView = window.findViewById<ImageView>(R.id.dashedLineImageView)
 
-        loadImageFromUrl(if(assistantSettingProps?.initializeWithText == false) toolBarProps?.micInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/daca643f-6730-4af5-8817-8d9d0d9db0b5/mic-image.png"
-        else toolBarProps?.micActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/3f10b6d7-eb71-4427-adbc-aadacbe8940e/mic-image-1-.png", micImageView)
+        loadImageFromUrl(if(assistantSettingProps?.initializeWithText == false) toolBarProps?.micActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/daca643f-6730-4af5-8817-8d9d0d9db0b5/mic-image.png"
+        else toolBarProps?.micInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/3f10b6d7-eb71-4427-adbc-aadacbe8940e/mic-image-1-.png", micImageView)
         loadImageFromUrl(headerProps?.closeAssistantButtonImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/a6de04bb-e572-4a55-8cd9-1a7628285829/delete-2.png", closeAssistantImageView)
-        loadImageFromUrl(if(assistantSettingProps?.initializeWithText == false) toolBarProps?.sendActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/0c5aa61c-7d6c-4272-abd2-75d9f5771214/Send-2-.png"
-        else toolBarProps?.sendInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/7a39bc6f-eef5-4185-bcf8-2a645aff53b2/Send-3-.png", sendMessageImageView)
+        loadImageFromUrl(if(assistantSettingProps?.initializeWithText == false) toolBarProps?.sendInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/0c5aa61c-7d6c-4272-abd2-75d9f5771214/Send-2-.png"
+        else toolBarProps?.sendActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/7a39bc6f-eef5-4185-bcf8-2a645aff53b2/Send-3-.png", sendMessageImageView)
         if(!headerProps?.assistantImage.isNullOrEmpty())
         {
             loadImageFromUrl(headerProps?.assistantImage.toString(), assistantAvatarImageView)
@@ -148,7 +180,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         speakingAnimationBar8.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
 
         //set Text View Styles
-        typeTextView.setTextColor(if(assistantSettingProps?.initializeWithText == false) Color.parseColor("#8F97A1") else Color.parseColor("#3E77A5"))
+        speakTextView.setTextColor(if(assistantSettingProps?.initializeWithText == false) Color.parseColor(toolBarProps?.speakActiveTitleColor ?: "#3E77A5") else Color.parseColor(toolBarProps?.speakInactiveTitleColor ?:"#8F97A1"))
+        typeTextView.setTextColor(if(assistantSettingProps?.initializeWithText == false) Color.parseColor(toolBarProps?.typeInactiveTitleColor ?:"#8F97A1") else Color.parseColor(toolBarProps?.typeActiveTitleColor ?:"#3E77A5"))
         speakTextView.textSize = toolBarProps?.speakFontSize ?: 12f
         typeTextView.textSize = toolBarProps?.typeFontSize ?: 12f
         drawerWelcomeTextView.text = toolBarProps?.helpText ?: "How can i help?"
@@ -201,36 +234,17 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         sendTextLayoutStyle.setColor(Color.parseColor(toolBarProps?.textBoxActiveHighlightColor ?: "#1f1e7eb9"))
         sendTextLayoutStyle.cornerRadius = 24f
 
-        val fullScreenBodyLayoutStyle = GradientDrawable()
-        fullScreenBodyLayoutStyle.setStroke(4, Color.parseColor(bodyProps?.borderColor ?: "#CBCCD2"))
-        fullScreenBodyLayoutStyle.setColor(Color.parseColor(bodyProps?.backgroundColor ?: "#F4F4F6"))
-        messagesRecyclerView.background = fullScreenBodyLayoutStyle
-        messagesRecyclerView.setPadding(bodyProps?.paddingLeft ?: 20,bodyProps?.paddingTop ?: 0,bodyProps?.paddingRight ?: 20,bodyProps?.paddingBottom ?: 0,)
+        val bodyContainerLayoutStyle = GradientDrawable()
+        bodyContainerLayoutStyle.setStroke(4, Color.parseColor(bodyProps?.borderColor ?: "#CBCCD2"))
+        bodyContainerLayoutStyle.setColor(Color.parseColor(bodyProps?.backgroundColor ?: "#F4F4F6"))
+        bodyContainerLayout.background = bodyContainerLayoutStyle
+        bodyContainerLayout.setPadding(bodyProps?.paddingLeft ?: 20,bodyProps?.paddingTop ?: 0,bodyProps?.paddingRight ?: 20,bodyProps?.paddingBottom ?: 0,)
 
         val inputTextMessageEditTextViewStyle = GradientDrawable()
         inputTextMessageEditTextViewStyle.setColor(Color.parseColor("#1f1e7eb9"))
         inputTextMessageEditTextView.textSize = toolBarProps?.textBoxFontSize ?: 18f
 
         //initialization
-        voicifyTTS = VoicifyTTSProvider(VoicifyTextToSpeechSettings(
-        appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
-        appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
-        voice = "",
-        serverRootUrl = "https://assistant.voicify.com",
-        provider = "google"))
-        voicifySTT = VoicifySTTProvider(requireContext(), requireActivity())
-        val assistant = VoicifyAssistant(voicifySTT, voicifyTTS, VoicifyAssistantSettings(
-            appId = assistantSettingProps!!.appId,
-            appKey = assistantSettingProps!!.appKey,
-            serverRootUrl = assistantSettingProps!!.serverRootUrl,
-            locale = assistantSettingProps!!.locale,
-            channel = assistantSettingProps!!.channel,
-            device = assistantSettingProps!!.device,
-            autoRunConversation = assistantSettingProps!!.autoRunConversation,
-            initializeWithWelcomeMessage = assistantSettingProps!!.initializeWithWelcomeMessage,
-            useVoiceInput = assistantSettingProps!!.useVoiceInput,
-            useOutputSpeech = assistantSettingProps!!.useOutputSpeech))
-
         assistant.initializeAndStart()
         assistant.startNewSession()
         if(assistantSettingProps?.initializeWithText == false)
@@ -318,6 +332,24 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             {
                 activity?.runOnUiThread{
                     spokenTextView.text = ""
+                    hintsRecyclerView.visibility = View.VISIBLE
+                    if(!response.hints.isNullOrEmpty())
+                    {
+                        if(!hintsList.isNullOrEmpty())
+                        {
+                            hintsList.clear()
+                            hintsRecyclerViewAdapter.notifyDataSetChanged()
+                        }
+                        response.hints.forEach { hint ->
+                            Log.d("JAMES", hint)
+                            hintsList.add(hint)
+                            hintsRecyclerViewAdapter.notifyItemInserted(if(hintsRecyclerViewAdapter.itemCount == 0) hintsRecyclerViewAdapter.itemCount + 1 else hintsRecyclerViewAdapter.itemCount)
+                        }
+                    }
+                    else
+                    {
+                        hintsRecyclerView.visibility = View.GONE
+                    }
                     if(!isUsingSpeech)
                     {
                         val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
@@ -328,7 +360,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     if(!speechFullResult.isNullOrEmpty())
                     {
                         messagesList.add(Message(speechFullResult as String, "Sent"))
-                        messagesRecyclerViewAdapter.notifyItemInserted(messagesRecyclerViewAdapter.itemCount)
+                        messagesRecyclerViewAdapter.notifyItemInserted(if(messagesRecyclerViewAdapter.itemCount == 0) messagesRecyclerViewAdapter.itemCount + 1 else messagesRecyclerViewAdapter.itemCount)
                     }
                     speechFullResult = null
                     drawerLayout.setPadding(0,0,0,0)
@@ -353,7 +385,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     assistantNameTextView.visibility = View.VISIBLE
                     messagesRecyclerView.visibility = View.VISIBLE
                     messagesList.add(Message(response.displayText?.trim() as String, "Received"))
-                    messagesRecyclerViewAdapter.notifyItemInserted(messagesRecyclerViewAdapter.itemCount)
+                    messagesRecyclerViewAdapter.notifyItemInserted(if(messagesRecyclerViewAdapter.itemCount == 0) messagesRecyclerViewAdapter.itemCount + 1 else messagesRecyclerViewAdapter.itemCount)
                 }
             }
         }
@@ -408,8 +440,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             if(inputTextMessageEditTextView.text.toString().isNotEmpty())
             {
                 messagesList.add(Message(inputTextMessageEditTextView.text.toString(), "Sent"))
-                messagesRecyclerViewAdapter.notifyItemInserted(messagesRecyclerViewAdapter.itemCount)
-                messagesRecyclerViewAdapter.notifyItemInserted(messagesRecyclerViewAdapter.itemCount)
+                messagesRecyclerViewAdapter.notifyItemInserted(if(messagesRecyclerViewAdapter.itemCount == 0) messagesRecyclerViewAdapter.itemCount + 1 else messagesRecyclerViewAdapter.itemCount)
                 val inputText = inputTextMessageEditTextView.text.toString()
                 inputTextMessageEditTextView.setText("")
                 hideKeyboard()

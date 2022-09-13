@@ -65,22 +65,28 @@
                 android:layout_width="25dp"
                 android:layout_height="25dp" />
         </LinearLayout>
-
-<!--        <Space-->
-<!--            android:id="@+id/bodySpace"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="0dp"-->
-<!--            android:layout_weight="1" />-->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/messagesRecyclerView"
+        <LinearLayout
+            android:id="@+id/bodyContainerLayout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:paddingHorizontal="12dp"
-            android:visibility="gone"
             android:orientation="vertical">
-
-        </androidx.recyclerview.widget.RecyclerView>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/messagesRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:paddingHorizontal="12dp"
+                android:visibility="gone"
+                android:orientation="vertical">
+            </androidx.recyclerview.widget.RecyclerView>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/hintsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp">
+            </androidx.recyclerview.widget.RecyclerView>
+        </LinearLayout>
         <LinearLayout
             android:id="@+id/toolbarLayout"
             android:layout_width="match_parent"

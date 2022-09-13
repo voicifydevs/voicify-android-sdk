@@ -6,16 +6,27 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
 import android.view.View.OnTouchListener
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.animation.doOnEnd
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -28,8 +39,6 @@ import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.*
 import com.voicify.voicify_assistant_sdk.components.HintsRecyclerViewAdapter
 import com.voicify.voicify_assistant_sdk.components.MessagesRecyclerViewAdapter
 import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.*
-import okhttp3.internal.notifyAll
-import kotlin.collections.ArrayList
 import kotlin.math.roundToInt
 
 
@@ -63,9 +72,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private var scale: Float = 0f
     private var canRun = true
     private var hintsRecyclerViewAdapter: HintsRecyclerViewAdapter? = null
+    private var messagesRecyclerViewAdapter: MessagesRecyclerViewAdapter? = null
     private var animation: AnimatorSet? = null
     private var speechFullResult : String? = null
     private var bottomSheetBehavior : BottomSheetBehavior<View>? = null
+    private var isKeyboardActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,6 +95,34 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         val window = inflater.inflate(R.layout.fragment_assistant_drawer_u_i, container, false)
+        window!!.viewTreeObserver.addOnGlobalLayoutListener {
+            val r = Rect()
+            //r will be populated with the coordinates of your view that area still visible.
+            window.getWindowVisibleDisplayFrame(r)
+            val heightDiff = window.rootView.height - (r.bottom - r.top)
+            if (heightDiff > 500) { // if more than 100 pixels, its probably a keyboard...
+                if(!isKeyboardActive)
+                {
+                    val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(350))
+                    layoutParams1.weight = 0f
+                    messagesRecyclerView.layoutParams = layoutParams1
+                    bodyContainerLayout.layoutParams = layoutParams1
+                    isKeyboardActive = true
+                }
+
+            }
+            else
+            {
+                if(isKeyboardActive)
+                {
+                    val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(0))
+                    layoutParams1.weight = 1f
+                    messagesRecyclerView.layoutParams = layoutParams1
+                    bodyContainerLayout.layoutParams = layoutParams1
+                    isKeyboardActive = false
+                }
+            }
+        }
         scale = requireContext().resources.displayMetrics.density
         //Linear Layouts
         val drawerLayout = window.findViewById<LinearLayout>(R.id.drawerLayout)
@@ -110,7 +149,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val hintsRecyclerView = window.findViewById<RecyclerView>(R.id.hintsRecyclerView)
         val hintsList = ArrayList<String>()
         val messagesList = ArrayList<Message>()
-        val messagesRecyclerViewAdapter = MessagesRecyclerViewAdapter(messagesList, bodyProps)
+        messagesRecyclerViewAdapter = MessagesRecyclerViewAdapter(messagesList, bodyProps)
 
         voicifyTTS = VoicifyTTSProvider(VoicifyTextToSpeechSettings(
             appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
@@ -133,10 +172,12 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         val onHintClicked: (String) -> Unit = {  hint ->
             messagesList.add(Message(hint, "Sent"))
-            messagesRecyclerViewAdapter.notifyDataSetChanged()
-            messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter.itemCount);
+            messagesRecyclerViewAdapter?.notifyDataSetChanged()
+            messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
             hideKeyboard()
             hintsList.clear()
+            cancelSpeech()
+            voicifyTTS?.stop()
             hintsRecyclerViewAdapter?.notifyDataSetChanged()
             assistant.makeTextRequest(hint ,null, "Text")
         }
@@ -242,7 +283,12 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         bodyContainerLayoutStyle.setStroke(4, Color.parseColor(bodyProps?.borderColor ?: "#CBCCD2"))
         bodyContainerLayoutStyle.setColor(Color.parseColor(bodyProps?.backgroundColor ?: "#F4F4F6"))
         bodyContainerLayout.background = bodyContainerLayoutStyle
-        bodyContainerLayout.setPadding(bodyProps?.paddingLeft ?: 20,bodyProps?.paddingTop ?: 0,bodyProps?.paddingRight ?: 20,bodyProps?.paddingBottom ?: 0,)
+        bodyContainerLayout.setPadding(
+            bodyProps?.paddingLeft ?: 20,
+            bodyProps?.paddingTop ?: 0,
+            bodyProps?.paddingRight ?: 20,
+            bodyProps?.paddingBottom ?: 0
+        )
 
         val inputTextMessageEditTextViewStyle = GradientDrawable()
         inputTextMessageEditTextViewStyle.setColor(Color.parseColor("#1f1e7eb9"))
@@ -335,6 +381,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             if(!response.endSession)
             {
                 activity?.runOnUiThread{
+                    bodyContainerLayout.visibility = View.VISIBLE
                     spokenTextView.text = ""
                     hintsRecyclerView.visibility = View.VISIBLE
                     if(!response.hints.isNullOrEmpty())
@@ -364,8 +411,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     if(!speechFullResult.isNullOrEmpty())
                     {
                         messagesList.add(Message(speechFullResult as String, "Sent"))
-                        messagesRecyclerViewAdapter.notifyDataSetChanged()
-                        messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter.itemCount);
+                        messagesRecyclerViewAdapter?.notifyDataSetChanged()
+                        messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
                     }
                     speechFullResult = null
                     drawerLayout.setPadding(0,0,0,0)
@@ -390,8 +437,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     assistantNameTextView.visibility = View.VISIBLE
                     messagesRecyclerView.visibility = View.VISIBLE
                     messagesList.add(Message(response.displayText?.trim() as String, "Received"))
-                    messagesRecyclerViewAdapter.notifyDataSetChanged()
-                    messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter.itemCount);
+                    messagesRecyclerViewAdapter?.notifyDataSetChanged()
+                    messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
                 }
             }
         }
@@ -402,23 +449,20 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             if(!isUsingSpeech)
             {
                 isUsingSpeech = true
-                messagesRecyclerViewAdapter.notifyDataSetChanged()
-                messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter.itemCount);
+                messagesRecyclerViewAdapter?.notifyDataSetChanged()
+                messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
                 speakingAnimationLayout.visibility = View.VISIBLE
                 sendTextLayout.setBackgroundColor(Color.parseColor(toolBarProps?.textBoxInactiveHighlightColor ?: "#00ffffff"))
                 dashedLineImageView.visibility = View.VISIBLE;
                 hideKeyboard()
-                val drawerLayoutParams = drawerLayout.layoutParams
                 if(isDrawer)
                 {
-                    drawerLayoutParams.height = getPixelsFromDp(305)
                 }
                 else{
                     val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
                     drawerFooterLayoutParams.setMargins(0,getPixelsFromDp(20),0,0)
                     drawerFooterLayout.layoutParams = drawerFooterLayoutParams
                 }
-                drawerLayout.layoutParams = drawerLayoutParams
                 spokenTextView.visibility = View.VISIBLE
                 assistantStateTextView.visibility = View.VISIBLE
                 speakTextView.setTextColor(Color.parseColor(toolBarProps?.speakActiveTitleColor ?: "#3E77A5"))
@@ -448,8 +492,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             if(inputTextMessageEditTextView.text.toString().isNotEmpty())
             {
                 messagesList.add(Message(inputTextMessageEditTextView.text.toString(), "Sent"))
-                messagesRecyclerViewAdapter.notifyDataSetChanged()
-                messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter.itemCount);
+                messagesRecyclerViewAdapter?.notifyDataSetChanged()
+                messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
                 val inputText = inputTextMessageEditTextView.text.toString()
                 inputTextMessageEditTextView.setText("")
                 hideKeyboard()
@@ -466,6 +510,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 }
                 when(event?.action) {
                     MotionEvent.ACTION_UP -> {
+//                        val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(350))
+//                        layoutParams1.weight = 0f
+//                        messagesRecyclerView.layoutParams = layoutParams1
+//                        bodyContainerLayout.layoutParams = layoutParams1
                         if (assistantIsListening) {
                             cancelSpeech()
                             assistantStateTextView.text = ""
@@ -482,16 +530,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                                 drawerFooterLayout.layoutParams = drawerFooterLayoutParams
                                 dashedLineImageView.visibility = View.INVISIBLE;
                             }
-                            //spokenTextView.isVisible = false
                             spokenTextView.visibility = View.GONE
-                            //assistantStateTextView.isVisible = false;
                             assistantStateTextView.visibility = View.GONE
-                            val drawerLayoutParams = drawerLayout.layoutParams
-                            if(isDrawer) {
-                                drawerLayoutParams.height = getPixelsFromDp(180)
-                            }
-
-                            drawerLayout.layoutParams = drawerLayoutParams
                             speakTextView.setTextColor(Color.parseColor(toolBarProps?.speakInactiveTitleColor ?: "#8F97A1"))
                             typeTextView.setTextColor(Color.parseColor(toolBarProps?.typeActiveTitleColor ?: "#3E77A5"))
                             loadImageFromUrl(
@@ -586,6 +626,15 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     override fun onDismiss(dialog: DialogInterface) {
         cancelSpeech()
         voicifyTTS?.stop()
+    }
+
+    private fun openLink(link: String) {
+        val builder = CustomTabsIntent.Builder()
+        builder.setShareState(CustomTabsIntent.SHARE_STATE_ON)
+        builder.setInstantAppsEnabled(true)
+        val customBuilder = builder.build()
+        customBuilder.intent.setPackage("com.android.chrome")
+        customBuilder.launchUrl(requireContext(), Uri.parse(link))
     }
 
     companion object {

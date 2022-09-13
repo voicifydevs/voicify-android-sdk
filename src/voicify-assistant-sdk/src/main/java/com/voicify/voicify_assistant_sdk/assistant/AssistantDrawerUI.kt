@@ -326,7 +326,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             assistantStateTextView.text = "Listening..."
         }
         voicifySTT?.addErrorListener { error ->
-            Log.d("JAMES", error)
             clearAnimationValues()
             if (error == "7")
             {
@@ -336,7 +335,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             }
         }
         voicifySTT?.addVolumeListener { volume ->
-            Log.d("JAMES", volume.toString())
             val rnd1 = (1..(volume.roundToInt() * 2 + 1)).random().toFloat()
             val rnd2 = (1..(volume.roundToInt() * 3 + 1)).random().toFloat()
             val rnd3 = (1..(volume.roundToInt() * 5 + 1)).random().toFloat()
@@ -366,12 +364,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 playTogether(bar1, bar2, bar3,bar4,bar5,bar6,bar7,bar8)
                 if(canRun)
                 {
-                    Log.d("JAMES", "STARTING")
                     start()
                     canRun = false
                 }
                doOnEnd {
-                   Log.d("JAMES", "ENDING")
                    canRun = true
                }
             }
@@ -392,7 +388,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                             hintsRecyclerViewAdapter?.notifyDataSetChanged()
                         }
                         response.hints.forEach { hint ->
-                            Log.d("JAMES", hint)
                             hintsList.add(hint)
                             hintsRecyclerViewAdapter?.notifyDataSetChanged()
                         }
@@ -424,7 +419,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     headerLayout.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor ?: "#ffffff"))
                     headerLayout.setPadding(headerProps?.paddingLeft ?: getPixelsFromDp(16), headerProps?.paddingTop ?: getPixelsFromDp(16), headerProps?.paddingRight ?: getPixelsFromDp(16), headerProps?.paddingBottom ?: getPixelsFromDp(16))
                     bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
-                    Log.d("JAMES", response.toString())
                     isDrawer = false
                     micImageView.setBackgroundColor(Color.parseColor(toolBarProps?.micInactiveHighlightColor ?: "#00ffffff"))
                     val metrics = activity?.resources?.displayMetrics
@@ -504,10 +498,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         inputTextMessageEditTextView.setOnTouchListener(object : OnTouchListener {
             @SuppressLint("ClickableViewAccessibility")
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-                when (event?.action) {
-                    MotionEvent.ACTION_DOWN -> //Do Something
-                    Log.d("JAMES", "down")
-                }
                 when(event?.action) {
                     MotionEvent.ACTION_UP -> {
 //                        val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(350))

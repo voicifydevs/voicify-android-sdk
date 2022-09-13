@@ -49,12 +49,10 @@ class VoicifySTTProvider (private val context: Context, private val activity: Ac
         speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
         speechRecognizer?.setRecognitionListener(object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {
-                Log.d("JAMES", "Ready")
                 speechReadyHandlers?.forEach { handle -> handle() }
             }
 
             override fun onBeginningOfSpeech() {
-                Log.d("JAMES", "Speech Began")
                 speechStartHandlers?.forEach { handle -> handle() }
             }
 
@@ -66,23 +64,19 @@ class VoicifySTTProvider (private val context: Context, private val activity: Ac
             }
 
             override fun onBufferReceived(buffer: ByteArray?) {
-                Log.d("JAMES", "The buffer was received")
             }
 
             override fun onEndOfSpeech() {
-                Log.d("JAMES", "Speech ended")
                 speechEndHandlers?.forEach { handle -> handle() }
             }
 
             override fun onError(error: Int) {
                 //list of errors found here: https://developer.android.com/reference/android/speech/SpeechRecognizer
                 //most important code is 7 ...means no match
-                Log.d("JAMES", "There was an error")
                 speechErrorHandlers?.forEach { handle -> handle(error.toString()) }
             }
 
             override fun onResults(results: Bundle?) {
-                Log.d("JAMES", "The results are in")
                 speechResultsHandlers?.forEach { handle -> handle(results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.get(0).toString()) }
             }
 
@@ -91,7 +85,6 @@ class VoicifySTTProvider (private val context: Context, private val activity: Ac
             }
 
             override fun onEvent(eventType: Int, params: Bundle?) {
-                Log.d("JAMES", "An event happend")
             }
 
         })

@@ -24,10 +24,8 @@ internal class HintsRecyclerViewAdapter(private var hintsList: List<String>, pri
         return MyViewHolder(itemView)
     }
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        Log.d("JAMES", "WE ARE IN THE HINTS RECYCLER VIEW")
         val hint = hintsList[position]
         val hintsContainer = holder.hintsContainerLayout
-        Log.d("JAMES", "hint from recycler$hint")
         val hintTextView = holder.hintsTextView
         val hintsContainerLayoutStyle = GradientDrawable()
         hintsContainerLayoutStyle.cornerRadius = bodyProps?.hintsBorderRadius ?: 34f

@@ -41,10 +41,8 @@ class VoicifyTTSProvider(val settings: VoicifyTextToSpeechSettings)  : VoicifyTe
 
         client.newCall(ttsRequest).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.d("JAMES", "FAILED!")
             }
             override fun onResponse(call: Call, response: Response) {
-                Log.d("JAMES", "5")
                 val ttsResult = response.body?.string()
                 ttsResponse = gson.fromJson(ttsResult, Array<TTSData>::class.java)
 //                ttsResponse?.forEach { response ->
@@ -85,40 +83,6 @@ class VoicifyTTSProvider(val settings: VoicifyTextToSpeechSettings)  : VoicifyTe
     override fun stop() {
         mediaPlayer.stop()
     }
-
-//    private fun ssmlToSpeech (ssml: String): Array<TTSData>?
-//    {
-//        Log.d("JAMES", "SsmlToSpeech")
-//        Log.d("JAMES", ssml)
-//        var ttsResponse: Array<TTSData>? = null
-//        val ttsRequestModel = generateTTSRequest(ssml)
-//        val gson = Gson()
-//        Log.d("JAMES", "0")
-//        val ttsRequestJson = gson.toJson(ttsRequestModel)
-//        Log.d("JAMES", "1")
-//        val ttsRequestBody = ttsRequestJson.toRequestBody("application/json;charset=utf-8".toMediaTypeOrNull())
-//        Log.d("JAMES", "2")
-//        val ttsRequest = Request.Builder()
-//            .url("${settings.serverRootUrl}/api/Ssml/toSpeech/${settings.provider}")
-//            .method("POST", ttsRequestBody)
-//            .build()
-//        Log.d("JAMES", ttsRequestJson)
-//        Log.d("JAMES", "4")
-//
-//        client.newCall(ttsRequest).enqueue(object : Callback {
-//            override fun onFailure(call: Call, e: IOException) {
-//                Log.d("JAMES", "FAILED!")
-//            }
-//            override fun onResponse(call: Call, response: Response) {
-//                Log.d("JAMES", "5")
-//                val ttsResult = response.body?.string()
-////                Log.d("JAMES", ttsResult.toString())
-//                ttsResponse = gson.fromJson(ttsResult, Array<TTSData>::class.java)
-////                Log.d("JAMES", ttsResponse?.get(0)?.url.toString())
-////                Log.d("JAMES", ssml)
-//            }
-//        })
-//    }
 
     private fun generateTTSRequest(ssml: String): TTSRequest {
         return TTSRequest(

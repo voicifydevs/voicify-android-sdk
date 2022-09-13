@@ -111,7 +111,6 @@ class VoicifyAssistant(
 
                 }
                 override fun onResponse(call: Call, response: Response) {
-                    Log.d("JAMES", "0")
                     val assistantResult = response.body?.string()
                     val assistantResponse: CustomAssistantResponse =
                         gson.fromJson(assistantResult, CustomAssistantResponse::class.java)
@@ -135,13 +134,11 @@ class VoicifyAssistant(
                             textToSpeechProvider?.speakSsml("<speak>${assistantResponse.outputSpeech}</speak>")
                         }
                     }
-                    Log.d("JAMES", "1")
                     val sessionDataRequest = Request.Builder()
                         .url("${settings.serverRootUrl}/api/UserProfile/session/${sessionId}?applicationId=${settings.appId}&applicationSecret=${settings.appKey}")
                         .addHeader("Content-Type","application/json")
                         .get()
                         .build()
-                    Log.d("JAMES", sessionDataRequest.toString())
                     client.newCall(sessionDataRequest).enqueue(object : Callback{
                         override fun onFailure(call: Call, e: IOException) {
 
@@ -151,7 +148,6 @@ class VoicifyAssistant(
                             if(response.code == 200)
                             {
                                 val sessionDataResult = response.body?.string()
-                                Log.d("JAMES", sessionDataResult!!)
                                 val sessionDataResponse: VoicifySessionData =
                                     gson.fromJson(sessionDataResult, VoicifySessionData::class.java)
                                 //I wasnt able to directly cast to Voicify Session Effect here....
@@ -166,13 +162,10 @@ class VoicifyAssistant(
                                     effects =  gson.fromJson(effectsString, Array<VoicifySessionEffect>::class.java)
                                 }
                                 currentSessionInfo = sessionDataResponse
-                                Log.d("JAMES", currentSessionInfo.toString())
-                                Log.d("JAMES", effects?.get(0)?.effectName.toString())
                                 effects?.filter {e -> e.requestId == request.requestId}?.forEach { effect ->
                                     effectHandlers?.filter { e -> e.effect == effect.effectName }?.forEach { handle -> handle.callback(effect.data) }
                                 }
                             }
-                            Log.d("JAMES", "3")
                             val userDataRequest = Request.Builder()
                                 .url("${settings.serverRootUrl}/api/UserProfile/${userId}?applicationId=${settings.appId}&applicationSecret=${settings.appKey}")
                                 .addHeader("Content-Type","application/json")
@@ -183,7 +176,6 @@ class VoicifyAssistant(
 
                                 }
                                 override fun onResponse(call: Call, response: Response) {
-                                    Log.d("JAMES", "4")
                                     if(response.code == 200)
                                     {
                                         val userDataResult = response.body?.string()
@@ -211,7 +203,6 @@ class VoicifyAssistant(
                             {
                                 speechToTextProvider?.startListening()
                             }
-                            Log.d("JAMES", "5")
                         }
                     })
                 }

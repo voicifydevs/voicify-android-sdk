@@ -6,7 +6,6 @@ import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.text.TextPaint
 import android.text.style.ClickableSpan
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +24,6 @@ import io.noties.markwon.core.CorePlugin
 import io.noties.markwon.ext.tasklist.TaskListItem
 import io.noties.markwon.ext.tasklist.TaskListPlugin
 import io.noties.markwon.ext.tasklist.TaskListSpan
-
 
 //https://noties.io/Markwon/docs/v3/ext-tasklist/#task-list-mutation
 internal class MessagesRecyclerViewAdapter(private var messagesList: List<Message>, private var bodyProps: BodyProps?, private var context: Context) :

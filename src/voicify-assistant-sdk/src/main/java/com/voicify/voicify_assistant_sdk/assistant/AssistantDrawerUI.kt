@@ -62,6 +62,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private var voicifyTTS: VoicifyTTSProvider? = null
     private var scale: Float = 0f
     private var canRun = true
+    private var hintsRecyclerViewAdapter: HintsRecyclerViewAdapter? = null
     private var animation: AnimatorSet? = null
     private var speechFullResult : String? = null
     private var bottomSheetBehavior : BottomSheetBehavior<View>? = null
@@ -134,9 +135,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             messagesList.add(Message(hint, "Sent"))
             messagesRecyclerViewAdapter.notifyItemInserted(if(messagesRecyclerViewAdapter.itemCount == 0) messagesRecyclerViewAdapter.itemCount + 1 else messagesRecyclerViewAdapter.itemCount)
             hideKeyboard()
+            hintsList.clear()
+            hintsRecyclerViewAdapter?.notifyDataSetChanged()
             assistant.makeTextRequest(hint ,null, "Text")
         }
-        val hintsRecyclerViewAdapter = HintsRecyclerViewAdapter(hintsList, bodyProps, onHintClicked)
+        hintsRecyclerViewAdapter = HintsRecyclerViewAdapter(hintsList, bodyProps, onHintClicked)
         messagesRecyclerView.layoutManager = LinearLayoutManager(context)
         messagesRecyclerView.adapter = messagesRecyclerViewAdapter
         hintsRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
@@ -338,12 +341,12 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                         if(!hintsList.isNullOrEmpty())
                         {
                             hintsList.clear()
-                            hintsRecyclerViewAdapter.notifyDataSetChanged()
+                            hintsRecyclerViewAdapter?.notifyDataSetChanged()
                         }
                         response.hints.forEach { hint ->
                             Log.d("JAMES", hint)
                             hintsList.add(hint)
-                            hintsRecyclerViewAdapter.notifyItemInserted(if(hintsRecyclerViewAdapter.itemCount == 0) hintsRecyclerViewAdapter.itemCount + 1 else hintsRecyclerViewAdapter.itemCount)
+                            hintsRecyclerViewAdapter?.notifyItemInserted(if(hintsRecyclerViewAdapter?.itemCount as Int == 0) hintsRecyclerViewAdapter?.itemCount as Int  + 1 else hintsRecyclerViewAdapter?.itemCount as Int )
                         }
                     }
                     else

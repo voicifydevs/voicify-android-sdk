@@ -1,19 +1,26 @@
 package com.voicify.voicify_assistant_sdk.components
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.annotation.NonNull
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.Message
 import com.voicify.voicify_assistant_sdk.R
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.BodyProps
+import io.noties.markwon.AbstractMarkwonPlugin
+import io.noties.markwon.Markwon
+import io.noties.markwon.MarkwonConfiguration
+import io.noties.markwon.core.CorePlugin
 
-internal class MessagesRecyclerViewAdapter(private var messagesList: List<Message>, private var bodyProps: BodyProps?) :
+internal class MessagesRecyclerViewAdapter(private var messagesList: List<Message>, private var bodyProps: BodyProps?, private var context: Context) :
     RecyclerView.Adapter<MessagesRecyclerViewAdapter.MyViewHolder>() {
     internal inner class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         var messageTextView: TextView = view.findViewById(R.id.messageTextView)
@@ -35,6 +42,16 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
         val messagesSpace = holder.messagesSpace
         val messagesAvatar = holder.messagesAvatar
         val avatarBackground = holder.assistantAvatarBackgroundLayout
+        val markwon = Markwon.builder(context)
+            .usePlugin(CorePlugin.create())
+            .usePlugin(object : AbstractMarkwonPlugin() {
+                override fun configureConfiguration(builder: MarkwonConfiguration.Builder) {
+                    super.configureConfiguration(builder)
+                    builder.linkResolver { view, link ->
+                        openLink(link)
+                    }
+                }
+            }).build()
         if(message.origin == "Sent")
         {
             avatarBackground.visibility = View.GONE
@@ -88,10 +105,20 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             messageTextView.setTextColor(Color.parseColor(bodyProps?.messageReceivedTextColor ?: "#000000"))
             messageTextView.textSize = bodyProps?.messageReceivedFontSize ?: 14f
         }
-        messageTextView.text = message.message
+        //messageTextView.text = message.message
+        markwon.setMarkdown(messageTextView, message.message)
     }
     override fun getItemCount(): Int {
         return messagesList.size
+    }
+
+    private fun openLink(link: String) {
+        val builder = CustomTabsIntent.Builder()
+        builder.setShareState(CustomTabsIntent.SHARE_STATE_ON)
+        builder.setInstantAppsEnabled(true)
+        val customBuilder = builder.build()
+        customBuilder.intent.setPackage("com.android.chrome")
+        customBuilder.launchUrl(context, Uri.parse(link))
     }
 
 }

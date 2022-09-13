@@ -149,7 +149,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val hintsRecyclerView = window.findViewById<RecyclerView>(R.id.hintsRecyclerView)
         val hintsList = ArrayList<String>()
         val messagesList = ArrayList<Message>()
-        messagesRecyclerViewAdapter = MessagesRecyclerViewAdapter(messagesList, bodyProps)
+        messagesRecyclerViewAdapter = MessagesRecyclerViewAdapter(messagesList, bodyProps, requireContext())
 
         voicifyTTS = VoicifyTTSProvider(VoicifyTextToSpeechSettings(
             appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",

@@ -105,8 +105,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 {
                     val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(350))
                     layoutParams1.weight = 0f
-                    messagesRecyclerView.layoutParams = layoutParams1
                     bodyContainerLayout.layoutParams = layoutParams1
+                    messagesRecyclerViewAdapter?.notifyDataSetChanged()
+                    messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
                     isKeyboardActive = true
                 }
 
@@ -117,7 +118,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 {
                     val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(0))
                     layoutParams1.weight = 1f
-                    messagesRecyclerView.layoutParams = layoutParams1
                     bodyContainerLayout.layoutParams = layoutParams1
                     isKeyboardActive = false
                 }

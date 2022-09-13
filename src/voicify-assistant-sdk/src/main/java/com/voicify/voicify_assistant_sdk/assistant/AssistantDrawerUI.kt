@@ -88,6 +88,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("w", 1)
+    }
+
     @SuppressLint("ResourceType")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(

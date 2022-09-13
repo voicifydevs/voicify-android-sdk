@@ -35,7 +35,7 @@ internal class HintsRecyclerViewAdapter(private var hintsList: List<String>, pri
         val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT)
         layoutParams.setMargins(16, 0 , 0, 0)
         hintsContainer.layoutParams = layoutParams
-        hintsContainer.setPadding(bodyProps?.hintsPaddingLeft ?: 8,bodyProps?.hintsPaddingTop ?: 8,bodyProps?.hintsPaddingRight ?: 8,bodyProps?.hintsPaddingBottom ?: 8,)
+        hintsContainer.setPadding(bodyProps?.hintsPaddingLeft ?: 40,bodyProps?.hintsPaddingTop ?: 20,bodyProps?.hintsPaddingRight ?: 40,bodyProps?.hintsPaddingBottom ?: 20,)
         hintTextView.textSize = bodyProps?.hintsFontSize ?: 14f
         hintTextView.setTextColor(Color.parseColor(bodyProps?.hintsTextColor ?: "#CBCCD2"))
         hintTextView.text = hint

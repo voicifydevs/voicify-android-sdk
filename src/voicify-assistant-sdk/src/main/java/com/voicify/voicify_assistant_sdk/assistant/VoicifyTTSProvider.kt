@@ -8,6 +8,8 @@ import com.google.gson.Gson
 import com.voicify.voicify_assistant_sdk.models.SsmlRequest
 import com.voicify.voicify_assistant_sdk.models.TTSData
 import com.voicify.voicify_assistant_sdk.models.TTSRequest
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -15,6 +17,8 @@ import java.io.IOException
 
 class VoicifyTTSProvider(val settings: VoicifyTextToSpeechSettings)  : VoicifyTextToSpeechProvider{
     private var speechEndHandlers: Array<() -> Unit>? = emptyArray()
+    private var ttsResponse: Array<TTSData>? = null
+    private var currentPlayingIndex = 0
     private var mediaPlayer:  MediaPlayer = MediaPlayer().apply { setAudioAttributes(
         AudioAttributes.Builder()
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
@@ -29,7 +33,7 @@ class VoicifyTTSProvider(val settings: VoicifyTextToSpeechSettings)  : VoicifyTe
     }
 
     override fun speakSsml(ssml: String) {
-        var ttsResponse: Array<TTSData>? = null
+
         val ttsRequestModel = generateTTSRequest(ssml)
         val gson = Gson()
         val ttsRequestJson = gson.toJson(ttsRequestModel)
@@ -44,32 +48,53 @@ class VoicifyTTSProvider(val settings: VoicifyTextToSpeechSettings)  : VoicifyTe
             }
             override fun onResponse(call: Call, response: Response) {
                 val ttsResult = response.body?.string()
+
                 ttsResponse = gson.fromJson(ttsResult, Array<TTSData>::class.java)
-//                ttsResponse?.forEach { response ->
-//                    GlobalScope.launch {
-//                        var ssmlUri = response.url
-//                        mediaPlayer.reset()
-//                        mediaPlayer.setDataSource(ssmlUri)
-//                        mediaPlayer.prepare()
-//                        mediaPlayer.setOnCompletionListener {
-//                            speechEndHandlers?.forEach { handle -> handle() }
-//                        }
-//                        mediaPlayer.start()
-//                    }
-//                }
-                var ssmlUri = ttsResponse?.get(0)?.url
-                        mediaPlayer.reset()
-                        mediaPlayer.setDataSource(ssmlUri)
-                        mediaPlayer.prepareAsync()
-                        mediaPlayer.setOnCompletionListener {
+                if(ttsResponse?.size == 1)
+                {
+                    var ssmlUri = ttsResponse?.get(0)?.url
+                    mediaPlayer.reset()
+                    mediaPlayer.setDataSource(ssmlUri)
+                    mediaPlayer.prepareAsync()
+                    mediaPlayer.setOnCompletionListener {
+                        speechEndHandlers?.forEach { handle -> handle() }
+                    }
+                    mediaPlayer.setOnPreparedListener { mp ->
+                        mp.start()
+                    }
+                }
+                else{
+                    var ssmlUri = ttsResponse?.get(0)?.url
+                    mediaPlayer.reset()
+                    mediaPlayer.setDataSource(ssmlUri)
+                    mediaPlayer.prepareAsync()
+                    mediaPlayer.setOnPreparedListener { mp ->
+                        mp.start()
+                    }
+                    mediaPlayer.setOnCompletionListener {
+                        if(currentPlayingIndex < ttsResponse?.size as Int - 1)
+                        {
+                            currentPlayingIndex++
+                            playNext()
+                        }
+                        else
+                        {
                             speechEndHandlers?.forEach { handle -> handle() }
                         }
-                mediaPlayer.setOnPreparedListener { mp ->
-                    mp.start()
+                    }
                 }
-
             }
         })
+    }
+
+    private fun playNext () {
+        var ssmlUri = ttsResponse?.get(currentPlayingIndex)?.url
+        mediaPlayer.reset()
+        mediaPlayer.setDataSource(ssmlUri)
+        mediaPlayer.prepareAsync()
+        mediaPlayer.setOnPreparedListener { mp ->
+            mp.start()
+        }
     }
 
     override fun addFinishListener(callback: () -> Unit) {

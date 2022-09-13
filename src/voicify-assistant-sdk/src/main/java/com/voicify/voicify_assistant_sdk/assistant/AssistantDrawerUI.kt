@@ -34,6 +34,7 @@ import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.*
 import com.voicify.voicify_assistant_sdk.components.HintsRecyclerViewAdapter
 import com.voicify.voicify_assistant_sdk.components.MessagesRecyclerViewAdapter
 import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.*
+import java.io.Serializable
 import kotlin.math.roundToInt
 
 private const val HEADER = "header"
@@ -72,7 +73,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             headerProps = it.getSerializable(HEADER) as HeaderProps?
             bodyProps = it.getSerializable(BODY) as BodyProps?
             toolBarProps = it.getSerializable(TOOLBAR) as ToolBarProps?
-            assistantSettingProps = it.getSerializable(SETTINGS) as AssistantSettingsProps
+            assistantSettingProps = it.getSerializable(SETTINGS) as AssistantSettingsProps?
         }
     }
 
@@ -148,7 +149,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
             voice = "",
             serverRootUrl = "https://assistant.voicify.com",
-            provider = "google"))
+            provider = assistantSettingProps!!.textToSpeechProvider))
         voicifySTT = VoicifySTTProvider(requireContext(), requireActivity())
         val assistant = VoicifyAssistant(voicifySTT, voicifyTTS, VoicifyAssistantSettings(
             appId = assistantSettingProps!!.appId,
@@ -642,6 +643,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
          * @param headerProps Parameter 1.
          * @param bodyProps Parameter 2.
          * @param toolBarProps Parameter 3.
+         * @param assistantSettingsProps Parameter 3.
          * @return A new instance of fragment AssistantDrawerUI.
          */
         // TODO: Rename and change types and number of parameters

@@ -95,7 +95,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             if (heightDiff > 500) { // if more than 100 pixels, its probably a keyboard...
                 if(!isKeyboardActive)
                 {
-                    val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(350))
+                    val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(340))
                     layoutParams1.weight = 0f
                     bodyContainerLayout.layoutParams = layoutParams1
                     messagesRecyclerViewAdapter?.notifyDataSetChanged()

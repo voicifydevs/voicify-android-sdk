@@ -133,7 +133,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         val onHintClicked: (String) -> Unit = {  hint ->
             messagesList.add(Message(hint, "Sent"))
-            messagesRecyclerViewAdapter.notifyItemInserted(if(messagesRecyclerViewAdapter.itemCount == 0) messagesRecyclerViewAdapter.itemCount + 1 else messagesRecyclerViewAdapter.itemCount)
+            messagesRecyclerViewAdapter.notifyDataSetChanged()
+            messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter.itemCount);
             hideKeyboard()
             hintsList.clear()
             hintsRecyclerViewAdapter?.notifyDataSetChanged()
@@ -363,7 +364,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     if(!speechFullResult.isNullOrEmpty())
                     {
                         messagesList.add(Message(speechFullResult as String, "Sent"))
-                        messagesRecyclerViewAdapter.notifyItemInserted(if(messagesRecyclerViewAdapter.itemCount == 0) messagesRecyclerViewAdapter.itemCount + 1 else messagesRecyclerViewAdapter.itemCount)
+                        messagesRecyclerViewAdapter.notifyDataSetChanged()
+                        messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter.itemCount);
                     }
                     speechFullResult = null
                     drawerLayout.setPadding(0,0,0,0)
@@ -388,7 +390,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     assistantNameTextView.visibility = View.VISIBLE
                     messagesRecyclerView.visibility = View.VISIBLE
                     messagesList.add(Message(response.displayText?.trim() as String, "Received"))
-                    messagesRecyclerViewAdapter.notifyItemInserted(if(messagesRecyclerViewAdapter.itemCount == 0) messagesRecyclerViewAdapter.itemCount + 1 else messagesRecyclerViewAdapter.itemCount)
+                    messagesRecyclerViewAdapter.notifyDataSetChanged()
+                    messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter.itemCount);
                 }
             }
         }
@@ -399,6 +402,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             if(!isUsingSpeech)
             {
                 isUsingSpeech = true
+                messagesRecyclerViewAdapter.notifyDataSetChanged()
+                messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter.itemCount);
                 speakingAnimationLayout.visibility = View.VISIBLE
                 sendTextLayout.setBackgroundColor(Color.parseColor(toolBarProps?.textBoxInactiveHighlightColor ?: "#00ffffff"))
                 dashedLineImageView.visibility = View.VISIBLE;
@@ -443,7 +448,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             if(inputTextMessageEditTextView.text.toString().isNotEmpty())
             {
                 messagesList.add(Message(inputTextMessageEditTextView.text.toString(), "Sent"))
-                messagesRecyclerViewAdapter.notifyItemInserted(if(messagesRecyclerViewAdapter.itemCount == 0) messagesRecyclerViewAdapter.itemCount + 1 else messagesRecyclerViewAdapter.itemCount)
+                messagesRecyclerViewAdapter.notifyDataSetChanged()
+                messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter.itemCount);
                 val inputText = inputTextMessageEditTextView.text.toString()
                 inputTextMessageEditTextView.setText("")
                 hideKeyboard()

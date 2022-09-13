@@ -6,15 +6,11 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -25,7 +21,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.animation.doOnEnd
 import androidx.fragment.app.Fragment
@@ -41,13 +36,6 @@ import com.voicify.voicify_assistant_sdk.components.MessagesRecyclerViewAdapter
 import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.*
 import kotlin.math.roundToInt
 
-
-//https://medium.com/voice-tech-podcast/android-speech-to-text-tutorial-8f6fa71606ac -> speech recognition tutorial
-//https://material.io/develop/android/components/bottom-sheet-dialog-fragment#modal-bottom-sheet -> scroll to bottom sheet modal
-//https://stackoverflow.com/questions/9245408/best-practice-for-instantiating-a-new-android-fragment
-//https://www.google.com/search?q=full-screen+modal+bottom+sheet&sxsrf=ALiCzsbgqSR_1FYkyqppJdl3gSfydK4EUA%3A1659104463691&ei=z-zjYondKeGeptQP1JqwiAQ&oq=full+screen+bottom+moda&gs_lcp=Cgdnd3Mtd2l6EAMYADIGCAAQHhAWMgYIABAeEBYyBQgAEIYDMgUIABCGAzIFCAAQhgM6BAgjECc6EQguEIAEELEDEIMBEMcBENEDOgUIABCRAjoFCAAQgAQ6CwgAEIAEELEDEIMBOgQIABBDOg4ILhCABBCxAxDHARDRAzoNCC4QsQMQgwEQ1AIQQzoKCAAQgAQQhwIQFDoNCC4QgAQQhwIQsQMQFDoNCAAQgAQQhwIQsQMQFDoTCC4QgAQQsQMQgwEQxwEQ0QMQCjoICAAQgAQQsQM6CAguEIAEELEDOgcIABCABBAKSgQIQRgASgQIRhgAUABYqixgnD1oA3AAeAGAAfsBiAHyD5IBBjIyLjEuMZgBAKABAcABAQ&sclient=gws-wiz#kpvalbx=_6uzjYtKNG9CHptQPjtKH2AU67
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val HEADER = "header"
 private const val BODY = "body"
 private const val TOOLBAR = "toolBar"
@@ -94,7 +82,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     }
 
     @SuppressLint("ResourceType")
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

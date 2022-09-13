@@ -146,7 +146,7 @@ class MainActivity : AppCompatActivity() {
                         initializeWithWelcomeMessage = true,
                         useVoiceInput = true,
                         useOutputSpeech = true,
-                        initializeWithText = true,
+                        initializeWithText = false,
                         effects = arrayOf("Play", "Dismiss"),
                         onEffect = onEffect
                         )

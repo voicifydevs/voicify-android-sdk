@@ -2,15 +2,12 @@ package com.voicify.voicify_assistant_sdk.assistant
 
 import android.media.AudioAttributes
 import android.media.MediaPlayer
+import android.media.MediaPlayer.OnPreparedListener
 import android.util.Log
-import androidx.lifecycle.Lifecycle
 import com.google.gson.Gson
 import com.voicify.voicify_assistant_sdk.models.SsmlRequest
 import com.voicify.voicify_assistant_sdk.models.TTSData
 import com.voicify.voicify_assistant_sdk.models.TTSRequest
-import com.voicify.voicify_assistant_sdk.models.VoicifyUserData
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -65,11 +62,14 @@ class VoicifyTTSProvider(val settings: VoicifyTextToSpeechSettings)  : VoicifyTe
                 var ssmlUri = ttsResponse?.get(0)?.url
                         mediaPlayer.reset()
                         mediaPlayer.setDataSource(ssmlUri)
-                        mediaPlayer.prepare()
+                        mediaPlayer.prepareAsync()
                         mediaPlayer.setOnCompletionListener {
                             speechEndHandlers?.forEach { handle -> handle() }
                         }
-                        mediaPlayer.start()
+                mediaPlayer.setOnPreparedListener { mp ->
+                    mp.start()
+                }
+
             }
         })
     }

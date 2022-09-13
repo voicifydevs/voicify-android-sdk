@@ -347,7 +347,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                         response.hints.forEach { hint ->
                             Log.d("JAMES", hint)
                             hintsList.add(hint)
-                            hintsRecyclerViewAdapter?.notifyItemInserted(if(hintsRecyclerViewAdapter?.itemCount as Int == 0) hintsRecyclerViewAdapter?.itemCount as Int  + 1 else hintsRecyclerViewAdapter?.itemCount as Int )
+                            hintsRecyclerViewAdapter?.notifyDataSetChanged()
                         }
                     }
                     else

@@ -237,7 +237,15 @@ class VoicifyAssistant(
     fun makeWelcomeMessage(requestAttributes: Map<String, Any>?)
     {
         val request = generateWelcomeRequest(requestAttributes)
-        makeRequest(request, "")
+        if(settings.autoRunConversation && !settings.initializeWithText)
+        {
+            makeRequest(request, "Speech")
+        }
+        else
+        {
+            makeRequest(request, "Text")
+        }
+
     }
 
     fun generateWelcomeRequest (requestAttributes: Map<String, Any>?): CustomAssistantRequest {

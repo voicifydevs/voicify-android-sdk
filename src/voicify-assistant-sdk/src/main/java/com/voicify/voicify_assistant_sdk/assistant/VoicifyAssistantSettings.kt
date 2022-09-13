@@ -9,6 +9,7 @@ data class VoicifyAssistantSettings(
     val device: String,
     val autoRunConversation: Boolean,
     val initializeWithWelcomeMessage: Boolean,
+    val initializeWithText: Boolean,
     val useVoiceInput: Boolean,
     val useOutputSpeech: Boolean
 )

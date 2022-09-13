@@ -172,6 +172,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             device = assistantSettingProps!!.device,
             autoRunConversation = assistantSettingProps!!.autoRunConversation,
             initializeWithWelcomeMessage = assistantSettingProps!!.initializeWithWelcomeMessage,
+            initializeWithText = assistantSettingProps!!.initializeWithText,
             useVoiceInput = assistantSettingProps!!.useVoiceInput,
             useOutputSpeech = assistantSettingProps!!.useOutputSpeech))
 
@@ -219,6 +220,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         // set Linear Layout styles
         drawerLayout.setBackgroundColor(Color.parseColor(toolBarProps?.backgroundColor ?: "#ffffff"));
         drawerLayout.setPadding(toolBarProps?.paddingLeft ?: getPixelsFromDp(16),toolBarProps?.paddingTop ?: getPixelsFromDp(16),toolBarProps?.paddingRight ?: getPixelsFromDp(16),toolBarProps?.paddingBottom ?: getPixelsFromDp(16))
+        if(assistantSettingProps?.initializeWithWelcomeMessage == true)
+        {
+            drawerLayout.visibility = View.GONE
+        }
         //set View styles
         speakingAnimationBar1.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
         speakingAnimationBar2.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
@@ -284,6 +289,15 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         sendTextLayoutStyle.setColor(Color.parseColor(toolBarProps?.textBoxActiveHighlightColor ?: "#1f1e7eb9"))
         sendTextLayoutStyle.cornerRadius = 24f
 
+        if(assistantSettingProps?.initializeWithText == true)
+        {
+            speakingAnimationLayout.visibility = View.GONE
+            sendTextLayout.background = sendTextLayoutStyle
+            isUsingSpeech = false
+            spokenTextView.visibility = View.GONE
+            assistantStateTextView.visibility = View.GONE
+        }
+
         val bodyContainerLayoutStyle = GradientDrawable()
         bodyContainerLayoutStyle.setStroke(4, Color.parseColor(bodyProps?.borderColor ?: "#CBCCD2"))
         bodyContainerLayoutStyle.setColor(Color.parseColor(bodyProps?.backgroundColor ?: "#F4F4F6"))
@@ -302,7 +316,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         //initialization
         assistant.initializeAndStart()
         assistant.startNewSession()
-        if(assistantSettingProps?.initializeWithText == false)
+        if(assistantSettingProps?.initializeWithText == false && assistantSettingProps?.initializeWithWelcomeMessage == false)
         {
             voicifySTT?.startListening()
         }
@@ -382,6 +396,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             if(!response.endSession)
             {
                 activity?.runOnUiThread{
+                    drawerLayout.visibility = View.VISIBLE
                     bodyContainerLayout.visibility = View.VISIBLE
                     spokenTextView.text = ""
                     hintsRecyclerView.visibility = View.VISIBLE

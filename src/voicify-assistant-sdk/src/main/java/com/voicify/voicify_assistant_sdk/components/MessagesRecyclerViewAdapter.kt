@@ -4,22 +4,30 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
+import android.text.TextPaint
+import android.text.style.ClickableSpan
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
-import androidx.annotation.NonNull
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.Space
+import android.widget.TextView
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
-import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.Message
 import com.voicify.voicify_assistant_sdk.R
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.BodyProps
-import io.noties.markwon.AbstractMarkwonPlugin
-import io.noties.markwon.Markwon
-import io.noties.markwon.MarkwonConfiguration
+import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.Message
+import io.noties.markwon.*
 import io.noties.markwon.core.CorePlugin
+import io.noties.markwon.ext.tasklist.TaskListItem
+import io.noties.markwon.ext.tasklist.TaskListPlugin
+import io.noties.markwon.ext.tasklist.TaskListSpan
 
+
+//https://noties.io/Markwon/docs/v3/ext-tasklist/#task-list-mutation
 internal class MessagesRecyclerViewAdapter(private var messagesList: List<Message>, private var bodyProps: BodyProps?, private var context: Context) :
     RecyclerView.Adapter<MessagesRecyclerViewAdapter.MyViewHolder>() {
     internal inner class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -42,8 +50,49 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
         val messagesSpace = holder.messagesSpace
         val messagesAvatar = holder.messagesAvatar
         val avatarBackground = holder.assistantAvatarBackgroundLayout
+
         val markwon = Markwon.builder(context)
             .usePlugin(CorePlugin.create())
+            .usePlugin(TaskListPlugin.create(context))
+            .usePlugin(object : AbstractMarkwonPlugin() {
+                override fun configureSpansFactory(builder: MarkwonSpansFactory.Builder) {
+
+                    // obtain original SpanFactory set by TaskListPlugin
+                    val origin = builder.getFactory(TaskListItem::class.java)
+                        ?: // or throw, as it's a bit weird state and we expect
+                        // this factory to be present
+                        return
+                    builder.setFactory(TaskListItem::class.java,
+                        SpanFactory { configuration, props ->
+                            // it's a bit non-secure behavior and we should validate
+                            // the type of returned span first, but for the sake of brevity
+                            // we skip this step
+                            val span = origin.getSpans(configuration, props) as TaskListSpan?
+                                ?: // or throw
+                                return@SpanFactory null
+
+                            // return an array of spans
+                            arrayOf(
+                                span,
+                                object : ClickableSpan() {
+                                    override fun onClick(widget: View) {
+                                        // toggle VISUAL state
+                                        span.isDone = !span.isDone
+                                        // do not forget to invalidate widget
+                                        widget.invalidate()
+
+                                        // execute your persistence logic
+                                    }
+
+                                    override fun updateDrawState(ds: TextPaint) {
+                                        // no-op, so appearance is not changed (otherwise
+                                        // task list item will look like a link)
+                                    }
+                                }
+                            )
+                        })
+                }
+            })
             .usePlugin(object : AbstractMarkwonPlugin() {
                 override fun configureConfiguration(builder: MarkwonConfiguration.Builder) {
                     super.configureConfiguration(builder)
@@ -105,7 +154,6 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             messageTextView.setTextColor(Color.parseColor(bodyProps?.messageReceivedTextColor ?: "#000000"))
             messageTextView.textSize = bodyProps?.messageReceivedFontSize ?: 14f
         }
-        //messageTextView.text = message.message
         markwon.setMarkdown(messageTextView, message.message)
     }
     override fun getItemCount(): Int {

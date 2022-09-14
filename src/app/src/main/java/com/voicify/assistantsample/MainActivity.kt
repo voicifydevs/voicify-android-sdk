@@ -143,17 +143,16 @@ class MainActivity : AppCompatActivity() {
                     if(effectName == "Dismiss")
                     {
                         Log.d("JAMES","CLOSING")
-                        voiceAssistant?.dismiss()
+                        voiceAssistant.dismiss()
                     }
                     if(effectName == "Play")
                     {
                         Log.d("JAMES", "HERES THE DATA $data")
-                        voiceAssistant?.dismiss()
+                        voiceAssistant.dismiss()
                     }
                 }
                 voiceAssistant.onEffect(onEffect)
-                voiceAssistant?.show(supportFragmentManager, "assistantDrawerUI")
-                //modalBottomSheet.dismiss()
+                voiceAssistant.show(supportFragmentManager, "assistantDrawerUI")
             }
         }
     }

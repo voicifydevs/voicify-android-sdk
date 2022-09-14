@@ -66,6 +66,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private var speechFullResult : String? = null
     private var bottomSheetBehavior : BottomSheetBehavior<View>? = null
     private var isKeyboardActive = false
+    private var onEffectCallback: ((effect: String, data: Any) -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -486,7 +487,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         assistantSettingProps?.effects?.forEach { effect ->
             assistant.onEffect(effect) { data ->
-                assistantSettingProps?.onEffect?.invoke(effect, data)
+                onEffectCallback?.invoke(effect, data)
             }
         }
 
@@ -634,7 +635,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         customBuilder.intent.setPackage("com.android.chrome")
         customBuilder.launchUrl(requireContext(), Uri.parse(link))
     }
-
+    fun onEffect(callback: ((effect: String, data: Any) -> Unit)){
+        onEffectCallback = callback
+    }
     companion object {
         /**
          * Use this factory method to create a new instance of

@@ -16,5 +16,4 @@ data class AssistantSettingsProps(
     val useVoiceInput: Boolean,
     val useOutputSpeech: Boolean,
     val initializeWithText: Boolean,
-    val effects: Array<String>? = emptyArray(),
-    val onEffect: ((effect: String, data: Any) -> Unit)? = null): Serializable
+    val effects: Array<String>? = emptyArray() ): Serializable

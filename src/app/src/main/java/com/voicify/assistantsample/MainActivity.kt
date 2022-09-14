@@ -13,26 +13,14 @@ import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.HeaderProps
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private var voiceAssistant: AssistantDrawerUI? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val onEffect: (String, Any) -> Unit = { effectName, data ->
-            if(effectName == "Dismiss")
-            {
-                Log.d("JAMES","CLOSING")
-                voiceAssistant?.dismiss()
-            }
-            if(effectName == "Play")
-            {
-                Log.d("JAMES", "HERES THE DATA $data")
-                voiceAssistant?.dismiss()
-            }
-        }
+
         binding.assistantMic.setOnClickListener {
             if (savedInstanceState == null) {
-                voiceAssistant = AssistantDrawerUI.newInstance(
+                val voiceAssistant = AssistantDrawerUI.newInstance(
                     HeaderProps(
                         fontSize = 18f,
                         backgroundColor = "#4C753F",
@@ -149,9 +137,21 @@ class MainActivity : AppCompatActivity() {
                         useOutputSpeech = true,
                         initializeWithText = false,
                         effects = arrayOf("Play", "Dismiss"),
-                        onEffect = onEffect
                         )
                 )
+                val onEffect: (String, Any) -> Unit = { effectName, data ->
+                    if(effectName == "Dismiss")
+                    {
+                        Log.d("JAMES","CLOSING")
+                        voiceAssistant?.dismiss()
+                    }
+                    if(effectName == "Play")
+                    {
+                        Log.d("JAMES", "HERES THE DATA $data")
+                        voiceAssistant?.dismiss()
+                    }
+                }
+                voiceAssistant.onEffect(onEffect)
                 voiceAssistant?.show(supportFragmentManager, "assistantDrawerUI")
                 //modalBottomSheet.dismiss()
             }

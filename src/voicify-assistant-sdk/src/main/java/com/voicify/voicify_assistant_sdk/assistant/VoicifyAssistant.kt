@@ -1,7 +1,5 @@
 package com.voicify.voicify_assistant_sdk.assistant
 
-import android.util.Log
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.voicify.voicify_assistant_sdk.models.*
 import okhttp3.*
 import com.google.gson.Gson

@@ -8,8 +8,6 @@ import com.google.gson.Gson
 import com.voicify.voicify_assistant_sdk.models.SsmlRequest
 import com.voicify.voicify_assistant_sdk.models.TTSData
 import com.voicify.voicify_assistant_sdk.models.TTSRequest
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody

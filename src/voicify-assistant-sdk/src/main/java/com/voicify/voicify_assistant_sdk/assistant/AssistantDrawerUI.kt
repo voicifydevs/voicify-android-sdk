@@ -6,11 +6,16 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
-import android.net.Uri
+import android.graphics.drawable.VectorDrawable
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -21,21 +26,29 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.browser.customtabs.CustomTabsIntent
+import androidx.annotation.ColorInt
 import androidx.core.animation.doOnEnd
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.squareup.picasso.Picasso
 import com.voicify.voicify_assistant_sdk.R
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.*
 import com.voicify.voicify_assistant_sdk.components.HintsRecyclerViewAdapter
 import com.voicify.voicify_assistant_sdk.components.MessagesRecyclerViewAdapter
 import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.*
-import java.io.Serializable
+import java.lang.reflect.Field
 import kotlin.math.roundToInt
+import kotlin.reflect.KClass
+
 
 private const val HEADER = "header"
 private const val BODY = "body"
@@ -206,7 +219,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val speakTextView = window.findViewById<TextView>(R.id.speakTextView)
         val inputTextMessageEditTextView = window.findViewById<EditText>(R.id.inputTextMessage)
         val assistantNameTextView = window.findViewById<TextView>(R.id.assistantNameTextView)
-        // set Linear Layout styles
+        inputTextMessageEditTextView.setCursorDrawableColor(Color.parseColor(toolBarProps?.textInputCursorColor ?: "#000000"))
+        inputTextMessageEditTextView.setTextColor(Color.parseColor(toolBarProps?.textInputTextColor ?: "#000000"))
+        val colorStateList = ColorStateList.valueOf(Color.parseColor(toolBarProps?.textInputLineColor ?: "#000000"))
+        ViewCompat.setBackgroundTintList(inputTextMessageEditTextView,colorStateList)
+
         drawerLayout.setBackgroundColor(Color.parseColor(toolBarProps?.backgroundColor ?: "#ffffff"));
         drawerLayout.setPadding(toolBarProps?.paddingLeft ?: getPixelsFromDp(16),toolBarProps?.paddingTop ?: getPixelsFromDp(16),toolBarProps?.paddingRight ?: getPixelsFromDp(16),toolBarProps?.paddingBottom ?: getPixelsFromDp(16))
         if(assistantSettingProps?.initializeWithWelcomeMessage == true)
@@ -458,10 +475,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 sendTextLayout.setBackgroundColor(Color.parseColor(toolBarProps?.textBoxInactiveHighlightColor ?: "#00ffffff"))
                 dashedLineImageView.visibility = View.VISIBLE;
                 hideKeyboard()
-                if(isDrawer)
-                {
-                }
-                else{
+               if(!isDrawer){
                     val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
                     drawerFooterLayoutParams.setMargins(0,getPixelsFromDp(20),0,0)
                     drawerFooterLayout.layoutParams = drawerFooterLayoutParams
@@ -509,10 +523,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                 when(event?.action) {
                     MotionEvent.ACTION_UP -> {
-//                        val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(350))
-//                        layoutParams1.weight = 0f
-//                        messagesRecyclerView.layoutParams = layoutParams1
-//                        bodyContainerLayout.layoutParams = layoutParams1
                         if (assistantIsListening) {
                             cancelSpeech()
                             assistantStateTextView.text = ""
@@ -557,15 +567,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         return window
     }
 
-    fun Fragment.hideKeyboard() {
+    private fun Fragment.hideKeyboard() {
         view?.let { activity?.hideKeyboard(it) }
     }
 
-    fun Activity.hideKeyboard() {
-        hideKeyboard(currentFocus ?: View(this))
-    }
-
-    fun Context.hideKeyboard(view: View) {
+    private fun Context.hideKeyboard(view: View) {
         val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
@@ -627,14 +633,73 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         voicifyTTS?.stop()
     }
 
-    private fun openLink(link: String) {
-        val builder = CustomTabsIntent.Builder()
-        builder.setShareState(CustomTabsIntent.SHARE_STATE_ON)
-        builder.setInstantAppsEnabled(true)
-        val customBuilder = builder.build()
-        customBuilder.intent.setPackage("com.android.chrome")
-        customBuilder.launchUrl(requireContext(), Uri.parse(link))
+
+
+    private fun TextView.setCursorDrawableColor(@ColorInt color: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            textCursorDrawable?.tinted(color)
+            return
+        }
+
+        try {
+            val editorField = TextView::class.java.getFieldByName("mEditor")
+            val editor = editorField?.get(this) ?: this
+            val editorClass: Class<*> = if (editorField != null) editor.javaClass else TextView::class.java
+            val cursorRes = TextView::class.java.getFieldByName("mCursorDrawableRes")?.get(this) as? Int ?: return
+
+            val tintedCursorDrawable = ContextCompat.getDrawable(context, cursorRes)?.tinted(color) ?: return
+
+            val cursorField = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                editorClass.getFieldByName("mDrawableForCursor")
+            } else {
+                null
+            }
+            if (cursorField != null) {
+                cursorField.set(editor, tintedCursorDrawable)
+            } else {
+                editorClass.getFieldByName("mCursorDrawable", "mDrawableForCursor")
+                    ?.set(editor, arrayOf(tintedCursorDrawable, tintedCursorDrawable))
+            }
+        } catch (t: Throwable) {
+            t.printStackTrace()
+        }
     }
+
+    private fun Class<*>.getFieldByName(vararg name: String): Field? {
+        name.forEach {
+            try{
+                return this.getDeclaredField(it).apply { isAccessible = true }
+            } catch (t: Throwable) { }
+        }
+        return null
+    }
+
+    private fun Drawable.tinted(@ColorInt color: Int): Drawable = when {
+        this is VectorDrawableCompat -> {
+            this.apply { setTintList(ColorStateList.valueOf(color)) }
+        }
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && this is VectorDrawable -> {
+            this.apply { setTintList(ColorStateList.valueOf(color)) }
+        }
+        else -> {
+            DrawableCompat.wrap(this)
+                .also { DrawableCompat.setTint(it, color) }
+                .let { DrawableCompat.unwrap(it) }
+        }
+    }
+
+    fun Number.spToPx(context: Context? = null): Float {
+        val res = context?.resources ?: android.content.res.Resources.getSystem()
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, this.toFloat(), res.displayMetrics)
+    }
+
+    fun <T> deserializeEffectData(data: Any, type: Class<T>): T {
+        val gson = Gson()
+        val dataString = gson.toJson(data)
+        val newData =  gson.fromJson(dataString, type)
+        return newData as T
+    }
+
     fun onEffect(callback: ((effect: String, data: Any) -> Unit)){
         onEffectCallback = callback
     }

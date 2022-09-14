@@ -100,6 +100,9 @@ class MainActivity : AppCompatActivity() {
                         //sendActiveImage = "https://voicify-prod-files.s3.amazonaws.com/12f5d424-b669-4e17-8967-4b483238fb90/640cc81b-2efa-4591-a261-5936a63136ad/send.png",
 //                        sendInactiveImage = "",
                         speakFontSize = 12f,
+                        textInputCursorColor = "#4C753F",
+                        textInputLineColor = "#4C753F",
+                        textInputTextColor = "#4C753F",
                         speakActiveTitleColor = "#4C753F",
                         speakInactiveTitleColor = "#131313",
                         typeFontSize = 12f,
@@ -147,8 +150,11 @@ class MainActivity : AppCompatActivity() {
                     }
                     if(effectName == "Play")
                     {
-                        Log.d("JAMES", "HERES THE DATA $data")
-                        voiceAssistant.dismiss()
+                        val effectData = voiceAssistant.deserializeEffectData(data, PlayEffectData::class.java)
+                        this.runOnUiThread {
+                            binding.nowPlayingTextView.text = "Now playing ${effectData.title}"
+                            voiceAssistant.dismiss()
+                        }
                     }
                 }
                 voiceAssistant.onEffect(onEffect)

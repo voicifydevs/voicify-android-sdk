@@ -25,4 +25,13 @@
         android:layout_marginBottom="723dp"
         android:text="Click Me To Open Assistant" />
 
+    <TextView
+        android:id="@+id/nowPlayingTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="14sp">
+
+    </TextView>
+
 </RelativeLayout>

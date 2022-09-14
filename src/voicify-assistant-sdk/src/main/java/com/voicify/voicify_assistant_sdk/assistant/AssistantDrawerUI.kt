@@ -688,7 +688,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
     }
 
-    fun Number.spToPx(context: Context? = null): Float {
+    private fun Number.spToPx(context: Context? = null): Float {
         val res = context?.resources ?: android.content.res.Resources.getSystem()
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, this.toFloat(), res.displayMetrics)
     }

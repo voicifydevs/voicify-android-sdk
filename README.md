@@ -3,15 +3,19 @@ This project includes the models, API methods and classes for interacting with t
 
 # Getting Started
 
+```
 maven {
     url 'https://jitpack.io'
 }
+
 
 dependencies {
    implementation 'com.github.voicifydevs:voicify-android-sdk:1.0.7'
 }
 
+```
 You may need to add some permssions to your android manifest:
+```xml
 <uses-permission "android:name=android.permission.RECORD_AUDIO" />
 <uses-permission "android:name=android.permission.INTERNET" />
 <queries>
@@ -19,7 +23,7 @@ You may need to add some permssions to your android manifest:
      <action android:name="android.speech.RecognitionService" />
    </intent>
 </queries>
-
+```
 This SDK offers several out-of-the-box solutions, including:
 - A customizable Voicify Custom Assistant component
 - A speech to text (STT) class 
@@ -36,6 +40,7 @@ Whether you are looking for a quick and easy way to add a Voicify Assistant to y
 The Assistant Drawer UI component is prebuilt to allow for an easy solution for implementing a Voicify Assistant in your project. The component requires some settings that get passed in as props and then its ready to go. All of the props that are not part of the styling, (the header, body and toolbar objects), are required. Contrastly, none of the styling props are required.
 
 For example, the component can be initialized with the required settings and a few styling options.
+```kt
         val voiceAssistant = AssistantDrawerUI.newInstance(
         HeaderProps(
                 backgroundColor = "#ffffff",
@@ -60,6 +65,7 @@ For example, the component can be initialized with the required settings and a f
                 effects = arrayOf("Dismiss","Play"),
         )
 )
+```
 
 ## Create Your Own Assistant
 While the Assistant Drawer UI offers a quick and easy way to integrate a Voicify Assistant, some cases may require more customization. For those cases, this SDK also provides a Voicify Assistant class that can be initialized with your `serverRootUrl`, `applicationId`, and `applicationSecret` from Voicify. Once it's configured, it becomes easy to make requests to your Voicify Custom Assistant. Additionally, the Assistant class can be configured with a TTS provider and a STT provider. In the case that you would like to use your own, you can utilize the `VoicifyTextToSpeechProvider` and `VoicifySpeechToTextProvider` classes. If you would like to utilize the providers that come with the SDK, then you can pass in the `VoicifyTTSProvider` and `VoicifySTTProvider` into the assistant
@@ -90,7 +96,7 @@ val assistant = VoicifyAssistant(voicifySTT, voicifyTTS, VoicifyAssistantSetting
 
 assistant.initializeAndStart()
 assistant.startNewSession()
-```kt s
+```
 ## Additional Notes
 There are a few things to note when using the SDK.
 

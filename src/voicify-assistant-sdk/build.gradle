@@ -58,16 +58,16 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                from components.release
-                groupId = 'com.github.voicifydevs'
-                artifactId = 'voicify-android-sdk'
-                version = '1.0.3'
-            }
-        }
-    }
-}
+//afterEvaluate {
+//    publishing {
+//        publications {
+//            mavenJava(MavenPublication) {
+//                from components.release
+//                groupId = 'com.github.voicifydevs'
+//                artifactId = 'voicify-android-sdk'
+//                version = '1.0.3'
+//            }
+//        }
+//    }
+//}
 

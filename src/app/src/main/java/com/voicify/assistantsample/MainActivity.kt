@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.voicify.assistantsample.databinding.ActivityMainBinding
-import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.ToolBarProps
-import com.voicify.voicify_assistant_sdk.assistant.AssistantDrawerUI
-import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.AssistantSettingsProps
-import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.BodyProps
-import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.HeaderProps
+//import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.ToolBarProps
+//import com.voicify.voicify_assistant_sdk.assistant.AssistantDrawerUI
+//import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.AssistantSettingsProps
+//import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.BodyProps
+//import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.HeaderProps
 
 class MainActivity : AppCompatActivity() {
 

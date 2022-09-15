@@ -24,8 +24,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     kotlinOptions {
         jvmTarget = '1.8'
@@ -58,16 +58,16 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }
 
-//afterEvaluate {
-//    publishing {
-//        publications {
-//            mavenJava(MavenPublication) {
-//                from components.release
-//                groupId = 'com.github.voicifydevs'
-//                artifactId = 'voicify-android-sdk'
-//                version = '1.0.3'
-//            }
-//        }
-//    }
-//}
+afterEvaluate {
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.release
+                groupId = 'VoicifyAssistantSample'
+                artifactId = 'voicify-assistant-sdk'
+                version = '1.0.3'
+            }
+        }
+    }
+}
 

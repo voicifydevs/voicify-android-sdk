@@ -129,10 +129,7 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             avatarBackground.setPadding(12,12,12,12)
             avatarBackground.visibility = View.VISIBLE
             messagesAvatar.visibility = View.VISIBLE
-            if(!bodyProps?.assistantImage.isNullOrEmpty())
-            {
-                Picasso.get().load(bodyProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png").into(messagesAvatar)
-            }
+            Picasso.get().load(bodyProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png").into(messagesAvatar)
             val messagesTextViewStyle = GradientDrawable()
             messagesTextViewStyle.shape = GradientDrawable.RECTANGLE
             messagesTextViewStyle.setStroke(bodyProps?.messageReceivedBorderWidth ?: 4, Color.parseColor(bodyProps?.messageReceivedBorderColor ?: "#CBCCD2"))

@@ -139,6 +139,7 @@ class MainActivity : AppCompatActivity() {
                         useVoiceInput = true,
                         useOutputSpeech = true,
                         initializeWithText = false,
+                        useDraftContent = true,
                         effects = arrayOf("Play", "Dismiss"),
                         )
                 )

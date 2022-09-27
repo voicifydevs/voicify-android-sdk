@@ -176,6 +176,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             initializeWithWelcomeMessage = assistantSettingProps!!.initializeWithWelcomeMessage,
             initializeWithText = assistantSettingProps!!.initializeWithText,
             useVoiceInput = assistantSettingProps!!.useVoiceInput,
+            useDraftContent = assistantSettingProps!!.useDraftContent,
             useOutputSpeech = assistantSettingProps!!.useOutputSpeech))
 
         val onHintClicked: (String) -> Unit = {  hint ->
@@ -206,10 +207,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         loadImageFromUrl(headerProps?.closeAssistantButtonImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/a6de04bb-e572-4a55-8cd9-1a7628285829/delete-2.png", closeAssistantImageView)
         loadImageFromUrl(if(assistantSettingProps?.initializeWithText == false) toolBarProps?.sendInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/0c5aa61c-7d6c-4272-abd2-75d9f5771214/Send-2-.png"
         else toolBarProps?.sendActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/7a39bc6f-eef5-4185-bcf8-2a645aff53b2/Send-3-.png", sendMessageImageView)
-        if(!headerProps?.assistantImage.isNullOrEmpty())
-        {
-            loadImageFromUrl(headerProps?.assistantImage.toString(), assistantAvatarImageView)
-        }
+        loadImageFromUrl(headerProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png", assistantAvatarImageView)
 
         //Text Views
         val assistantStateTextView = window.findViewById<TextView>(R.id.assistantStateTextView)
@@ -252,7 +250,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         spokenTextView.textSize = 16f
         assistantStateTextView.setTextColor(Color.parseColor(toolBarProps?.assistantStateTextColor ?: "#8F97A1"))
         isUsingSpeech = assistantSettingProps?.initializeWithText == false
-        assistantNameTextView.text = headerProps?.assistantName ?: ""
+        assistantNameTextView.text = headerProps?.assistantName ?: "Voicify Assistant"
         assistantNameTextView.textSize = headerProps?.fontSize ?: 18f
         inputTextMessageEditTextView.hint = toolBarProps?.placeholder ?: "Enter a message..."
         assistantNameTextView.setTextColor(Color.parseColor(headerProps?.assistantNameTextColor ?: "#000000"))
@@ -263,19 +261,12 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         closeAssistantImageBackgroundStyle.setStroke(headerProps?.assistantImageBorderWidth ?: 0, Color.parseColor(headerProps?.closeAssistantButtonBorderColor ?: "#00ffffff"))
         closeAssistantImageBackgroundStyle.setColor(Color.parseColor(headerProps?.closeAssistantButtonBackgroundColor ?: "#00ffffff"))
 
-        if(headerProps?.assistantImage.isNullOrEmpty())
-        {
-            assistantAvatarBackground.visibility = View.GONE
-        }
-        else
-        {
-            val avatarBackgroundStyle = GradientDrawable()
-            avatarBackgroundStyle.cornerRadius = headerProps?.assistantImageBorderRadius ?: 48f
-            avatarBackgroundStyle.setStroke(headerProps?.assistantImageBorderWidth ?: 4, Color.parseColor(headerProps?.assistantImageBorderColor ?: "#CBCCD2"))
-            avatarBackgroundStyle.setColor(Color.parseColor(headerProps?.assistantImageBackgroundColor ?: "#ffffff"))
-            assistantAvatarBackground.background = avatarBackgroundStyle
-            assistantAvatarBackground.setPadding(12,12,12,12)
-        }
+        val avatarBackgroundStyle = GradientDrawable()
+        avatarBackgroundStyle.cornerRadius = headerProps?.assistantImageBorderRadius ?: 48f
+        avatarBackgroundStyle.setStroke(headerProps?.assistantImageBorderWidth ?: 4, Color.parseColor(headerProps?.assistantImageBorderColor ?: "#CBCCD2"))
+        avatarBackgroundStyle.setColor(Color.parseColor(headerProps?.assistantImageBackgroundColor ?: "#ffffff"))
+        assistantAvatarBackground.background = avatarBackgroundStyle
+        assistantAvatarBackground.setPadding(12,12,12,12)
 
         val spokenTextViewStyle = GradientDrawable()
         spokenTextViewStyle.cornerRadius = 24f
@@ -438,10 +429,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     speechFullResult = null
                     drawerLayout.setPadding(0,0,0,0)
                     toolBarLayout.setPadding(toolBarProps?.paddingLeft ?: getPixelsFromDp(16), getPixelsFromDp(0),toolBarProps?.paddingRight ?: getPixelsFromDp(16),toolBarProps?.paddingBottom ?: getPixelsFromDp(16))
-                    if(!headerProps?.assistantImage.isNullOrEmpty())
-                    {
-                        assistantAvatarBackground.visibility = View.VISIBLE
-                    }
+                    assistantAvatarBackground.visibility = View.VISIBLE
                     headerLayout.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor ?: "#ffffff"))
                     headerLayout.setPadding(headerProps?.paddingLeft ?: getPixelsFromDp(16), headerProps?.paddingTop ?: getPixelsFromDp(16), headerProps?.paddingRight ?: getPixelsFromDp(16), headerProps?.paddingBottom ?: getPixelsFromDp(16))
                     bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED

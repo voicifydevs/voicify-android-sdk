@@ -100,8 +100,9 @@ class VoicifyAssistant(
             val gson = Gson()
             val assistantRequestJsonString = gson.toJson(request)
             val assistantRequestBody = assistantRequestJsonString.toRequestBody("application/json;charset=utf-8".toMediaTypeOrNull())
+            val useDraftContent = if (settings.useDraftContent) "&useDraftContent=true" else ""
             val assistantRequest = Request.Builder()
-                .url("${settings.serverRootUrl}/api/customAssistant/handlerequest?applicationId=${settings.appId}&applicationSecret=${settings.appKey}")
+                .url("${settings.serverRootUrl}/api/customAssistant/handlerequest?applicationId=${settings.appId}&applicationSecret=${settings.appKey}${useDraftContent}")
                 .method("POST", assistantRequestBody)
                 .build()
             client.newCall(assistantRequest).enqueue(object : Callback{

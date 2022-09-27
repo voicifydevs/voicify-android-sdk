@@ -11,5 +11,6 @@ data class VoicifyAssistantSettings(
     val initializeWithWelcomeMessage: Boolean,
     val initializeWithText: Boolean,
     val useVoiceInput: Boolean,
+    val useDraftContent: Boolean,
     val useOutputSpeech: Boolean
 )

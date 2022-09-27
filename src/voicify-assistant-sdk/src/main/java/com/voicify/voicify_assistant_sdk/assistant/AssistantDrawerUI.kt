@@ -176,6 +176,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             initializeWithWelcomeMessage = assistantSettingProps!!.initializeWithWelcomeMessage,
             initializeWithText = assistantSettingProps!!.initializeWithText,
             useVoiceInput = assistantSettingProps!!.useVoiceInput,
+            useDraftContent = assistantSettingProps!!.useDraftContent,
             useOutputSpeech = assistantSettingProps!!.useOutputSpeech))
 
         val onHintClicked: (String) -> Unit = {  hint ->

@@ -127,14 +127,14 @@ class MainActivity : AppCompatActivity() {
 //                        equalizerColor = "#4C753F"
                     ),
                     AssistantSettingsProps(
-                        appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
-                        appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
+                        appId = "91915956-286c-4102-97f1-98cecafdd4d6",
+                        appKey = "N2EzM2VkMjgtNjk1Yi00M2ViLThhNTEtY2UxYzhkMWU0Zjcx",
                         serverRootUrl = "https://assistant.voicify.com",
                         locale = "en-US",
                         channel = "My App",
                         device = "My Device",
                         autoRunConversation = true,
-                        initializeWithWelcomeMessage = false,
+                        initializeWithWelcomeMessage = true,
                         textToSpeechProvider = "Google",
                         useVoiceInput = true,
                         useOutputSpeech = true,
@@ -158,6 +158,8 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 }
+                val sessionAttributes = mapOf("sessionData" to ExampleSessionData(id="conifguredId", user = "user"))
+                voiceAssistant.addSessionAttributes(sessionAttributes)
                 voiceAssistant.onEffect(onEffect)
                 voiceAssistant.show(supportFragmentManager, "assistantDrawerUI")
             }

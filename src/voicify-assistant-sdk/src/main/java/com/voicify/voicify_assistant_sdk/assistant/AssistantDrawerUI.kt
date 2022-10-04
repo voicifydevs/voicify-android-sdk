@@ -46,6 +46,8 @@ import com.voicify.voicify_assistant_sdk.components.HintsRecyclerViewAdapter
 import com.voicify.voicify_assistant_sdk.components.MessagesRecyclerViewAdapter
 import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.*
 import java.lang.reflect.Field
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.roundToInt
 import kotlin.reflect.KClass
 
@@ -80,6 +82,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private var bottomSheetBehavior : BottomSheetBehavior<View>? = null
     private var isKeyboardActive = false
     private var onEffectCallback: ((effect: String, data: Any) -> Unit)? = null
+    private var sessionAttributes: Map<String, Any>? = emptyMap()
+    private var userAttributes: Map<String, Any> = emptyMap()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,7 +114,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             if (heightDiff > 500) { // if more than 100 pixels, its probably a keyboard...
                 if(!isKeyboardActive)
                 {
-                    val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(340))
+                    val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(320))
                     layoutParams1.weight = 0f
                     bodyContainerLayout.layoutParams = layoutParams1
                     messagesRecyclerViewAdapter?.notifyDataSetChanged()
@@ -181,6 +185,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         val onHintClicked: (String) -> Unit = {  hint ->
             messagesList.add(Message(hint, "Sent"))
+            clearAnimationValues()
             messagesRecyclerViewAdapter?.notifyDataSetChanged()
             messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
             hideKeyboard()
@@ -312,7 +317,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         //initialization
         assistant.initializeAndStart()
-        assistant.startNewSession()
+        assistant.startNewSession(null, null, this.sessionAttributes, this.userAttributes)
         if(assistantSettingProps?.initializeWithText == false && assistantSettingProps?.initializeWithWelcomeMessage == false)
         {
             voicifySTT?.startListening()
@@ -690,6 +695,14 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
     fun onEffect(callback: ((effect: String, data: Any) -> Unit)){
         onEffectCallback = callback
+    }
+
+    fun addSessionAttributes(sessionAttributes: Map<String, Any>){
+        this.sessionAttributes = sessionAttributes
+    }
+
+    fun addUserAttributes(userAttributes: Map<String, Any>){
+        this.userAttributes = userAttributes
     }
     companion object {
         /**

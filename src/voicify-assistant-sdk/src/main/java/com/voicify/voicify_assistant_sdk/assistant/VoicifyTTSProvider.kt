@@ -2,8 +2,6 @@ package com.voicify.voicify_assistant_sdk.assistant
 
 import android.media.AudioAttributes
 import android.media.MediaPlayer
-import android.media.MediaPlayer.OnPreparedListener
-import android.util.Log
 import com.google.gson.Gson
 import com.voicify.voicify_assistant_sdk.models.SsmlRequest
 import com.voicify.voicify_assistant_sdk.models.TTSData

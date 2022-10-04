@@ -193,7 +193,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             cancelSpeech()
             voicifyTTS?.stop()
             hintsRecyclerViewAdapter?.notifyDataSetChanged()
-            assistant.makeTextRequest(hint ,sessionAttributes ?: null, "Text")
+            assistant.makeTextRequest(hint ,null, "Text")
         }
         hintsRecyclerViewAdapter = HintsRecyclerViewAdapter(hintsList, bodyProps, onHintClicked)
         messagesRecyclerView.layoutManager = LinearLayoutManager(context)
@@ -336,7 +336,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             assistantIsListening = false
             spokenTextView.text = fullResult
             assistantStateTextView.text = "Processing..."
-            assistant.makeTextRequest(fullResult.toString(), sessionAttributes ?: null, "Speech")
+            assistant.makeTextRequest(fullResult.toString(), null, "Speech")
         }
         voicifySTT?.addEndListener {
 
@@ -507,7 +507,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 val inputText = inputTextMessageEditTextView.text.toString()
                 inputTextMessageEditTextView.setText("")
                 hideKeyboard()
-                assistant.makeTextRequest(inputText,sessionAttributes ?: null, "Text")
+                assistant.makeTextRequest(inputText,null, "Text")
             }
         }
 

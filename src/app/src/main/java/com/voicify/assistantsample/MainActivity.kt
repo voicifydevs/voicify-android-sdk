@@ -127,8 +127,8 @@ class MainActivity : AppCompatActivity() {
 //                        equalizerColor = "#4C753F"
                     ),
                     AssistantSettingsProps(
-                        appId = "91915956-286c-4102-97f1-98cecafdd4d6",
-                        appKey = "N2EzM2VkMjgtNjk1Yi00M2ViLThhNTEtY2UxYzhkMWU0Zjcx",
+                        appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
+                        appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
                         serverRootUrl = "https://assistant.voicify.com",
                         locale = "en-US",
                         channel = "My App",

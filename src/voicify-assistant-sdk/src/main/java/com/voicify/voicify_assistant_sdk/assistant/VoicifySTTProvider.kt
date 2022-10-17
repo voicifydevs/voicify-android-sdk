@@ -31,7 +31,7 @@ class VoicifySTTProvider (private val context: Context, private val activity: Ac
     private val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 
     override fun initialize (locale: String) {
-
+        this.locale = locale
     }
 
     override fun startListening(){
@@ -45,6 +45,7 @@ class VoicifySTTProvider (private val context: Context, private val activity: Ac
         }
 
         speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        Log.d("JAMES", locale)
         speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale);
         speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
         speechRecognizer?.setRecognitionListener(object : RecognitionListener {

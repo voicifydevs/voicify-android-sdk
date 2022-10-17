@@ -316,6 +316,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         inputTextMessageEditTextView.textSize = toolBarProps?.textBoxFontSize ?: 18f
 
         //initialization
+        if(!assistantSettingProps?.locale.toString().isNullOrEmpty())
+        {
+            voicifySTT?.initialize(assistantSettingProps?.locale.toString())
+        }
         assistant.initializeAndStart()
         assistant.startNewSession(null, null, this.sessionAttributes, this.userAttributes)
         if(assistantSettingProps?.initializeWithText == false && assistantSettingProps?.initializeWithWelcomeMessage == false)

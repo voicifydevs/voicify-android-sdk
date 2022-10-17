@@ -31,7 +31,7 @@ class VoicifySTTProvider (private val context: Context, private val activity: Ac
     private val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 
     override fun initialize (locale: String) {
-
+        this.locale = locale
     }
 
     override fun startListening(){

@@ -59,9 +59,15 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 }
+                val onAssistantDismiss: () -> Unit = {
+                    this.runOnUiThread{
+                        binding.nowPlayingTextView.text = "Now playing"
+                    }
+                }
                 val sessionAttributes = mapOf("sessionData" to ExampleSessionData(id="conifguredId", user = "user"))
                 voiceAssistant.addSessionAttributes(sessionAttributes)
                 voiceAssistant.onEffect(onEffect)
+                voiceAssistant.onAssistantDismiss(onAssistantDismiss)
                 voiceAssistant.show(supportFragmentManager, "assistantDrawerUI")
             }
         }

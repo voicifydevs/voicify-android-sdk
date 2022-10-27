@@ -29,66 +29,87 @@ class VoicifySTTProvider (private val context: Context, private val activity: Ac
     private var locale: String = ""
     private var speechRecognizer: SpeechRecognizer? = SpeechRecognizer.createSpeechRecognizer(context);
     private val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+    var cancel: Boolean = false
 
     override fun initialize (locale: String) {
         this.locale = locale
     }
 
     override fun startListening(){
-        if(speechRecognizer != null)  //have to do this because if the speech recognizer ever gets destroyed we need to recreate each time to account for that
-        {                             //checked the react native voice package and they do it the same way
-            speechRecognizer?.destroy()
+        if(!cancel) {
+            if (speechRecognizer != null)  //have to do this because if the speech recognizer ever gets destroyed we need to recreate each time to account for that
+            {                             //checked the react native voice package and they do it the same way
+                speechRecognizer?.destroy()
+            }
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.RECORD_AUDIO
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                checkPermission();
+            }
+
+            speechRecognizerIntent.putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+            );
+            speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale);
+            speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+            speechRecognizer?.setRecognitionListener(object : RecognitionListener {
+                override fun onReadyForSpeech(params: Bundle?) {
+                    speechReadyHandlers?.forEach { handle -> handle() }
+                }
+
+                override fun onBeginningOfSpeech() {
+                    speechStartHandlers?.forEach { handle -> handle() }
+                }
+
+                override fun onRmsChanged(rmsdB: Float) {
+
+                    //bug on android where volume reports as negative
+                    speechVolumeHandlers?.forEach { handle -> handle(if (rmsdB < 0) .1f else rmsdB) }
+
+                }
+
+                override fun onBufferReceived(buffer: ByteArray?) {
+                }
+
+                override fun onEndOfSpeech() {
+                    speechEndHandlers?.forEach { handle -> handle() }
+                }
+
+                override fun onError(error: Int) {
+                    //list of errors found here: https://developer.android.com/reference/android/speech/SpeechRecognizer
+                    //most important code is 7 ...means no match
+                    speechErrorHandlers?.forEach { handle -> handle(error.toString()) }
+                }
+
+                override fun onResults(results: Bundle?) {
+                    speechResultsHandlers?.forEach { handle ->
+                        handle(
+                            results?.getStringArrayList(
+                                SpeechRecognizer.RESULTS_RECOGNITION
+                            )?.get(0).toString()
+                        )
+                    }
+                }
+
+                override fun onPartialResults(partialResults: Bundle?) {
+                    speechPartialHandlers?.forEach { handle ->
+                        handle(
+                            partialResults?.getStringArrayList(
+                                SpeechRecognizer.RESULTS_RECOGNITION
+                            )?.get(0)
+                        ).toString()
+                    }
+                }
+
+                override fun onEvent(eventType: Int, params: Bundle?) {
+                }
+
+            })
+            speechRecognizer?.startListening(speechRecognizerIntent);
         }
-        if(ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-        {
-            checkPermission();
-        }
-
-        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale);
-        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
-        speechRecognizer?.setRecognitionListener(object : RecognitionListener {
-            override fun onReadyForSpeech(params: Bundle?) {
-                speechReadyHandlers?.forEach { handle -> handle() }
-            }
-
-            override fun onBeginningOfSpeech() {
-                speechStartHandlers?.forEach { handle -> handle() }
-            }
-
-            override fun onRmsChanged(rmsdB: Float) {
-
-                //bug on android where volume reports as negative
-                speechVolumeHandlers?.forEach { handle -> handle(if (rmsdB < 0 ) .1f else rmsdB )}
-
-            }
-
-            override fun onBufferReceived(buffer: ByteArray?) {
-            }
-
-            override fun onEndOfSpeech() {
-                speechEndHandlers?.forEach { handle -> handle() }
-            }
-
-            override fun onError(error: Int) {
-                //list of errors found here: https://developer.android.com/reference/android/speech/SpeechRecognizer
-                //most important code is 7 ...means no match
-                speechErrorHandlers?.forEach { handle -> handle(error.toString()) }
-            }
-
-            override fun onResults(results: Bundle?) {
-                speechResultsHandlers?.forEach { handle -> handle(results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.get(0).toString()) }
-            }
-
-            override fun onPartialResults(partialResults: Bundle?) {
-                speechPartialHandlers?.forEach {handle -> handle(partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.get(0)).toString() }
-            }
-
-            override fun onEvent(eventType: Int, params: Bundle?) {
-            }
-
-        })
-        speechRecognizer?.startListening(speechRecognizerIntent);
     }
 
     override fun stopListening() {

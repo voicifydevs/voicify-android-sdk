@@ -83,6 +83,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private var bottomSheetBehavior : BottomSheetBehavior<View>? = null
     private var isKeyboardActive = false
     private var onEffectCallback: ((effect: String, data: Any) -> Unit)? = null
+    private var onAssistantDismissCallback: (() -> Unit)? = null
     private var sessionAttributes: Map<String, Any>? = emptyMap()
     private var userAttributes: Map<String, Any> = emptyMap()
 
@@ -629,6 +630,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         cancelSpeech()
         voicifyTTS?.stop()
         voicifyTTS?.cancelSpeech = true
+        if(onAssistantDismissCallback != null)
+        {
+            onAssistantDismissCallback?.invoke()
+        }
         val manager = parentFragmentManager
         val transaction: FragmentTransaction = manager.beginTransaction()
         transaction.remove(this)
@@ -708,6 +713,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
     fun addSessionAttributes(sessionAttributes: Map<String, Any>){
         this.sessionAttributes = sessionAttributes
+    }
+
+    fun onAssistantDismiss(callback: () -> Unit)
+    {
+        this.onAssistantDismissCallback = callback
     }
 
     fun addUserAttributes(userAttributes: Map<String, Any>){

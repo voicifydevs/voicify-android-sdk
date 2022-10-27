@@ -32,6 +32,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
@@ -310,7 +311,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             bodyProps?.paddingRight ?: 20,
             bodyProps?.paddingBottom ?: 0
         )
-
+        voicifyTTS?.cancelSpeech = false
         val inputTextMessageEditTextViewStyle = GradientDrawable()
         inputTextMessageEditTextViewStyle.setColor(Color.parseColor("#1f1e7eb9"))
         inputTextMessageEditTextView.textSize = toolBarProps?.textBoxFontSize ?: 18f
@@ -462,6 +463,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             clearAnimationValues()
             if(!isUsingSpeech)
             {
+                voicifySTT?.cancel = false
                 isUsingSpeech = true
                 messagesRecyclerViewAdapter?.notifyDataSetChanged()
                 messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
@@ -523,6 +525,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                             spokenTextView.text = ""
                         }
                         if (isUsingSpeech) {
+                            voicifySTT?.cancel = true
                             speakingAnimationLayout.visibility = View.GONE
                             sendTextLayout.background = sendTextLayoutStyle
                             isUsingSpeech = false
@@ -625,6 +628,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     override fun onDismiss(dialog: DialogInterface) {
         cancelSpeech()
         voicifyTTS?.stop()
+        voicifyTTS?.cancelSpeech = true
+        val manager = parentFragmentManager
+        val transaction: FragmentTransaction = manager.beginTransaction()
+        transaction.remove(this)
+        transaction.commit()
     }
 
 

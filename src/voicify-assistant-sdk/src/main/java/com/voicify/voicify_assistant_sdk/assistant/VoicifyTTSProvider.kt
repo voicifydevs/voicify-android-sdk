@@ -23,6 +23,7 @@ class VoicifyTTSProvider(val settings: VoicifyTextToSpeechSettings)  : VoicifyTe
     ) }
     private var locale: String = ""
     private val client: OkHttpClient = OkHttpClient()
+    var cancelSpeech: Boolean = false
 
     override fun initialize(locale: String) {
         this.locale = locale
@@ -56,7 +57,10 @@ class VoicifyTTSProvider(val settings: VoicifyTextToSpeechSettings)  : VoicifyTe
                         speechEndHandlers?.forEach { handle -> handle() }
                     }
                     mediaPlayer.setOnPreparedListener { mp ->
-                        mp.start()
+                        if(!cancelSpeech)
+                        {
+                            mp.start()
+                        }
                     }
                 }
                 else{
@@ -89,7 +93,10 @@ class VoicifyTTSProvider(val settings: VoicifyTextToSpeechSettings)  : VoicifyTe
         mediaPlayer.setDataSource(ssmlUri)
         mediaPlayer.prepareAsync()
         mediaPlayer.setOnPreparedListener { mp ->
-            mp.start()
+            if(!cancelSpeech)
+            {
+                mp.start()
+            }
         }
     }
 

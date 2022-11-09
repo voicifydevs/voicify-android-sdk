@@ -167,9 +167,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         voicifyTTS = VoicifyTTSProvider(VoicifyTextToSpeechSettings(
             appId = assistantSettingProps!!.appId,
             appKey = assistantSettingProps!!.appKey,
-            voice = assistantSettingProps!!.voice,
+            voice = assistantSettingProps?.textToSpeechVoice ?: "",
             serverRootUrl = assistantSettingProps!!.serverRootUrl,
-            provider = assistantSettingProps!!.textToSpeechProvider))
+            provider = assistantSettingProps?.textToSpeechProvider ?: "Google"))
         voicifySTT = VoicifySTTProvider(requireContext(), requireActivity())
         val assistant = VoicifyAssistant(voicifySTT, voicifyTTS, VoicifyAssistantSettings(
             appId = assistantSettingProps!!.appId,

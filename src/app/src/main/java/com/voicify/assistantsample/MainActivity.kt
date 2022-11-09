@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
                         appKey = "N2EzM2VkMjgtNjk1Yi00M2ViLThhNTEtY2UxYzhkMWU0Zjcx",
                         serverRootUrl = "https://assistant.voicify.com",
                         locale = "en-US",
-                        voice = "male|bn-IN-Wavenet-B",
+                        textToSpeechVoice = "female|bn-IN-Wavenet-A",
                         channel = "My App",
                         device = "My Device",
                         autoRunConversation = true,

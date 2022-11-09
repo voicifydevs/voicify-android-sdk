@@ -165,10 +165,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         messagesRecyclerViewAdapter = MessagesRecyclerViewAdapter(messagesList, bodyProps, requireContext())
 
         voicifyTTS = VoicifyTTSProvider(VoicifyTextToSpeechSettings(
-            appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
-            appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
-            voice = "",
-            serverRootUrl = "https://assistant.voicify.com",
+            appId = assistantSettingProps!!.appId,
+            appKey = assistantSettingProps!!.appKey,
+            voice = assistantSettingProps!!.voice,
+            serverRootUrl = assistantSettingProps!!.serverRootUrl,
             provider = assistantSettingProps!!.textToSpeechProvider))
         voicifySTT = VoicifySTTProvider(requireContext(), requireActivity())
         val assistant = VoicifyAssistant(voicifySTT, voicifyTTS, VoicifyAssistantSettings(

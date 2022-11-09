@@ -41,7 +41,7 @@ class VoicifyAssistant(
         this.sessionAttributes = sessionAttributes
         this.userAttributes = userAttributes
         this.currentSessionInfo = null
-        this.currentSessionInfo = null
+        this.currentUserInfo = null
         if(settings.initializeWithWelcomeMessage)
         {
             makeWelcomeMessage(null)

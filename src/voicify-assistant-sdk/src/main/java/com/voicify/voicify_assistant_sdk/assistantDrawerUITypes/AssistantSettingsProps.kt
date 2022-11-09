@@ -8,6 +8,7 @@ data class AssistantSettingsProps(
     val appId: String,
     val appKey: String,
     val locale: String,
+    val textToSpeechVoice: String,
     val channel: String,
     val device: String,
     val autoRunConversation: Boolean,

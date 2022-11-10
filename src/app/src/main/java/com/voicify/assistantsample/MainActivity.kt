@@ -28,12 +28,12 @@ class MainActivity : AppCompatActivity() {
                     ToolBarProps(
                     ),
                     AssistantSettingsProps(
-                        appId = "91915956-286c-4102-97f1-98cecafdd4d6",
-                        appKey = "N2EzM2VkMjgtNjk1Yi00M2ViLThhNTEtY2UxYzhkMWU0Zjcx",
+                        appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
+                        appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
                         serverRootUrl = "https://assistant.voicify.com",
                         locale = "en-US",
-                        textToSpeechVoice = "female|bn-IN-Wavenet-A",
                         channel = "My App",
+                        textToSpeechVoice = "male|ar-XA-Standard-C",
                         device = "My Device",
                         autoRunConversation = true,
                         initializeWithWelcomeMessage = true,
@@ -55,8 +55,9 @@ class MainActivity : AppCompatActivity() {
                     {
                         val effectData = voiceAssistant.deserializeEffectData(data, PlayEffectData::class.java)
                         this.runOnUiThread {
-                            binding.nowPlayingTextView.text = "Now playing ${effectData.title}"
+                            Log.d("JAMES", effectData.title.toString())
                             voiceAssistant.dismiss()
+                            binding.nowPlayingTextView.text = "Now playing ${effectData.title}"
                         }
                     }
                 }

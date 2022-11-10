@@ -15,6 +15,7 @@ class VoicifyAssistant(
     var settings: VoicifyAssistantSettings
 ) {
     private val client: OkHttpClient = OkHttpClient()
+    var effects: Array<VoicifySessionEffect>? = null
     var sessionId: String? = null
     var userId: String? = null
     var accessToken: String? = null
@@ -115,7 +116,12 @@ class VoicifyAssistant(
                         gson.fromJson(assistantResult, CustomAssistantResponse::class.java)
                     textToSpeechProvider?.clearHandlers()
                     textToSpeechProvider?.addFinishListener {
-                        if ((settings.autoRunConversation && settings.useVoiceInput
+                        if(effects != null){
+                            effects?.filter {e -> e.requestId == request.requestId}?.forEach { effect ->
+                                effectHandlers?.filter { e -> e.effect == effect.effectName }?.forEach { handle -> handle.callback(effect.data) }
+                            }
+                        }
+                        else if ((settings.autoRunConversation && settings.useVoiceInput
                                     && inputType == "Speech" && settings.useOutputSpeech &&
                                     speechToTextProvider != null) && !assistantResponse.endSession
                         ) {
@@ -155,15 +161,11 @@ class VoicifyAssistant(
                                 //it was throwing an exception. Only work around i could think to do was to serialize just the effects
                                 //and then use gson to deserialize again
                                 val effectsString = gson.toJson(sessionDataResponse.sessionAttributes?.get("effects"))
-                                var effects: Array<VoicifySessionEffect>? = null
                                 if (effectsString.isNotEmpty())
                                 {
                                     effects =  gson.fromJson(effectsString, Array<VoicifySessionEffect>::class.java)
                                 }
                                 currentSessionInfo = sessionDataResponse
-                                effects?.filter {e -> e.requestId == request.requestId}?.forEach { effect ->
-                                    effectHandlers?.filter { e -> e.effect == effect.effectName }?.forEach { handle -> handle.callback(effect.data) }
-                                }
                             }
                             val userDataRequest = Request.Builder()
                                 .url("${settings.serverRootUrl}/api/UserProfile/${userId}?applicationId=${settings.appId}&applicationSecret=${settings.appKey}")

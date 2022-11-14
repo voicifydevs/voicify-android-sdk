@@ -178,6 +178,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             locale = assistantSettingProps!!.locale,
             channel = assistantSettingProps!!.channel,
             device = assistantSettingProps!!.device,
+            noTracking = assistantSettingProps?.noTracking ?: false,
             autoRunConversation = assistantSettingProps!!.autoRunConversation,
             initializeWithWelcomeMessage = assistantSettingProps!!.initializeWithWelcomeMessage,
             initializeWithText = assistantSettingProps!!.initializeWithText,

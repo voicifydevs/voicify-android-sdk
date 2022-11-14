@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
                         useOutputSpeech = true,
                         initializeWithText = false,
                         useDraftContent = true,
+                        noTracking = false,
                         effects = arrayOf("Play", "Dismiss"),
                         )
                 )

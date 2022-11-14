@@ -225,6 +225,7 @@ class VoicifyAssistant(
             context = CustomAssistantRequestContext(
                 channel = this.settings.channel,
                 locale = this.settings.locale,
+                noTracking = this.settings.noTracking,
                 sessionId = this.sessionId as String,
                 requestType = "IntentRequest",
                 originalInput = text,
@@ -258,6 +259,7 @@ class VoicifyAssistant(
                 channel = this.settings.channel,
                 locale = this.settings.locale,
                 sessionId = this.sessionId as String,
+                noTracking = this.settings.noTracking,
                 requestType = "IntentRequest",
                 requestName = "VoicifyWelcome",
                 originalInput = "[Automated]",

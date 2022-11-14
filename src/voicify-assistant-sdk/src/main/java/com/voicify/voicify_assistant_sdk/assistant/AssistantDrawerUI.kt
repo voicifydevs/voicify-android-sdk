@@ -178,6 +178,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             locale = assistantSettingProps!!.locale,
             channel = assistantSettingProps!!.channel,
             device = assistantSettingProps!!.device,
+            noTracking = assistantSettingProps?.noTracking ?: false,
             autoRunConversation = assistantSettingProps!!.autoRunConversation,
             initializeWithWelcomeMessage = assistantSettingProps!!.initializeWithWelcomeMessage,
             initializeWithText = assistantSettingProps!!.initializeWithText,
@@ -603,7 +604,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
     private fun clearAnimationValues(){
         animation?.end()
-        val duration = 100L
+        val duration = 300L
         val bar1 = ObjectAnimator.ofFloat(speakingAnimationBar1, "scaleY", 1f)
         bar1.duration = duration
         val bar2 = ObjectAnimator.ofFloat(speakingAnimationBar2, "scaleY", 1f)

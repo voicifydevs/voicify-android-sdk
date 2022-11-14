@@ -116,7 +116,7 @@ class VoicifyAssistant(
                         gson.fromJson(assistantResult, CustomAssistantResponse::class.java)
                     textToSpeechProvider?.clearHandlers()
                     textToSpeechProvider?.addFinishListener {
-                        if(effects != null){
+                        if(!effects.isNullOrEmpty()){
                             effects?.filter {e -> e.requestId == request.requestId}?.forEach { effect ->
                                 effectHandlers?.filter { e -> e.effect == effect.effectName }?.forEach { handle -> handle.callback(effect.data) }
                             }
@@ -225,6 +225,7 @@ class VoicifyAssistant(
             context = CustomAssistantRequestContext(
                 channel = this.settings.channel,
                 locale = this.settings.locale,
+                noTracking = this.settings.noTracking,
                 sessionId = this.sessionId as String,
                 requestType = "IntentRequest",
                 originalInput = text,
@@ -258,6 +259,7 @@ class VoicifyAssistant(
                 channel = this.settings.channel,
                 locale = this.settings.locale,
                 sessionId = this.sessionId as String,
+                noTracking = this.settings.noTracking,
                 requestType = "IntentRequest",
                 requestName = "VoicifyWelcome",
                 originalInput = "[Automated]",

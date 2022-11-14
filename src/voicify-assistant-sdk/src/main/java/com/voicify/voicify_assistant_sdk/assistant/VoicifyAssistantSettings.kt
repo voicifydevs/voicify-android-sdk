@@ -7,6 +7,7 @@ data class VoicifyAssistantSettings(
     val locale: String,
     val channel: String,
     val device: String,
+    val noTracking: Boolean,
     val autoRunConversation: Boolean,
     val initializeWithWelcomeMessage: Boolean,
     val initializeWithText: Boolean,

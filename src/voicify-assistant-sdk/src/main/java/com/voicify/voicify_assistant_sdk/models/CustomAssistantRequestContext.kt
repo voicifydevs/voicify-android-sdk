@@ -2,7 +2,7 @@ package com.voicify.voicify_assistant_sdk.models
 
 data class CustomAssistantRequestContext(
     val sessionId: String,
-    val noTracking: Boolean? = false,
+    val noTracking: Boolean,
     val requestType: String,
     val requestName: String? = null,
     val slots: Map<String, String>? = null,

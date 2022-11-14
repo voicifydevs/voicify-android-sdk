@@ -116,7 +116,7 @@ class VoicifyAssistant(
                         gson.fromJson(assistantResult, CustomAssistantResponse::class.java)
                     textToSpeechProvider?.clearHandlers()
                     textToSpeechProvider?.addFinishListener {
-                        if(effects != null){
+                        if(!effects.isNullOrEmpty()){
                             effects?.filter {e -> e.requestId == request.requestId}?.forEach { effect ->
                                 effectHandlers?.filter { e -> e.effect == effect.effectName }?.forEach { handle -> handle.callback(effect.data) }
                             }

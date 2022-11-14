@@ -18,5 +18,5 @@ data class AssistantSettingsProps(
     val useOutputSpeech: Boolean,
     val initializeWithText: Boolean,
     val useDraftContent: Boolean,
-    val noTracking: Boolean = false,
+    val noTracking: Boolean? = false,
     val effects: Array<String>? = emptyArray() ): Serializable

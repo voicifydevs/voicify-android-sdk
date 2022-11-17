@@ -116,7 +116,6 @@ class VoicifyAssistant(
                     val assistantResponse: CustomAssistantResponse =
                         gson.fromJson(assistantResult, CustomAssistantResponse::class.java)
                     if(assistantResponse.effects != null && assistantResponse.effects.isNotEmpty()){
-                        Log.d("JAMES", "Got the effects")
                         effects = assistantResponse.effects
                     }
                     else{
@@ -132,9 +131,6 @@ class VoicifyAssistant(
                         if(!effects.isNullOrEmpty()){
                             if(!effects!![0].name.isNullOrEmpty())
                             {
-                                Log.d("JAMES", effects!![0].id.toString())
-                                Log.d("JAMES", effects!![0].name.toString())
-                                Log.d("JAMES", request.requestId)
                                 effects?.forEach { effect ->
                                     effectHandlers?.filter { e -> e.effect == effect.name }?.forEach { handle -> handle.callback(effect.data) }
                                 }
@@ -142,7 +138,6 @@ class VoicifyAssistant(
                             else if(!effects!![0].effectName.isNullOrEmpty())
                             {
                                 effects?.filter {e -> e.requestId == request.requestId}?.forEach { effect ->
-                                    Log.d("JAMES", effect.effectName.toString())
                                     effectHandlers?.filter { e -> e.effect == effect.effectName }?.forEach { handle -> handle.callback(effect.data) }
                                 }
                             }

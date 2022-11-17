@@ -12,6 +12,8 @@ data class CustomAssistantResponse(
     val audioFile: MediaItemModel? = null,
     val videoFile: MediaItemModel? = null,
     val sessionAttributes: Map<String, Any>? = null,
+    val sessionFlags: Array<String>? = null,
+    val effects: Array<VoicifySessionEffect>? = null,
     val hints: Array<String>? = null,
     val listItems: Array<CustomAssistantListItem>? = null,
     val endSession: Boolean

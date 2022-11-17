@@ -1,5 +1,6 @@
 package com.voicify.voicify_assistant_sdk.assistant
 
+import android.util.Log
 import com.voicify.voicify_assistant_sdk.models.*
 import okhttp3.*
 import com.google.gson.Gson
@@ -103,7 +104,7 @@ class VoicifyAssistant(
             val assistantRequestBody = assistantRequestJsonString.toRequestBody("application/json;charset=utf-8".toMediaTypeOrNull())
             val useDraftContent = if (settings.useDraftContent) "&useDraftContent=true" else ""
             val assistantRequest = Request.Builder()
-                .url("${settings.serverRootUrl}/api/customAssistant/handlerequest?applicationId=${settings.appId}&applicationSecret=${settings.appKey}${useDraftContent}")
+                .url("${settings.serverRootUrl}/api/customAssistant/handlerequest?applicationId=${settings.appId}&applicationSecret=${settings.appKey}${useDraftContent}&includeSessionAttributes=true")
                 .method("POST", assistantRequestBody)
                 .build()
             client.newCall(assistantRequest).enqueue(object : Callback{
@@ -114,11 +115,36 @@ class VoicifyAssistant(
                     val assistantResult = response.body?.string()
                     val assistantResponse: CustomAssistantResponse =
                         gson.fromJson(assistantResult, CustomAssistantResponse::class.java)
+                    if(assistantResponse.effects != null && assistantResponse.effects.isNotEmpty()){
+                        Log.d("JAMES", "Got the effects")
+                        effects = assistantResponse.effects
+                    }
+                    else{
+                        val effectsString = gson.toJson(assistantResponse.sessionAttributes?.get("effects"))
+                        if (effectsString.isNotEmpty())
+                        {
+                            effects =  gson.fromJson(effectsString, Array<VoicifySessionEffect>::class.java)
+                        }
+                    }
+
                     textToSpeechProvider?.clearHandlers()
                     textToSpeechProvider?.addFinishListener {
                         if(!effects.isNullOrEmpty()){
-                            effects?.filter {e -> e.requestId == request.requestId}?.forEach { effect ->
-                                effectHandlers?.filter { e -> e.effect == effect.effectName }?.forEach { handle -> handle.callback(effect.data) }
+                            if(!effects!![0].name.isNullOrEmpty())
+                            {
+                                Log.d("JAMES", effects!![0].id.toString())
+                                Log.d("JAMES", effects!![0].name.toString())
+                                Log.d("JAMES", request.requestId)
+                                effects?.forEach { effect ->
+                                    effectHandlers?.filter { e -> e.effect == effect.name }?.forEach { handle -> handle.callback(effect.data) }
+                                }
+                            }
+                            else if(!effects!![0].effectName.isNullOrEmpty())
+                            {
+                                effects?.filter {e -> e.requestId == request.requestId}?.forEach { effect ->
+                                    Log.d("JAMES", effect.effectName.toString())
+                                    effectHandlers?.filter { e -> e.effect == effect.effectName }?.forEach { handle -> handle.callback(effect.data) }
+                                }
                             }
                         }
                         else if ((settings.autoRunConversation && settings.useVoiceInput
@@ -128,6 +154,9 @@ class VoicifyAssistant(
                             speechToTextProvider?.startListening()
                         }
                     }
+
+                    currentSessionInfo = VoicifySessionData(sessionFlags = assistantResponse.sessionFlags, sessionAttributes = assistantResponse.sessionAttributes)
+
                     if(textToSpeechProvider!= null && settings.useOutputSpeech)
                     {
                         if(assistantResponse.ssml != null)
@@ -139,70 +168,42 @@ class VoicifyAssistant(
                             textToSpeechProvider?.speakSsml("<speak>${assistantResponse.outputSpeech}</speak>")
                         }
                     }
-                    val sessionDataRequest = Request.Builder()
-                        .url("${settings.serverRootUrl}/api/UserProfile/session/${sessionId}?applicationId=${settings.appId}&applicationSecret=${settings.appKey}")
+
+                    val userDataRequest = Request.Builder()
+                        .url("${settings.serverRootUrl}/api/UserProfile/${userId}?applicationId=${settings.appId}&applicationSecret=${settings.appKey}")
                         .addHeader("Content-Type","application/json")
                         .get()
                         .build()
-                    client.newCall(sessionDataRequest).enqueue(object : Callback{
+                    client.newCall(userDataRequest).enqueue(object : Callback{
                         override fun onFailure(call: Call, e: IOException) {
 
                         }
-                        @Suppress("unchecked_cast")
                         override fun onResponse(call: Call, response: Response) {
                             if(response.code == 200)
                             {
-                                val sessionDataResult = response.body?.string()
-                                val sessionDataResponse: VoicifySessionData =
-                                    gson.fromJson(sessionDataResult, VoicifySessionData::class.java)
-                                //I wasnt able to directly cast to Voicify Session Effect here....
-                                //the deserializer automatically fills the Any type with linked tree maps,
-                                //and since the session data can be anything, when trying to cast to Array<VoicifySessionEffect>
-                                //it was throwing an exception. Only work around i could think to do was to serialize just the effects
-                                //and then use gson to deserialize again
-                                val effectsString = gson.toJson(sessionDataResponse.sessionAttributes?.get("effects"))
-                                if (effectsString.isNotEmpty())
+                                val userDataResult = response.body?.string()
+                                val userDataResponse: VoicifyUserData =
+                                    gson.fromJson(userDataResult, VoicifyUserData::class.java)
+                                currentUserInfo = userDataResponse
+
+                                responseHandlers?.forEach { handle -> handle(assistantResponse) }
+                                if(assistantResponse.audioFile != null)
                                 {
-                                    effects =  gson.fromJson(effectsString, Array<VoicifySessionEffect>::class.java)
+                                    audioHandlers?.forEach { handle -> handle(assistantResponse.audioFile) }
                                 }
-                                currentSessionInfo = sessionDataResponse
-                            }
-                            val userDataRequest = Request.Builder()
-                                .url("${settings.serverRootUrl}/api/UserProfile/${userId}?applicationId=${settings.appId}&applicationSecret=${settings.appKey}")
-                                .addHeader("Content-Type","application/json")
-                                .get()
-                                .build()
-                            client.newCall(userDataRequest).enqueue(object : Callback{
-                                override fun onFailure(call: Call, e: IOException) {
+                                if(assistantResponse.videoFile != null)
+                                {
+                                    videoHandlers?.forEach { handle -> handle(assistantResponse.videoFile) }
+                                }
+                                if(assistantResponse.endSession)
+                                {
+                                    endSessionHandlers?.forEach { handle -> handle(assistantResponse) }
+                                }
 
+                                if(settings.autoRunConversation && settings.useVoiceInput && !assistantResponse.endSession && inputType == "Speech" && (textToSpeechProvider == null || !settings.useOutputSpeech))
+                                {
+                                    speechToTextProvider?.startListening()
                                 }
-                                override fun onResponse(call: Call, response: Response) {
-                                    if(response.code == 200)
-                                    {
-                                        val userDataResult = response.body?.string()
-                                        val userDataResponse: VoicifyUserData =
-                                            gson.fromJson(userDataResult, VoicifyUserData::class.java)
-                                        currentUserInfo = userDataResponse
-                                    }
-                                }
-                            })
-                            responseHandlers?.forEach { handle -> handle(assistantResponse) }
-                            if(assistantResponse.audioFile != null)
-                            {
-                                audioHandlers?.forEach { handle -> handle(assistantResponse.audioFile) }
-                            }
-                            if(assistantResponse.videoFile != null)
-                            {
-                                videoHandlers?.forEach { handle -> handle(assistantResponse.videoFile) }
-                            }
-                            if(assistantResponse.endSession)
-                            {
-                                endSessionHandlers?.forEach { handle -> handle(assistantResponse) }
-                            }
-
-                            if(settings.autoRunConversation && settings.useVoiceInput && !assistantResponse.endSession && inputType == "Speech" && (textToSpeechProvider == null || !settings.useOutputSpeech))
-                            {
-                                speechToTextProvider?.startListening()
                             }
                         }
                     })

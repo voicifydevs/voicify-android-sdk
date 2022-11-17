@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
                         initializeWithText = false,
                         useDraftContent = true,
                         noTracking = false,
-                        effects = arrayOf("Play", "Dismiss"),
+                        effects = arrayOf("Play", "Dismiss", "Navigate"),
                         )
                 )
                 val onEffect: (String, Any) -> Unit = { effectName, data ->
@@ -51,6 +51,15 @@ class MainActivity : AppCompatActivity() {
                     {
                         Log.d("JAMES","CLOSING")
                         voiceAssistant.dismiss()
+                    }
+                    if(effectName == "Navigate")
+                    {
+                        Log.d("JAMES", "TIME TO NAVIGATE")
+                        val effectData = voiceAssistant.deserializeEffectData(data, NavigateEffectData::class.java)
+                        this.runOnUiThread {
+                            voiceAssistant.dismiss()
+                            binding.nowPlayingTextView.text = "Now playing ${effectData.page}"
+                        }
                     }
                     if(effectName == "Play")
                     {

@@ -12,15 +12,14 @@ data class HeaderProps(
     val assistantImageBorderRadius: Float? = null,
     val assistantImageBorderColor: String? = null,
     val assistantImageBorderWidth: Int? = null,
-    //val assistantImageBorderStyle: String? = null,
     val closeAssistantButtonImage: String? = null,
     val closeAssistantButtonBorderRadius: Float? = null,
     val closeAssistantButtonBackgroundColor: String? = null,
     val closeAssistantButtonBorderWidth: Int? = null,
-    //val closeAssistantButtonBorderStyle: String? = null,
     val closeAssistantButtonBorderColor: String? = null,
     val paddingLeft: Int? = null,
     val paddingRight: Int? = null,
     val paddingTop: Int? = null,
     val paddingBottom: Int? = null,
+    val fontFamily: String? = null
 ) : Serializable

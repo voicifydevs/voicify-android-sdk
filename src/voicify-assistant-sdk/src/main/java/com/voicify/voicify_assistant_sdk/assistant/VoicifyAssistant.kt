@@ -125,9 +125,33 @@ class VoicifyAssistant(
                             effects =  gson.fromJson(effectsString, Array<VoicifySessionEffect>::class.java)
                         }
                     }
-
                     textToSpeechProvider?.clearHandlers()
-                    textToSpeechProvider?.addFinishListener {
+                    if(textToSpeechProvider != null && settings.useOutputSpeech)
+                    {
+                        textToSpeechProvider?.addFinishListener {
+                            if(!effects.isNullOrEmpty()){
+                                if(!effects!![0].name.isNullOrEmpty())
+                                {
+                                    effects?.forEach { effect ->
+                                        effectHandlers?.filter { e -> e.effect == effect.name }?.forEach { handle -> handle.callback(effect.data) }
+                                    }
+                                }
+                                else if(!effects!![0].effectName.isNullOrEmpty())
+                                {
+                                    effects?.filter {e -> e.requestId == request.requestId}?.forEach { effect ->
+                                        effectHandlers?.filter { e -> e.effect == effect.effectName }?.forEach { handle -> handle.callback(effect.data) }
+                                    }
+                                }
+                            }
+                            else if ((settings.autoRunConversation && settings.useVoiceInput
+                                        && inputType == "Speech" && settings.useOutputSpeech &&
+                                        speechToTextProvider != null) && !assistantResponse.endSession
+                            ) {
+                                speechToTextProvider?.startListening()
+                            }
+                        }
+                    }
+                    else{
                         if(!effects.isNullOrEmpty()){
                             if(!effects!![0].name.isNullOrEmpty())
                             {
@@ -141,12 +165,6 @@ class VoicifyAssistant(
                                     effectHandlers?.filter { e -> e.effect == effect.effectName }?.forEach { handle -> handle.callback(effect.data) }
                                 }
                             }
-                        }
-                        else if ((settings.autoRunConversation && settings.useVoiceInput
-                                    && inputType == "Speech" && settings.useOutputSpeech &&
-                                    speechToTextProvider != null) && !assistantResponse.endSession
-                        ) {
-                            speechToTextProvider?.startListening()
                         }
                     }
 
@@ -174,13 +192,15 @@ class VoicifyAssistant(
 
                         }
                         override fun onResponse(call: Call, response: Response) {
-                            if(response.code == 200)
+                            if(response.code == 200 || response.code == 204)
                             {
                                 val userDataResult = response.body?.string()
-                                val userDataResponse: VoicifyUserData =
-                                    gson.fromJson(userDataResult, VoicifyUserData::class.java)
-                                currentUserInfo = userDataResponse
-
+                                if(!userDataResult.isNullOrEmpty())
+                                {
+                                    val userDataResponse: VoicifyUserData =
+                                        gson.fromJson(userDataResult, VoicifyUserData::class.java)
+                                    currentUserInfo = userDataResponse
+                                }
                                 responseHandlers?.forEach { handle -> handle(assistantResponse) }
                                 if(assistantResponse.audioFile != null)
                                 {

@@ -2,6 +2,7 @@ package com.voicify.voicify_assistant_sdk.components
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.text.TextPaint
@@ -118,6 +119,7 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             messageTextView.setPadding(20,20,20,20)
             messageTextView.setTextColor(Color.parseColor(bodyProps?.messageSentTextColor ?: "#ffffff"))
             messageTextView.textSize = bodyProps?.messageSentFontSize ?: 14f
+            messageTextView.typeface = Typeface.create(bodyProps?.messageSentFontFamily ?: "sans-serif", Typeface.NORMAL)
         }
         else
         {
@@ -147,6 +149,7 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             messageTextView.layoutParams = messagesTextViewLayoutParams
             messageTextView.setPadding(20,20,20,20)
             messageTextView.setTextColor(Color.parseColor(bodyProps?.messageReceivedTextColor ?: "#000000"))
+            messageTextView.typeface = Typeface.create(bodyProps?.messageReceivedFontFamily ?: "sans-serif", Typeface.NORMAL)
             messageTextView.textSize = bodyProps?.messageReceivedFontSize ?: 14f
         }
         markwon.setMarkdown(messageTextView, message.message)

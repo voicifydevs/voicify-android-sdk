@@ -9,9 +9,12 @@ import android.content.DialogInterface
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.VectorDrawable
+import android.graphics.fonts.FontFamily
+import android.opengl.Visibility
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -209,11 +212,18 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val sendMessageImageView = window.findViewById<ImageView>(R.id.sendMessageButtonImageView)
         val assistantAvatarImageView = window.findViewById<ImageView>(R.id.assistantAvatarImageView)
         val dashedLineImageView = window.findViewById<ImageView>(R.id.dashedLineImageView)
-
-        loadImageFromUrl(if(assistantSettingProps?.initializeWithText == false) toolBarProps?.micActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/daca643f-6730-4af5-8817-8d9d0d9db0b5/mic-image.png"
-        else toolBarProps?.micInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/3f10b6d7-eb71-4427-adbc-aadacbe8940e/mic-image-1-.png", micImageView)
+        val speakTextView = window.findViewById<TextView>(R.id.speakTextView)
+        if(assistantSettingProps?.useVoiceInput == false)
+        {
+            micImageView.visibility = View.GONE
+            speakTextView.visibility = View.GONE
+        }
+        else{
+            loadImageFromUrl(if(assistantSettingProps?.initializeWithText == false) toolBarProps?.micActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/daca643f-6730-4af5-8817-8d9d0d9db0b5/mic-image.png"
+            else toolBarProps?.micInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/3f10b6d7-eb71-4427-adbc-aadacbe8940e/mic-image-1-.png", micImageView)
+        }
         loadImageFromUrl(headerProps?.closeAssistantButtonImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/a6de04bb-e572-4a55-8cd9-1a7628285829/delete-2.png", closeAssistantImageView)
-        loadImageFromUrl(if(assistantSettingProps?.initializeWithText == false) toolBarProps?.sendInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/0c5aa61c-7d6c-4272-abd2-75d9f5771214/Send-2-.png"
+        loadImageFromUrl(if(assistantSettingProps?.initializeWithText == false && assistantSettingProps?.useVoiceInput == true) toolBarProps?.sendInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/0c5aa61c-7d6c-4272-abd2-75d9f5771214/Send-2-.png"
         else toolBarProps?.sendActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/7a39bc6f-eef5-4185-bcf8-2a645aff53b2/Send-3-.png", sendMessageImageView)
         loadImageFromUrl(headerProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png", assistantAvatarImageView)
 
@@ -222,7 +232,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val spokenTextView = window.findViewById<TextView>(R.id.spokenTextView)
         val drawerWelcomeTextView = window.findViewById<TextView>(R.id.drawerWelcomeTextView)
         val typeTextView = window.findViewById<TextView>(R.id.typeTextView)
-        val speakTextView = window.findViewById<TextView>(R.id.speakTextView)
         val inputTextMessageEditTextView = window.findViewById<EditText>(R.id.inputTextMessage)
         val assistantNameTextView = window.findViewById<TextView>(R.id.assistantNameTextView)
         inputTextMessageEditTextView.setCursorDrawableColor(Color.parseColor(toolBarProps?.textInputCursorColor ?: "#000000"))
@@ -247,20 +256,27 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         speakingAnimationBar8.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
 
         //set Text View Styles
-        speakTextView.setTextColor(if(assistantSettingProps?.initializeWithText == false) Color.parseColor(toolBarProps?.speakActiveTitleColor ?: "#3E77A5") else Color.parseColor(toolBarProps?.speakInactiveTitleColor ?:"#8F97A1"))
-        typeTextView.setTextColor(if(assistantSettingProps?.initializeWithText == false) Color.parseColor(toolBarProps?.typeInactiveTitleColor ?:"#8F97A1") else Color.parseColor(toolBarProps?.typeActiveTitleColor ?:"#3E77A5"))
+        speakTextView.setTextColor(if(assistantSettingProps?.initializeWithText == false && assistantSettingProps?.useVoiceInput == true) Color.parseColor(toolBarProps?.speakActiveTitleColor ?: "#3E77A5") else Color.parseColor(toolBarProps?.speakInactiveTitleColor ?:"#8F97A1"))
+        typeTextView.setTextColor(if(assistantSettingProps?.initializeWithText == false && assistantSettingProps?.useVoiceInput == true) Color.parseColor(toolBarProps?.typeInactiveTitleColor ?:"#8F97A1") else Color.parseColor(toolBarProps?.typeActiveTitleColor ?:"#3E77A5"))
         speakTextView.textSize = toolBarProps?.speakFontSize ?: 12f
+        speakTextView.typeface = Typeface.create(toolBarProps?.speakFontFamily ?: "sans-serif", Typeface.NORMAL)
         typeTextView.textSize = toolBarProps?.typeFontSize ?: 12f
+        typeTextView.typeface = Typeface.create(toolBarProps?.typeFontFamily ?: "sans-serif", Typeface.NORMAL)
         drawerWelcomeTextView.text = toolBarProps?.helpText ?: "How can i help?"
         drawerWelcomeTextView.setTextColor(Color.parseColor(toolBarProps?.helpTextFontColor ?: "#8F97A1"))
         drawerWelcomeTextView.textSize = toolBarProps?.helpTextFontSize ?: 18f
+        drawerWelcomeTextView.typeface = Typeface.create(toolBarProps?.helpTextFontFamily ?: "sans-serif", Typeface.NORMAL)
         assistantStateTextView.textSize = toolBarProps?.assistantStateFontSize ?: 16f
+        assistantStateTextView.typeface = Typeface.create(toolBarProps?.assistantStateFontFamily ?: "sans-serif", Typeface.NORMAL)
         spokenTextView.textSize = 16f
+        spokenTextView.typeface = Typeface.create(toolBarProps?.partialSpeechResultFontFamily ?: "sans-serif", Typeface.NORMAL)
         assistantStateTextView.setTextColor(Color.parseColor(toolBarProps?.assistantStateTextColor ?: "#8F97A1"))
-        isUsingSpeech = assistantSettingProps?.initializeWithText == false
+        isUsingSpeech = assistantSettingProps?.initializeWithText == false && assistantSettingProps?.useVoiceInput == true
+        assistantNameTextView.typeface = Typeface.create(headerProps?.fontFamily ?: "sans-serif", Typeface.NORMAL)
         assistantNameTextView.text = headerProps?.assistantName ?: "Voicify Assistant"
         assistantNameTextView.textSize = headerProps?.fontSize ?: 18f
         inputTextMessageEditTextView.hint = toolBarProps?.placeholder ?: "Enter a message..."
+        inputTextMessageEditTextView.typeface = Typeface.create(toolBarProps?.textboxFontFamily ?: "sans-serif", Typeface.NORMAL)
         assistantNameTextView.setTextColor(Color.parseColor(headerProps?.assistantNameTextColor ?: "#000000"))
 
         //Create Styles
@@ -294,7 +310,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         sendTextLayoutStyle.setColor(Color.parseColor(toolBarProps?.textBoxActiveHighlightColor ?: "#1f1e7eb9"))
         sendTextLayoutStyle.cornerRadius = 24f
 
-        if(assistantSettingProps?.initializeWithText == true)
+        if(assistantSettingProps?.initializeWithText == true || assistantSettingProps?.useVoiceInput == false)
         {
             speakingAnimationLayout.visibility = View.GONE
             sendTextLayout.background = sendTextLayoutStyle

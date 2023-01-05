@@ -3,11 +3,9 @@ package com.voicify.voicify_assistant_sdk.assistantDrawerUITypes
 import java.io.Serializable
 
 data class BodyProps(
-    //val height: String? = null,
     val backgroundColor: String? = null,
     val assistantImageBorderColor: String? = null,
     val assistantImageBorderWidth: Int? = null,
-    //val assistantImageBorderStyle: String? = null,
     val assistantImageBorderRadius: Float? = null,
     val assistantImage: String? = null,
     val messageSentTextColor: String? = null,
@@ -17,10 +15,8 @@ data class BodyProps(
     val messageReceivedBackgroundColor: String? = null,
     val messageSentFontSize: Float? = null,
     val messageSentBorderWidth: Int? = null,
-    //val messageSentBorderStyle: String? = null,
     val messageSentBorderColor: String? = null,
     val messageReceivedBorderWidth: Int? = null,
-    //val messageReceivedBorderStyle: String? = null,
     val messageReceivedBorderColor: String? = null,
     val messageSentBorderTopLeftRadius: Float? = null,
     val messageSentBorderTopRightRadius: Float? = null,
@@ -34,8 +30,6 @@ data class BodyProps(
     val paddingRight: Int? = null,
     val paddingTop: Int? = null,
     val paddingBottom: Int? = null,
-//    val borderTopColor: String? = null,
-//    val borderBottomColor: String? = null,
     val borderColor: String? = null,
     val hintsTextColor: String? = null,
     val hintsFontSize: Float? = null,
@@ -46,6 +40,8 @@ data class BodyProps(
     val hintsBackgroundColor: String? = null,
     val hintsBorderWidth: Int? = null,
     val hintsBorderColor: String? = null,
-    //val hintsBorderStyle: String? = null,
     val hintsBorderRadius: Float? = null,
+    val messageSentFontFamily: String? = null,
+    val messageReceivedFontFamily: String? = null,
+    val hintsFontFamily: String? = null
 ) : Serializable

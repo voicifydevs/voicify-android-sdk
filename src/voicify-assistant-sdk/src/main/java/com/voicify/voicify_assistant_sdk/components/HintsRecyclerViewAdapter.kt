@@ -1,6 +1,7 @@
 package com.voicify.voicify_assistant_sdk.components
 
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.util.Log
 import android.view.LayoutInflater
@@ -37,6 +38,7 @@ internal class HintsRecyclerViewAdapter(private var hintsList: List<String>, pri
         hintsContainer.layoutParams = layoutParams
         hintsContainer.setPadding(bodyProps?.hintsPaddingLeft ?: 40,bodyProps?.hintsPaddingTop ?: 20,bodyProps?.hintsPaddingRight ?: 40,bodyProps?.hintsPaddingBottom ?: 20,)
         hintTextView.textSize = bodyProps?.hintsFontSize ?: 14f
+        hintTextView.typeface = Typeface.create(bodyProps?.hintsFontFamily ?: "sans-serif", Typeface.NORMAL)
         hintTextView.setTextColor(Color.parseColor(bodyProps?.hintsTextColor ?: "#CBCCD2"))
         hintTextView.text = hint
         hintsContainer.setOnClickListener{

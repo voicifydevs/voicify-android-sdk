@@ -172,6 +172,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val drawerFooterLayout = window.findViewById<LinearLayout>(R.id.drawerFooterLayout)
 
         // Views
+        val bodyBorderTopView = window.findViewById<View>(R.id.bodyBorderTopView)
+        val bodyBorderBottomView = window.findViewById<View>(R.id.bodyBorderBottomView)
         val speakingAnimationBar1 = window.findViewById<View>(R.id.speakingAnimationBar1)
         val speakingAnimationBar2 = window.findViewById<View>(R.id.speakingAnimationBar2)
         val speakingAnimationBar3 = window.findViewById<View>(R.id.speakingAnimationBar3)
@@ -275,6 +277,12 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             drawerLayout.visibility = View.GONE
         }
         //set View styles
+        bodyBorderTopView.setBackgroundColor(Color.parseColor(bodyProps?.borderTopColor ?: "#CBCCD2"))
+        val bodyBorderTopViewLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, bodyProps?.borderTopWidth ?: 1)
+        bodyBorderTopView.layoutParams = bodyBorderTopViewLayoutParams
+        bodyBorderBottomView.setBackgroundColor(Color.parseColor(bodyProps?.borderBottomColor ?: "#CBCCD2"))
+        val bodyBorderBottomViewLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, bodyProps?.borderBottomWidth ?: 1)
+        bodyBorderBottomView.layoutParams = bodyBorderBottomViewLayoutParams
         speakingAnimationBar1.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
         speakingAnimationBar2.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
         speakingAnimationBar3.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
@@ -349,7 +357,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
 
         val bodyContainerLayoutStyle = GradientDrawable()
-        bodyContainerLayoutStyle.setStroke(4, Color.parseColor(bodyProps?.borderColor ?: "#CBCCD2"))
+//        bodyContainerLayoutStyle.setStroke(4, Color.parseColor(bodyProps?.borderColor ?: "#CBCCD2"))
         if(!bodyProps?.backgroundColor.isNullOrEmpty()){
             bodyContainerLayoutStyle.setColor(Color.parseColor(bodyProps?.backgroundColor))
         }
@@ -520,6 +528,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 assistantAvatarImageView.visibility = View.VISIBLE
                 assistantNameTextView.visibility = View.VISIBLE
                 messagesRecyclerView.visibility = View.VISIBLE
+                bodyBorderTopView.visibility = View.VISIBLE
+                bodyBorderBottomView.visibility = View.VISIBLE
                 messagesList.add(Message(response.displayText?.trim() as String, "Received"))
                 messagesRecyclerViewAdapter?.notifyDataSetChanged()
                 messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);

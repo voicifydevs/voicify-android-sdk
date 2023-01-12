@@ -75,6 +75,12 @@
                 android:layout_width="25dp"
                 android:layout_height="25dp" />
         </LinearLayout>
+        <View
+            android:id="@+id/bodyBorderTopView"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:visibility="gone"
+            />
         <LinearLayout
             android:id="@+id/bodyContainerLayout"
             android:layout_width="match_parent"
@@ -99,6 +105,12 @@
                 android:layout_marginBottom="8dp">
             </androidx.recyclerview.widget.RecyclerView>
         </LinearLayout>
+        <View
+            android:id="@+id/bodyBorderBottomView"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:visibility="gone"
+            />
         <LinearLayout
             android:id="@+id/toolbarLayout"
             android:layout_width="match_parent"

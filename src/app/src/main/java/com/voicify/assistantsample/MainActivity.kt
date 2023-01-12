@@ -1,5 +1,6 @@
 package com.voicify.assistantsample
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -61,6 +62,7 @@ class MainActivity : AppCompatActivity() {
                         initializeWithText = true,
                         useDraftContent = true,
                         noTracking = false,
+                        backgroundColor = "#000000",
                         effects = arrayOf("Play", "Dismiss", "Navigate"),
                         )
                 )

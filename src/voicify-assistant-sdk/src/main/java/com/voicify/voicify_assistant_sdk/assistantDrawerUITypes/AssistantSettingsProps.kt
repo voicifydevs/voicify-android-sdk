@@ -19,4 +19,5 @@ data class AssistantSettingsProps(
     val initializeWithText: Boolean,
     val useDraftContent: Boolean,
     val noTracking: Boolean? = false,
+    val backgroundColor: String? = "",
     val effects: Array<String>? = emptyArray() ): Serializable

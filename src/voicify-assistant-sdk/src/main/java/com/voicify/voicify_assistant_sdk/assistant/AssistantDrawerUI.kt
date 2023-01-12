@@ -142,6 +142,26 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
         scale = requireContext().resources.displayMetrics.density
         //Linear Layouts
+        val containerLayout = window.findViewById<LinearLayout>(R.id.container)
+        if(!assistantSettingProps?.backgroundColor.isNullOrEmpty())
+        {
+            val splitColors = assistantSettingProps?.backgroundColor?.split(",")
+            if (splitColors!!.size > 1)
+            {
+                var colors = intArrayOf()
+                splitColors.forEach {
+                    colors = colors.plus(Color.parseColor(it))
+                }
+                val gradientDrawable = GradientDrawable(
+                    GradientDrawable.Orientation.TOP_BOTTOM,
+                    colors)
+                containerLayout.background = gradientDrawable
+            }
+            else
+            {
+                containerLayout.setBackgroundColor(Color.parseColor(assistantSettingProps?.backgroundColor))
+            }
+        }
         val drawerLayout = window.findViewById<LinearLayout>(R.id.drawerLayout)
         val bodyContainerLayout = window.findViewById<LinearLayout>(R.id.bodyContainerLayout)
         val headerLayout = window.findViewById<LinearLayout>(R.id.headerLayout)
@@ -242,7 +262,13 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val colorStateList = ColorStateList.valueOf(Color.parseColor(toolBarProps?.textInputLineColor ?: "#000000"))
         ViewCompat.setBackgroundTintList(inputTextMessageEditTextView,colorStateList)
 
-        drawerLayout.setBackgroundColor(Color.parseColor(toolBarProps?.backgroundColor ?: "#ffffff"));
+        if(!toolBarProps?.backgroundColor.isNullOrEmpty()){
+            drawerLayout.setBackgroundColor(Color.parseColor(toolBarProps?.backgroundColor));
+        }
+        else if (assistantSettingProps?.backgroundColor.isNullOrEmpty())
+        {
+            drawerLayout.setBackgroundColor(Color.parseColor("#ffffff"));
+        }
         drawerLayout.setPadding(toolBarProps?.paddingLeft ?: getPixelsFromDp(16),toolBarProps?.paddingTop ?: getPixelsFromDp(16),toolBarProps?.paddingRight ?: getPixelsFromDp(16),toolBarProps?.paddingBottom ?: getPixelsFromDp(16))
         if(assistantSettingProps?.initializeWithWelcomeMessage == true)
         {
@@ -324,7 +350,13 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         val bodyContainerLayoutStyle = GradientDrawable()
         bodyContainerLayoutStyle.setStroke(4, Color.parseColor(bodyProps?.borderColor ?: "#CBCCD2"))
-        bodyContainerLayoutStyle.setColor(Color.parseColor(bodyProps?.backgroundColor ?: "#F4F4F6"))
+        if(!bodyProps?.backgroundColor.isNullOrEmpty()){
+            bodyContainerLayoutStyle.setColor(Color.parseColor(bodyProps?.backgroundColor))
+        }
+        else if (assistantSettingProps?.backgroundColor.isNullOrEmpty())
+        {
+            bodyContainerLayoutStyle.setColor(Color.parseColor("#F4F4F6"))
+        }
         bodyContainerLayout.background = bodyContainerLayoutStyle
         bodyContainerLayout.setPadding(
             bodyProps?.paddingLeft ?: 20,
@@ -457,9 +489,24 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 }
                 speechFullResult = null
                 drawerLayout.setPadding(0,0,0,0)
+                drawerLayout.setBackgroundColor(Color.TRANSPARENT)
+                if(!toolBarProps?.backgroundColor.isNullOrEmpty())
+                {
+                    toolbarLayout.setBackgroundColor(Color.parseColor(toolBarProps?.backgroundColor))
+                }
+                else if (assistantSettingProps?.backgroundColor.isNullOrEmpty())
+                {
+                    toolbarLayout.setBackgroundColor(Color.parseColor("#ffffff"))
+                }
                 toolBarLayout.setPadding(toolBarProps?.paddingLeft ?: getPixelsFromDp(16), getPixelsFromDp(0),toolBarProps?.paddingRight ?: getPixelsFromDp(16),toolBarProps?.paddingBottom ?: getPixelsFromDp(16))
                 assistantAvatarBackground.visibility = View.VISIBLE
-                headerLayout.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor ?: "#ffffff"))
+                if(!headerProps?.backgroundColor.isNullOrEmpty()){
+                    headerLayout.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor))
+                }
+                else if (assistantSettingProps?.backgroundColor.isNullOrEmpty())
+                {
+                    headerLayout.setBackgroundColor(Color.parseColor("#ffffff"))
+                }
                 headerLayout.setPadding(headerProps?.paddingLeft ?: getPixelsFromDp(16), headerProps?.paddingTop ?: getPixelsFromDp(16), headerProps?.paddingRight ?: getPixelsFromDp(16), headerProps?.paddingBottom ?: getPixelsFromDp(16))
                 bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
                 isDrawer = false

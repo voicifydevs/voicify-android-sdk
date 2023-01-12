@@ -283,14 +283,49 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         bodyBorderBottomView.setBackgroundColor(Color.parseColor(bodyProps?.borderBottomColor ?: "#CBCCD2"))
         val bodyBorderBottomViewLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, bodyProps?.borderBottomWidth ?: 1)
         bodyBorderBottomView.layoutParams = bodyBorderBottomViewLayoutParams
-        speakingAnimationBar1.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
-        speakingAnimationBar2.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
-        speakingAnimationBar3.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
-        speakingAnimationBar4.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
-        speakingAnimationBar5.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
-        speakingAnimationBar6.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
-        speakingAnimationBar7.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
-        speakingAnimationBar8.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
+        if(!toolBarProps?.equalizerColor.isNullOrEmpty())
+        {
+            val splitColors = toolBarProps?.equalizerColor?.split(",")
+            if (splitColors!!.size > 1)
+            {
+                var colors = intArrayOf()
+                splitColors.forEach {
+                    colors = colors.plus(Color.parseColor(it))
+                }
+                val gradientDrawable = GradientDrawable(
+                    GradientDrawable.Orientation.TOP_BOTTOM,
+                    colors)
+                speakingAnimationBar1.background = gradientDrawable
+                speakingAnimationBar2.background = gradientDrawable
+                speakingAnimationBar3.background = gradientDrawable
+                speakingAnimationBar4.background = gradientDrawable
+                speakingAnimationBar5.background = gradientDrawable
+                speakingAnimationBar6.background = gradientDrawable
+                speakingAnimationBar7.background = gradientDrawable
+                speakingAnimationBar8.background = gradientDrawable
+            }
+            else
+            {
+                speakingAnimationBar1.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor))
+                speakingAnimationBar2.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor))
+                speakingAnimationBar3.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor))
+                speakingAnimationBar4.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ))
+                speakingAnimationBar5.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ))
+                speakingAnimationBar6.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor))
+                speakingAnimationBar7.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ))
+                speakingAnimationBar8.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ))
+            }
+        }
+        else{
+            speakingAnimationBar1.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
+            speakingAnimationBar2.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
+            speakingAnimationBar3.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
+            speakingAnimationBar4.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
+            speakingAnimationBar5.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
+            speakingAnimationBar6.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
+            speakingAnimationBar7.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
+            speakingAnimationBar8.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
+        }
 
         //set Text View Styles
         speakTextView.setTextColor(if(assistantSettingProps?.initializeWithText == false && assistantSettingProps?.useVoiceInput == true) Color.parseColor(toolBarProps?.speakActiveTitleColor ?: "#3E77A5") else Color.parseColor(toolBarProps?.speakInactiveTitleColor ?:"#8F97A1"))

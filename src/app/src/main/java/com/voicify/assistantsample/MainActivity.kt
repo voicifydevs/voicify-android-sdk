@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
                     ),
                     ToolBarProps(
                         partialSpeechResultFontFamily = "cursive",
+                        equalizerColor = "#83ACE4,#80c7af00,#8AD1B8",
                         micActiveColor = "#00ffff",
                         sendActiveColor = "#00ffff",
                         sendInactiveColor = "#FFFF00",
@@ -62,7 +63,7 @@ class MainActivity : AppCompatActivity() {
                         initializeWithText = true,
                         useDraftContent = true,
                         noTracking = false,
-                        backgroundColor = "#000000",
+                        backgroundColor = "#ffffff",
                         effects = arrayOf("Play", "Dismiss", "Navigate"),
                         )
                 )

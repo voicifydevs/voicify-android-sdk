@@ -43,6 +43,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import com.voicify.voicify_assistant_sdk.R
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.*
@@ -220,12 +221,14 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
         else{
             loadImageFromUrl(if(assistantSettingProps?.initializeWithText == false) toolBarProps?.micActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/daca643f-6730-4af5-8817-8d9d0d9db0b5/mic-image.png"
-            else toolBarProps?.micInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/3f10b6d7-eb71-4427-adbc-aadacbe8940e/mic-image-1-.png", micImageView)
+            else toolBarProps?.micInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/3f10b6d7-eb71-4427-adbc-aadacbe8940e/mic-image-1-.png", micImageView,
+                if(assistantSettingProps?.initializeWithText == false) toolBarProps?.micActiveColor else toolBarProps?.micInactiveColor)
         }
-        loadImageFromUrl(headerProps?.closeAssistantButtonImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/a6de04bb-e572-4a55-8cd9-1a7628285829/delete-2.png", closeAssistantImageView)
+        loadImageFromUrl(headerProps?.closeAssistantButtonImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/a6de04bb-e572-4a55-8cd9-1a7628285829/delete-2.png", closeAssistantImageView, headerProps?.closeAssistantColor,)
         loadImageFromUrl(if(assistantSettingProps?.initializeWithText == false && assistantSettingProps?.useVoiceInput == true) toolBarProps?.sendInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/0c5aa61c-7d6c-4272-abd2-75d9f5771214/Send-2-.png"
-        else toolBarProps?.sendActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/7a39bc6f-eef5-4185-bcf8-2a645aff53b2/Send-3-.png", sendMessageImageView)
-        loadImageFromUrl(headerProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png", assistantAvatarImageView)
+        else toolBarProps?.sendActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/7a39bc6f-eef5-4185-bcf8-2a645aff53b2/Send-3-.png", sendMessageImageView,
+            if(assistantSettingProps?.initializeWithText == false && assistantSettingProps?.useVoiceInput == true) toolBarProps?.sendInactiveColor else toolBarProps?.sendActiveColor)
+        loadImageFromUrl(headerProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png", assistantAvatarImageView, headerProps?.assistantImageColor)
 
         //Text Views
         val assistantStateTextView = window.findViewById<TextView>(R.id.assistantStateTextView)
@@ -498,8 +501,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 assistantStateTextView.visibility = View.VISIBLE
                 speakTextView.setTextColor(Color.parseColor(toolBarProps?.speakActiveTitleColor ?: "#3E77A5"))
                 typeTextView.setTextColor(Color.parseColor(toolBarProps?.typeInactiveTitleColor ?: "#8F97A1"))
-                loadImageFromUrl(toolBarProps?.micActiveImage?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/daca643f-6730-4af5-8817-8d9d0d9db0b5/mic-image.png", micImageView)
-                loadImageFromUrl(toolBarProps?.sendInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/0c5aa61c-7d6c-4272-abd2-75d9f5771214/Send-2-.png", sendMessageImageView)
+                loadImageFromUrl(toolBarProps?.micActiveImage?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/daca643f-6730-4af5-8817-8d9d0d9db0b5/mic-image.png", micImageView, toolBarProps?.micActiveColor)
+                loadImageFromUrl(toolBarProps?.sendInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/0c5aa61c-7d6c-4272-abd2-75d9f5771214/Send-2-.png", sendMessageImageView, toolBarProps?.sendInactiveColor)
             }
             if(!assistantIsListening)
             {
@@ -560,11 +563,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                             typeTextView.setTextColor(Color.parseColor(toolBarProps?.typeActiveTitleColor ?: "#3E77A5"))
                             loadImageFromUrl(
                                 toolBarProps?.micInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/3f10b6d7-eb71-4427-adbc-aadacbe8940e/mic-image-1-.png",
-                                micImageView
+                                micImageView, toolBarProps?.micInactiveColor
                             )
                             loadImageFromUrl(
                                 toolBarProps?.sendActiveImage?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/7a39bc6f-eef5-4185-bcf8-2a645aff53b2/Send-3-.png",
-                                sendMessageImageView
+                                sendMessageImageView, toolBarProps?.sendActiveColor
                             )
                         }
                     }
@@ -599,11 +602,22 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         micImageView.setBackgroundColor(Color.parseColor(toolBarProps?.micInactiveHighlightColor ?: "#00ffffff"))
         spokenTextView.text =  ""
     }
+    private fun loadImageFromUrl(url: String, view: ImageView, imageColor: String? = null){
+        if(imageColor.isNullOrEmpty())
+        {
+            Picasso.get().load(url).into(view)
+        }
+        else{
+            Picasso.get().load(url).into(view, object: Callback {
+                override fun onSuccess() {
+                    DrawableCompat.setTint(view.drawable, Color.parseColor(imageColor));
+                }
 
-    private fun loadImageFromUrl(url: String, view: ImageView){
-        Picasso.get().load(url).into(view)
+                override fun onError(e: java.lang.Exception?) {
+                }
+            })
+        }
     }
-
     private fun getPixelsFromDp(dp: Int): Int {
         return (dp * scale + 0.5f).toInt()
     }

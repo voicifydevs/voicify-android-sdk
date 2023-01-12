@@ -8,6 +8,7 @@ data class BodyProps(
     val assistantImageBorderWidth: Int? = null,
     val assistantImageBorderRadius: Float? = null,
     val assistantImage: String? = null,
+    val assistantImageColor: String? = null,
     val messageSentTextColor: String? = null,
     val messageSentBackgroundColor: String? = null,
     val messageReceivedFontSize: Float? = null,

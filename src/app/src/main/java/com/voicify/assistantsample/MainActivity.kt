@@ -22,7 +22,10 @@ class MainActivity : AppCompatActivity() {
             if (savedInstanceState == null) {
                 val voiceAssistant = AssistantDrawerUI.newInstance(
                     HeaderProps(
-                        fontFamily = "cursive"
+                        fontFamily = "cursive",
+                        closeAssistantColor = "#00ffff",
+                        assistantImageColor = "#00ffff",
+                        assistantImageBackgroundColor = "#000000"
                     ),
                     BodyProps(
                         hintsFontFamily = "cursive",
@@ -31,11 +34,14 @@ class MainActivity : AppCompatActivity() {
                     ),
                     ToolBarProps(
                         partialSpeechResultFontFamily = "cursive",
+                        micActiveColor = "#00ffff",
+                        sendActiveColor = "#00ffff",
+                        sendInactiveColor = "#00ffff",
                         assistantStateFontFamily = "cursive",
                         helpTextFontFamily = "cursive",
                         speakFontFamily = "cursive",
                         typeFontFamily = "cursive",
-                        textboxFontFamily = "cursive"
+                        textboxFontFamily = "cursive",
                     ),
                     AssistantSettingsProps(
                         appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
@@ -48,7 +54,7 @@ class MainActivity : AppCompatActivity() {
                         autoRunConversation = true,
                         initializeWithWelcomeMessage = true,
                         textToSpeechProvider = "Google",
-                        useVoiceInput = false,
+                        useVoiceInput = true,
                         useOutputSpeech = true,
                         initializeWithText = false,
                         useDraftContent = true,

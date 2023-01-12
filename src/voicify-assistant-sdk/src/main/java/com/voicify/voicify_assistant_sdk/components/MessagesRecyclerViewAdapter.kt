@@ -15,7 +15,9 @@ import android.widget.LinearLayout
 import android.widget.Space
 import android.widget.TextView
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import com.voicify.voicify_assistant_sdk.R
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.BodyProps
@@ -131,7 +133,7 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             avatarBackground.setPadding(12,12,12,12)
             avatarBackground.visibility = View.VISIBLE
             messagesAvatar.visibility = View.VISIBLE
-            Picasso.get().load(bodyProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png").into(messagesAvatar)
+            loadImageFromUrl(bodyProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png", messagesAvatar, bodyProps?.assistantImageColor)
             val messagesTextViewStyle = GradientDrawable()
             messagesTextViewStyle.shape = GradientDrawable.RECTANGLE
             messagesTextViewStyle.setStroke(bodyProps?.messageReceivedBorderWidth ?: 4, Color.parseColor(bodyProps?.messageReceivedBorderColor ?: "#CBCCD2"))
@@ -165,6 +167,23 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
         val customBuilder = builder.build()
         customBuilder.intent.setPackage("com.android.chrome")
         customBuilder.launchUrl(context, Uri.parse(link))
+    }
+
+    private fun loadImageFromUrl(url: String, view: ImageView, imageColor: String? = null){
+        if(imageColor.isNullOrEmpty())
+        {
+            Picasso.get().load(url).into(view)
+        }
+        else{
+            Picasso.get().load(url).into(view, object: Callback {
+                override fun onSuccess() {
+                    DrawableCompat.setTint(view.drawable, Color.parseColor(imageColor));
+                }
+
+                override fun onError(e: java.lang.Exception?) {
+                }
+            })
+        }
     }
 
 }

@@ -11,7 +11,7 @@
         <entry key="voicify-assistant-sdk/src/main/res/drawable/dotted_line.xml" value="0.1" />
         <entry key="voicify-assistant-sdk/src/main/res/drawable/ic_launcher_background.xml" value="0.1365" />
         <entry key="voicify-assistant-sdk/src/main/res/drawable/spoken_text_view_corner_radius.xml" value="0.1365" />
-        <entry key="voicify-assistant-sdk/src/main/res/layout/fragment_assistant_drawer_u_i.xml" value="0.5458797386795389" />
+        <entry key="voicify-assistant-sdk/src/main/res/layout/fragment_assistant_drawer_u_i.xml" value="0.3701188455008489" />
         <entry key="voicify-assistant-sdk/src/main/res/layout/hints_recycleview_row.xml" value="0.30867892261650276" />
         <entry key="voicify-assistant-sdk/src/main/res/layout/messages_recyclerview_row.xml" value="0.1470713980333476" />
       </map>

@@ -317,14 +317,14 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             }
         }
         else{
-            speakingAnimationBar1.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
-            speakingAnimationBar2.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
-            speakingAnimationBar3.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
-            speakingAnimationBar4.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
-            speakingAnimationBar5.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
-            speakingAnimationBar6.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
-            speakingAnimationBar7.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
-            speakingAnimationBar8.setBackgroundColor(Color.parseColor(toolBarProps?.equalizerColor ?: "#80000000"))
+            speakingAnimationBar1.setBackgroundColor(Color.parseColor("#80000000"))
+            speakingAnimationBar2.setBackgroundColor(Color.parseColor("#80000000"))
+            speakingAnimationBar3.setBackgroundColor(Color.parseColor("#80000000"))
+            speakingAnimationBar4.setBackgroundColor(Color.parseColor("#80000000"))
+            speakingAnimationBar5.setBackgroundColor(Color.parseColor("#80000000"))
+            speakingAnimationBar6.setBackgroundColor(Color.parseColor("#80000000"))
+            speakingAnimationBar7.setBackgroundColor(Color.parseColor("#80000000"))
+            speakingAnimationBar8.setBackgroundColor(Color.parseColor("#80000000"))
         }
 
         //set Text View Styles
@@ -461,7 +461,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             val rnd2 = (1..(volume.roundToInt() * 3 + 1)).random().toFloat()
             val rnd3 = (1..(volume.roundToInt() * 5 + 1)).random().toFloat()
             val rnd4 = (1..(volume.roundToInt() * 6 + 1)).random().toFloat()
-            val rnd5 = (1..(volume.roundToInt() * 6 + 1 )).random().toFloat()
+            val rnd5 = (1..(volume.roundToInt() * 6 + 1)).random().toFloat()
             val rnd6 = (1..(volume.roundToInt() * 5 + 1)).random().toFloat()
             val rnd7 = (1..(volume.roundToInt() * 3 + 1)).random().toFloat()
             val rnd8 = (1..(volume.roundToInt() * 2 + 1)).random().toFloat()

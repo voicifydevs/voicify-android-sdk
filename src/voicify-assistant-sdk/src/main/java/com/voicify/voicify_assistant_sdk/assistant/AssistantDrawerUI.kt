@@ -563,11 +563,13 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                             typeTextView.setTextColor(Color.parseColor(toolBarProps?.typeActiveTitleColor ?: "#3E77A5"))
                             loadImageFromUrl(
                                 toolBarProps?.micInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/3f10b6d7-eb71-4427-adbc-aadacbe8940e/mic-image-1-.png",
-                                micImageView, toolBarProps?.micInactiveColor
+                                micImageView,
+                                toolBarProps?.micInactiveColor
                             )
                             loadImageFromUrl(
                                 toolBarProps?.sendActiveImage?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/7a39bc6f-eef5-4185-bcf8-2a645aff53b2/Send-3-.png",
-                                sendMessageImageView, toolBarProps?.sendActiveColor
+                                sendMessageImageView,
+                                toolBarProps?.sendActiveColor
                             )
                         }
                     }

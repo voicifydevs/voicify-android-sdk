@@ -128,7 +128,7 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             val avatarBackgroundStyle = GradientDrawable()
             avatarBackgroundStyle.cornerRadius = bodyProps?.assistantImageBorderRadius ?: 38f
             avatarBackgroundStyle.setStroke(bodyProps?.assistantImageBorderWidth ?: 4, Color.parseColor(bodyProps?.assistantImageBorderColor ?: "#CBCCD2"))
-            avatarBackgroundStyle.setColor(Color.parseColor("#ffffff"))
+            avatarBackgroundStyle.setColor(Color.parseColor(bodyProps?.assistantImageBackgroundColor ?: "#ffffff"))
             avatarBackground.background = avatarBackgroundStyle
             avatarBackground.setPadding(12,12,12,12)
             avatarBackground.visibility = View.VISIBLE

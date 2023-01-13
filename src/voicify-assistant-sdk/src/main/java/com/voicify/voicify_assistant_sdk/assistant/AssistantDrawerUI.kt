@@ -386,7 +386,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
 
         val bodyContainerLayoutStyle = GradientDrawable()
-//        bodyContainerLayoutStyle.setStroke(4, Color.parseColor(bodyProps?.borderColor ?: "#CBCCD2"))
         if(!bodyProps?.backgroundColor.isNullOrEmpty()){
             bodyContainerLayoutStyle.setColor(Color.parseColor(bodyProps?.backgroundColor))
         }

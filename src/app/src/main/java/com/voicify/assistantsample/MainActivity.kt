@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
 //                        messageReceivedFontFamily = "cursive",
 //                        messageSentFontFamily = "cursive",
 //                        assistantImageColor = "#00ffff",
+                    assistantImageBackgroundColor = "#00ffff"
                     ),
                     ToolBarProps(
 //                        partialSpeechResultFontFamily = "cursive",
@@ -63,7 +64,7 @@ class MainActivity : AppCompatActivity() {
                         initializeWithText = true,
                         useDraftContent = true,
                         noTracking = false,
-//                        backgroundColor = "#ffffff",
+                        backgroundColor = "#444A50,#8F9CA7",
                         effects = arrayOf("Play", "Dismiss", "Navigate"),
                         )
                 )

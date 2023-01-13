@@ -272,10 +272,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
         //set View styles
         bodyBorderTopView.setBackgroundColor(Color.parseColor(bodyProps?.borderTopColor ?: "#CBCCD2"))
-        val bodyBorderTopViewLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, bodyProps?.borderTopWidth ?: 1)
+        val bodyBorderTopViewLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, bodyProps?.borderTopWidth ?: 4)
         bodyBorderTopView.layoutParams = bodyBorderTopViewLayoutParams
         bodyBorderBottomView.setBackgroundColor(Color.parseColor(bodyProps?.borderBottomColor ?: "#CBCCD2"))
-        val bodyBorderBottomViewLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, bodyProps?.borderBottomWidth ?: 1)
+        val bodyBorderBottomViewLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, bodyProps?.borderBottomWidth ?: 4)
         bodyBorderBottomView.layoutParams = bodyBorderBottomViewLayoutParams
         if(!toolBarProps?.equalizerColor.isNullOrEmpty())
         {

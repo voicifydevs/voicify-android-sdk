@@ -23,29 +23,29 @@ class MainActivity : AppCompatActivity() {
             if (savedInstanceState == null) {
                 val voiceAssistant = AssistantDrawerUI.newInstance(
                     HeaderProps(
-                        fontFamily = "cursive",
-                        closeAssistantColor = "#00ffff",
-                        assistantImageColor = "#00ffff",
-                        assistantImageBackgroundColor = "#000000"
+//                        fontFamily = "cursive",
+//                        closeAssistantColor = "#00ffff",
+//                        assistantImageColor = "#00ffff",
+//                        assistantImageBackgroundColor = "#000000"
                     ),
                     BodyProps(
-                        hintsFontFamily = "cursive",
-                        messageReceivedFontFamily = "cursive",
-                        messageSentFontFamily = "cursive",
-                        assistantImageColor = "#00ffff",
+//                        hintsFontFamily = "cursive",
+//                        messageReceivedFontFamily = "cursive",
+//                        messageSentFontFamily = "cursive",
+//                        assistantImageColor = "#00ffff",
                     ),
                     ToolBarProps(
-                        partialSpeechResultFontFamily = "cursive",
-                        equalizerColor = "#83ACE4,#80c7af00,#8AD1B8",
-                        micActiveColor = "#00ffff",
-                        sendActiveColor = "#00ffff",
-                        sendInactiveColor = "#FFFF00",
-                        micInactiveColor = "#FFFF00",
-                        assistantStateFontFamily = "cursive",
-                        helpTextFontFamily = "cursive",
-                        speakFontFamily = "cursive",
-                        typeFontFamily = "cursive",
-                        textboxFontFamily = "cursive",
+//                        partialSpeechResultFontFamily = "cursive",
+//                        equalizerColor = "#83ACE4,#80c7af00,#8AD1B8",
+//                        micActiveColor = "#00ffff",
+//                        sendActiveColor = "#00ffff",
+//                        sendInactiveColor = "#FFFF00",
+//                        micInactiveColor = "#FFFF00",
+//                        assistantStateFontFamily = "cursive",
+//                        helpTextFontFamily = "cursive",
+//                        speakFontFamily = "cursive",
+//                        typeFontFamily = "cursive",
+//                        textboxFontFamily = "cursive",
                     ),
                     AssistantSettingsProps(
                         appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
                         initializeWithText = true,
                         useDraftContent = true,
                         noTracking = false,
-                        backgroundColor = "#ffffff",
+//                        backgroundColor = "#ffffff",
                         effects = arrayOf("Play", "Dismiss", "Navigate"),
                         )
                 )

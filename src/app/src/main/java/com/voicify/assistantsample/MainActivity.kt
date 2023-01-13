@@ -1,5 +1,6 @@
 package com.voicify.assistantsample
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -22,20 +23,30 @@ class MainActivity : AppCompatActivity() {
             if (savedInstanceState == null) {
                 val voiceAssistant = AssistantDrawerUI.newInstance(
                     HeaderProps(
-                        fontFamily = "cursive"
+//                        fontFamily = "cursive",
+//                        closeAssistantColor = "#00ffff",
+//                        assistantImageColor = "#00ffff",
+//                        assistantImageBackgroundColor = "#000000"
                     ),
                     BodyProps(
-                        hintsFontFamily = "cursive",
-                        messageReceivedFontFamily = "cursive",
-                        messageSentFontFamily = "cursive"
+//                        hintsFontFamily = "cursive",
+//                        messageReceivedFontFamily = "cursive",
+//                        messageSentFontFamily = "cursive",
+//                        assistantImageColor = "#00ffff",
+                    assistantImageBackgroundColor = "#00ffff"
                     ),
                     ToolBarProps(
-                        partialSpeechResultFontFamily = "cursive",
-                        assistantStateFontFamily = "cursive",
-                        helpTextFontFamily = "cursive",
-                        speakFontFamily = "cursive",
-                        typeFontFamily = "cursive",
-                        textboxFontFamily = "cursive"
+//                        partialSpeechResultFontFamily = "cursive",
+//                        equalizerColor = "#83ACE4,#80c7af00,#8AD1B8",
+//                        micActiveColor = "#00ffff",
+//                        sendActiveColor = "#00ffff",
+//                        sendInactiveColor = "#FFFF00",
+//                        micInactiveColor = "#FFFF00",
+//                        assistantStateFontFamily = "cursive",
+//                        helpTextFontFamily = "cursive",
+//                        speakFontFamily = "cursive",
+//                        typeFontFamily = "cursive",
+//                        textboxFontFamily = "cursive",
                     ),
                     AssistantSettingsProps(
                         appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
@@ -46,13 +57,14 @@ class MainActivity : AppCompatActivity() {
                         textToSpeechVoice = "male|ar-XA-Standard-C",
                         device = "My Device",
                         autoRunConversation = true,
-                        initializeWithWelcomeMessage = true,
+                        initializeWithWelcomeMessage = false,
                         textToSpeechProvider = "Google",
-                        useVoiceInput = false,
+                        useVoiceInput = true,
                         useOutputSpeech = true,
-                        initializeWithText = false,
+                        initializeWithText = true,
                         useDraftContent = true,
                         noTracking = false,
+                        backgroundColor = "#444A50,#8F9CA7",
                         effects = arrayOf("Play", "Dismiss", "Navigate"),
                         )
                 )

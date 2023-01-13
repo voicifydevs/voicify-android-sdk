@@ -13,11 +13,8 @@ import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.VectorDrawable
-import android.graphics.fonts.FontFamily
-import android.opengl.Visibility
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -42,7 +39,6 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import com.voicify.voicify_assistant_sdk.R
@@ -51,10 +47,8 @@ import com.voicify.voicify_assistant_sdk.components.HintsRecyclerViewAdapter
 import com.voicify.voicify_assistant_sdk.components.MessagesRecyclerViewAdapter
 import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.*
 import java.lang.reflect.Field
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.roundToInt
-import kotlin.reflect.KClass
 
 
 private const val HEADER = "header"
@@ -379,7 +373,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         micImageView.layoutParams = micImageLayoutParams
 
         val sendTextLayoutStyle = GradientDrawable()
-        sendTextLayoutStyle.setColor(Color.parseColor(toolBarProps?.textBoxActiveHighlightColor ?: "#1f1e7eb9"))
+        sendTextLayoutStyle.setColor(Color.parseColor(toolBarProps?.textboxActiveHighlightColor ?: "#1f1e7eb9"))
         sendTextLayoutStyle.cornerRadius = 24f
 
         if(assistantSettingProps?.initializeWithText == true || assistantSettingProps?.useVoiceInput == false)
@@ -410,7 +404,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         voicifyTTS?.cancelSpeech = false
         val inputTextMessageEditTextViewStyle = GradientDrawable()
         inputTextMessageEditTextViewStyle.setColor(Color.parseColor("#1f1e7eb9"))
-        inputTextMessageEditTextView.textSize = toolBarProps?.textBoxFontSize ?: 18f
+        inputTextMessageEditTextView.textSize = toolBarProps?.textboxFontSize ?: 18f
 
         //initialization
         if(!assistantSettingProps?.locale.toString().isNullOrEmpty())
@@ -581,7 +575,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 messagesRecyclerViewAdapter?.notifyDataSetChanged()
                 messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
                 speakingAnimationLayout.visibility = View.VISIBLE
-                sendTextLayout.setBackgroundColor(Color.parseColor(toolBarProps?.textBoxInactiveHighlightColor ?: "#00ffffff"))
+                sendTextLayout.setBackgroundColor(Color.parseColor(toolBarProps?.textboxInactiveHighlightColor ?: "#00ffffff"))
                 dashedLineImageView.visibility = View.VISIBLE;
                 hideKeyboard()
                if(!isDrawer){

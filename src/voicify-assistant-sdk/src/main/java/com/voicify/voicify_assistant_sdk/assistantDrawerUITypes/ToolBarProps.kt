@@ -32,6 +32,7 @@ data class ToolBarProps(
     val partialSpeechResultTextColor: String? = null,
     val fullSpeechResultTextColor: String? = null,
     val speechResultBoxBackgroundColor: String? = null,
+    val textInputActiveLineColor: String? = null,
     val textInputLineColor: String? = null,
     val textInputCursorColor: String? = null,
     val textInputTextColor: String? = null,

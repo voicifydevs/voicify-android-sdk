@@ -22,51 +22,29 @@ class MainActivity : AppCompatActivity() {
         binding.assistantMic.setOnClickListener {
             if (savedInstanceState == null) {
                 val voiceAssistant = AssistantDrawerUI.newInstance(
-                    HeaderProps(
-//                        fontFamily = "cursive",
-//                        closeAssistantColor = "#00ffff",
-//                        assistantImageColor = "#00ffff",
-//                        assistantImageBackgroundColor = "#000000"
-                    ),
-                    BodyProps(
-//                        hintsFontFamily = "cursive",
-//                        messageReceivedFontFamily = "cursive",
-//                        messageSentFontFamily = "cursive",
-//                        assistantImageColor = "#00ffff",
-                    assistantImageBackgroundColor = "#00ffff"
-                    ),
-                    ToolBarProps(
-//                        partialSpeechResultFontFamily = "cursive",
-//                        equalizerColor = "#83ACE4,#80c7af00,#8AD1B8",
-//                        micActiveColor = "#00ffff",
-//                        sendActiveColor = "#00ffff",
-//                        sendInactiveColor = "#FFFF00",
-//                        micInactiveColor = "#FFFF00",
-//                        assistantStateFontFamily = "cursive",
-//                        helpTextFontFamily = "cursive",
-//                        speakFontFamily = "cursive",
-//                        typeFontFamily = "cursive",
-//                        textboxFontFamily = "cursive",
-                    ),
                     AssistantSettingsProps(
-                        appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
-                        appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
-                        serverRootUrl = "https://assistant.voicify.com",
+                        serverRootUrl = "https://dev-assistant.voicify.com",
+                        appId = "bc9fa6bf-6cea-4fad-af12-d388b64dbdb9",
+                        appKey = "ZjcyNmNkNjEtNmY5My00NTg3LWI5ZmQtMjJkNzE3NGMwYTI4",
                         locale = "en-US",
                         channel = "My App",
-                        textToSpeechVoice = "male|ar-XA-Standard-C",
-                        device = "My Device",
-                        autoRunConversation = true,
+                        device = "My device",
+                        textToSpeechVoice = "",
+                        autoRunConversation = false,
                         initializeWithWelcomeMessage = false,
                         textToSpeechProvider = "Google",
                         useVoiceInput = true,
                         useOutputSpeech = true,
-                        initializeWithText = true,
-                        useDraftContent = true,
-                        noTracking = false,
-                        backgroundColor = "#444A50,#8F9CA7",
-                        effects = arrayOf("Play", "Dismiss", "Navigate"),
-                        )
+                        useDraftContent = false,
+                        noTracking = true,
+                        initializeWithText = false,
+                    ),
+                    HeaderProps(
+                    ),
+                    BodyProps(
+                    ),
+                    ToolBarProps(
+                    )
                 )
                 val onEffect: (String, Any) -> Unit = { effectName, data ->
                     if(effectName == "Dismiss")

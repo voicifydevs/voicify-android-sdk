@@ -50,11 +50,10 @@ import java.lang.reflect.Field
 import kotlin.collections.ArrayList
 import kotlin.math.roundToInt
 
-
+private const val SETTINGS = "assistantSettings"
 private const val HEADER = "header"
 private const val BODY = "body"
 private const val TOOLBAR = "toolBar"
-private const val SETTINGS = "assistantSettings"
 
 /**
  * A simple [Fragment] subclass.
@@ -63,10 +62,10 @@ private const val SETTINGS = "assistantSettings"
  */
 class AssistantDrawerUI : BottomSheetDialogFragment() {
     // TODO: Rename and change types of parameters
+    private var assistantSettingProps: AssistantSettingsProps? = null
     private var headerProps: HeaderProps? = null
     private var bodyProps: BodyProps? = null
     private var toolBarProps: ToolBarProps? = null
-    private var assistantSettingProps: AssistantSettingsProps? = null
     private var assistantIsListening: Boolean = false
     private var isUsingSpeech: Boolean = false
     private var isDrawer: Boolean = true
@@ -88,10 +87,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
+            assistantSettingProps = it.getSerializable(SETTINGS) as AssistantSettingsProps?
             headerProps = it.getSerializable(HEADER) as HeaderProps?
             bodyProps = it.getSerializable(BODY) as BodyProps?
             toolBarProps = it.getSerializable(TOOLBAR) as ToolBarProps?
-            assistantSettingProps = it.getSerializable(SETTINGS) as AssistantSettingsProps?
         }
     }
 
@@ -255,7 +254,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val assistantNameTextView = window.findViewById<TextView>(R.id.assistantNameTextView)
         inputTextMessageEditTextView.setCursorDrawableColor(Color.parseColor(toolBarProps?.textInputCursorColor ?: "#000000"))
         inputTextMessageEditTextView.setTextColor(Color.parseColor(toolBarProps?.textInputTextColor ?: "#000000"))
-        val colorStateList = ColorStateList.valueOf(Color.parseColor(toolBarProps?.textInputLineColor ?: "#000000"))
+        val colorStateList = ColorStateList.valueOf(Color.parseColor(if(isUsingSpeech) {toolBarProps?.textInputLineColor ?: "#000000"} else {toolBarProps?.textInputActiveLineColor ?: "#000000"}))
         ViewCompat.setBackgroundTintList(inputTextMessageEditTextView,colorStateList)
 
         if(!toolBarProps?.backgroundColor.isNullOrEmpty()){
@@ -854,13 +853,13 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(headerProps: HeaderProps, bodyProps: BodyProps, toolBarProps: ToolBarProps, assistantSettingsProps: AssistantSettingsProps) =
+        fun newInstance( assistantSettingsProps: AssistantSettingsProps, headerProps: HeaderProps, bodyProps: BodyProps, toolBarProps: ToolBarProps) =
             AssistantDrawerUI().apply {
                 arguments = Bundle().apply {
+                    putSerializable(SETTINGS, assistantSettingsProps)
                     putSerializable(HEADER, headerProps)
                     putSerializable(BODY, bodyProps)
                     putSerializable(TOOLBAR, toolBarProps)
-                    putSerializable(SETTINGS, assistantSettingsProps)
                 }
             }
     }

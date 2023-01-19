@@ -376,7 +376,7 @@ class VoicifyAssistant(
                 }
             } else if (!effects!![0].effectName.isNullOrEmpty()) {
                 effectsToFire.filter { e -> e.requestId == request.requestId }.forEach { effect ->
-                    effectHandlers?.filter { e -> e.effect == effect.name }?.forEach { handle ->
+                    effectHandlers?.filter { e -> e.effect == effect.effectName }?.forEach { handle ->
                         val effectData =
                             deserializeEffectData(effect.data, DefaultEffectModel::class.java)
                         if (!effectData.fireAfterMilliseconds.isNullOrEmpty()) {

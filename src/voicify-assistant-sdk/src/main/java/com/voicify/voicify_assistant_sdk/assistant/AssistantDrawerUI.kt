@@ -606,6 +606,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             }
         }
 
+        // add out of box close effect
+       assistant.onEffect("closeAssistant"){
+           dismiss()
+       }
+
         sendMessageImageView.setOnClickListener{
             if(inputTextMessageEditTextView.text.toString().isNotEmpty())
             {

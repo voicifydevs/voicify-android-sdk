@@ -55,7 +55,6 @@ class VoicifyAssistant(
         {
             makeWelcomeMessage(null)
         }
-        addDefaultEffects()
     }
 
     fun onEffect(effectName: String, callback: (data: Any) -> Unit){
@@ -101,7 +100,6 @@ class VoicifyAssistant(
         this.requestStartedHandlers = emptyArray()
         this.effectHandlers = emptyArray()
         this.errorHandlers = emptyArray()
-        this.addDefaultEffects()
     }
 
     fun makeRequest (request: CustomAssistantRequest, inputType: String)
@@ -333,12 +331,6 @@ class VoicifyAssistant(
     fun addAccessToken(value: String)
     {
         this.accessToken = value
-    }
-
-    private fun addDefaultEffects() {
-        this.effectHandlers = this.effectHandlers?.plus(EffectModel("closeAssistant", closeAssistantCallback))
-        this.effectHandlers = this.effectHandlers?.plus(EffectModel("scrollTo", scrollToCallback))
-        this.effectHandlers = this.effectHandlers?.plus(EffectModel("clickTap", clickTapCallback))
     }
 
     fun <T> deserializeEffectData(data: Any, type: Class<T>): T {

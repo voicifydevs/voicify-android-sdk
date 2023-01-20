@@ -23,9 +23,9 @@ class MainActivity : AppCompatActivity() {
             if (savedInstanceState == null) {
                 val voiceAssistant = AssistantDrawerUI.newInstance(
                     AssistantSettingsProps(
-                        serverRootUrl = "https://dev-assistant.voicify.com",
-                        appId = "bc9fa6bf-6cea-4fad-af12-d388b64dbdb9",
-                        appKey = "ZjcyNmNkNjEtNmY5My00NTg3LWI5ZmQtMjJkNzE3NGMwYTI4",
+                        serverRootUrl = "https://assistant.voicify.com",
+                        appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
+                        appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
                         locale = "en-US",
                         channel = "My App",
                         device = "My device",
@@ -38,6 +38,7 @@ class MainActivity : AppCompatActivity() {
                         useDraftContent = false,
                         noTracking = true,
                         initializeWithText = false,
+                        effects = arrayOf("Play", "Navigate")
                     ),
                     HeaderProps(
                     ),
@@ -76,8 +77,8 @@ class MainActivity : AppCompatActivity() {
                         binding.nowPlayingTextView.text = "Now playing"
                     }
                 }
-                val sessionAttributes = mapOf("sessionData" to ExampleSessionData(id="conifguredId", user = "user"))
-                voiceAssistant.addSessionAttributes(sessionAttributes)
+//                val sessionAttributes = mapOf("sessionData" to ExampleSessionData(id="conifguredId", user = "user"))
+//                voiceAssistant.addSessionAttributes(sessionAttributes)
                 voiceAssistant.onEffect(onEffect)
                 voiceAssistant.onAssistantDismiss(onAssistantDismiss)
                 voiceAssistant.show(supportFragmentManager, "assistantDrawerUI")

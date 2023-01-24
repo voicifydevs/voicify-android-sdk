@@ -689,7 +689,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         closeAssistantNoInternetImageView.setOnClickListener{
             dismiss()
         }
-        
+
         // Inflate the layout for this fragment
         return window
     }

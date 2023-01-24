@@ -15,6 +15,7 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.VectorDrawable
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -45,6 +46,7 @@ import com.voicify.voicify_assistant_sdk.R
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.*
 import com.voicify.voicify_assistant_sdk.components.HintsRecyclerViewAdapter
 import com.voicify.voicify_assistant_sdk.components.MessagesRecyclerViewAdapter
+import com.voicify.voicify_assistant_sdk.models.CustomAssistantRequest
 import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.*
 import java.lang.reflect.Field
 import kotlin.collections.ArrayList
@@ -81,6 +83,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private var isKeyboardActive = false
     private var onEffectCallback: ((effect: String, data: Any) -> Unit)? = null
     private var onAssistantDismissCallback: (() -> Unit)? = null
+    private var onAssistantErrorCallback: ((errorMessage: String, request: CustomAssistantRequest) -> Unit)? = null
     private var sessionAttributes: Map<String, Any>? = emptyMap()
     private var userAttributes: Map<String, Any> = emptyMap()
 
@@ -161,7 +164,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val toolBarLayout = window.findViewById<LinearLayout>(R.id.toolbarLayout)
         val sendTextLayout = window.findViewById<LinearLayout>(R.id.sendTextLayout)
         val speakingAnimationLayout = window.findViewById<LinearLayout>(R.id.speakingAnimation)
-        val assistantAvatarBackground = window.findViewById<LinearLayout>(R.id.assistantAvatarBackgroundLayout)
+        val assistantAvatarBackground = window.findViewById<LinearLayout>(R.id.assistantAvatarBackgroundContainerLayout)
         val drawerFooterLayout = window.findViewById<LinearLayout>(R.id.drawerFooterLayout)
 
         // Views
@@ -225,6 +228,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         //Image Views
         val micImageView = window.findViewById<ImageView>(R.id.micImageView)
         val closeAssistantImageView = window.findViewById<ImageView>(R.id.closeAssistantImageView)
+        val closeAssistantNoInternetImageView = window.findViewById<ImageView>(R.id.closeAssistantNoInternetImageView)
         val sendMessageImageView = window.findViewById<ImageView>(R.id.sendMessageButtonImageView)
         val assistantAvatarImageView = window.findViewById<ImageView>(R.id.assistantAvatarImageView)
         val dashedLineImageView = window.findViewById<ImageView>(R.id.dashedLineImageView)
@@ -265,10 +269,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             drawerLayout.setBackgroundColor(Color.parseColor("#ffffff"));
         }
         drawerLayout.setPadding(toolBarProps?.paddingLeft ?: getPixelsFromDp(16),toolBarProps?.paddingTop ?: getPixelsFromDp(16),toolBarProps?.paddingRight ?: getPixelsFromDp(16),toolBarProps?.paddingBottom ?: getPixelsFromDp(16))
-        if(assistantSettingProps?.initializeWithWelcomeMessage == true)
-        {
-            drawerLayout.visibility = View.GONE
-        }
+
         //set View styles
         bodyBorderTopView.setBackgroundColor(Color.parseColor(bodyProps?.borderTopColor ?: "#CBCCD2"))
         val bodyBorderTopViewLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, bodyProps?.borderTopWidth ?: 4)
@@ -493,6 +494,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 bodyContainerLayout.visibility = View.VISIBLE
                 spokenTextView.text = ""
                 hintsRecyclerView.visibility = View.VISIBLE
+                closeAssistantImageView.visibility = View.VISIBLE
+                closeAssistantNoInternetImageView.visibility = View.GONE
                 if(!response.hints.isNullOrEmpty())
                 {
                     if(!hintsList.isNullOrEmpty())
@@ -527,11 +530,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 drawerLayout.setBackgroundColor(Color.TRANSPARENT)
                 if(!toolBarProps?.backgroundColor.isNullOrEmpty())
                 {
-                    toolbarLayout.setBackgroundColor(Color.parseColor(toolBarProps?.backgroundColor))
+                    toolBarLayout.setBackgroundColor(Color.parseColor(toolBarProps?.backgroundColor))
                 }
                 else if (assistantSettingProps?.backgroundColor.isNullOrEmpty())
                 {
-                    toolbarLayout.setBackgroundColor(Color.parseColor("#ffffff"))
+                    toolBarLayout.setBackgroundColor(Color.parseColor("#ffffff"))
                 }
                 toolBarLayout.setPadding(toolBarProps?.paddingLeft ?: getPixelsFromDp(16), getPixelsFromDp(0),toolBarProps?.paddingRight ?: getPixelsFromDp(16),toolBarProps?.paddingBottom ?: getPixelsFromDp(16))
                 assistantAvatarBackground.visibility = View.VISIBLE
@@ -611,6 +614,22 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
            dismiss()
        }
 
+        // handle errors"Assistant Call Failed"
+        assistant.onError{errorMessage, request, ->
+            activity?.runOnUiThread{
+                if(errorMessage == "Assistant Call Failed")
+                {
+                    closeAssistantImageView.visibility = View.GONE
+                    closeAssistantNoInternetImageView.visibility = View.VISIBLE
+                }
+            }
+
+            if(onAssistantErrorCallback != null)
+            {
+                this.onAssistantErrorCallback?.invoke(errorMessage, request)
+            }
+        }
+
         sendMessageImageView.setOnClickListener{
             if(inputTextMessageEditTextView.text.toString().isNotEmpty())
             {
@@ -672,6 +691,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             dismiss()
         }
 
+        closeAssistantNoInternetImageView.setOnClickListener{
+            dismiss()
+        }
+
         // Inflate the layout for this fragment
         return window
     }
@@ -717,6 +740,59 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         bottomSheetBehavior = BottomSheetBehavior.from((view.parent as View))
         bottomSheetBehavior?.isDraggable = false
+        if(assistantSettingProps?.initializeWithWelcomeMessage == true)
+        {
+            activity?.runOnUiThread {
+                drawerLayout.visibility = View.VISIBLE
+                bodyContainerLayout.visibility = View.VISIBLE
+                spokenTextView.text = ""
+                hintsRecyclerView.visibility = View.VISIBLE
+                if(!isUsingSpeech)
+                {
+                    val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                    drawerFooterLayoutParams.setMargins(0,0,0,0)
+                    drawerFooterLayout.layoutParams = drawerFooterLayoutParams
+                    dashedLineImageView.visibility = View.INVISIBLE;
+                }
+
+                drawerLayout.setPadding(0,0,0,0)
+                drawerLayout.setBackgroundColor(Color.TRANSPARENT)
+                if(!toolBarProps?.backgroundColor.isNullOrEmpty())
+                {
+                    toolbarLayout.setBackgroundColor(Color.parseColor(toolBarProps?.backgroundColor))
+                }
+                else if (assistantSettingProps?.backgroundColor.isNullOrEmpty())
+                {
+                    toolbarLayout.setBackgroundColor(Color.parseColor("#ffffff"))
+                }
+                toolbarLayout.setPadding(toolBarProps?.paddingLeft ?: getPixelsFromDp(16), getPixelsFromDp(0),toolBarProps?.paddingRight ?: getPixelsFromDp(16),toolBarProps?.paddingBottom ?: getPixelsFromDp(16))
+                assistantAvatarBackgroundContainerLayout.visibility = View.VISIBLE
+                if(!headerProps?.backgroundColor.isNullOrEmpty()){
+                    headerLayout.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor))
+                }
+                else if (assistantSettingProps?.backgroundColor.isNullOrEmpty())
+                {
+                    headerLayout.setBackgroundColor(Color.parseColor("#ffffff"))
+                }
+                headerLayout.setPadding(headerProps?.paddingLeft ?: getPixelsFromDp(16), headerProps?.paddingTop ?: getPixelsFromDp(16), headerProps?.paddingRight ?: getPixelsFromDp(16), headerProps?.paddingBottom ?: getPixelsFromDp(16))
+                bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
+                isDrawer = false
+                micImageView.setBackgroundColor(Color.parseColor(toolBarProps?.micInactiveHighlightColor ?: "#00ffffff"))
+                val metrics = activity?.resources?.displayMetrics
+                var params = drawerLayout.layoutParams
+                params.height = metrics?.heightPixels as Int
+                drawerLayout.layoutParams = params
+                assistantStateTextView.text = ""
+                drawerWelcomeTextView.text = ""
+                assistantAvatarImageView.visibility = View.VISIBLE
+                assistantNameTextView.visibility = View.VISIBLE
+                messagesRecyclerView.visibility = View.VISIBLE
+                bodyBorderTopView.visibility = View.VISIBLE
+                bodyBorderBottomView.visibility = View.VISIBLE
+                messagesRecyclerViewAdapter?.notifyDataSetChanged()
+                messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
+            }
+        }
 
         val touchOutsideView =
             dialog!!.window!!.decorView.findViewById<View>(R.id.touch_outside)
@@ -840,6 +916,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     fun onAssistantDismiss(callback: () -> Unit)
     {
         this.onAssistantDismissCallback = callback
+    }
+
+    fun onAssistantError(callback: (errorMessage: String, request: CustomAssistantRequest) -> Unit){
+        this.onAssistantErrorCallback = callback
     }
 
     fun addUserAttributes(userAttributes: Map<String, Any>){

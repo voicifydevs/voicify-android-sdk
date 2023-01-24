@@ -26,8 +26,8 @@ class MainActivity : AppCompatActivity() {
                 val voiceAssistant = AssistantDrawerUI.newInstance(
                     AssistantSettingsProps(
                         serverRootUrl = "https://assistant.voicify.com",
-                        appId = "99a803b7-5b37-426c-a02e-63c8215c71eb" ,
-                        appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
+                        appId = "91915956-286c-4102-97f1-98cecafdd4d6" ,
+                        appKey = "N2EzM2VkMjgtNjk1Yi00M2ViLThhNTEtY2UxYzhkMWU0Zjcx",
                         locale = "en-US",
                         channel = "My App",
                         device = "My device",
@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
 //                voiceAssistant.addSessionAttributes(sessionAttributes)
                 voiceAssistant.onEffect(onEffect)
                 voiceAssistant.onAssistantDismiss(onAssistantDismiss)
-//                voiceAssistant.onAssistantError(onAssistantError)
+                voiceAssistant.onAssistantError(onAssistantError)
                 voiceAssistant.show(supportFragmentManager, "assistantDrawerUI")
             }
         }

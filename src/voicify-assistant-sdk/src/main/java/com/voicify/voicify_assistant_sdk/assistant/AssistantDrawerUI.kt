@@ -494,6 +494,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 bodyContainerLayout.visibility = View.VISIBLE
                 spokenTextView.text = ""
                 hintsRecyclerView.visibility = View.VISIBLE
+                closeAssistantNoInternetImageView.visibility = View.GONE
+                closeAssistantImageView.visibility = View.VISIBLE
                 if(!response.hints.isNullOrEmpty())
                 {
                     if(!hintsList.isNullOrEmpty())

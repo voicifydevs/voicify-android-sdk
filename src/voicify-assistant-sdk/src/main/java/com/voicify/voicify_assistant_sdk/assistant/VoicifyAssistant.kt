@@ -27,7 +27,7 @@ class VoicifyAssistant(
     var accessToken: String? = null
     var sessionAttributes: Map<String, Any>? = emptyMap()
     var userAttributes: Map<String, Any>? = emptyMap()
-    var errorHandlers: Array<(e: String) -> Unit>? = emptyArray()
+    var errorHandlers: Array<(e: String, req: CustomAssistantRequest) -> Unit>? = emptyArray()
     var effectHandlers: Array<EffectModel>? = emptyArray()
     var requestStartedHandlers: Array<(req: CustomAssistantRequest) -> Unit>? = emptyArray()
     var responseHandlers: Array<(res: CustomAssistantResponse) -> Unit>? = emptyArray()
@@ -61,7 +61,7 @@ class VoicifyAssistant(
         effectHandlers = effectHandlers?.plus(EffectModel(effectName, callback))
     }
 
-    fun onError(callback: (error: String) -> Unit)
+    fun onError(callback: (error: String, req: CustomAssistantRequest) -> Unit)
     {
         errorHandlers = errorHandlers?.plus(callback)
     }
@@ -116,7 +116,10 @@ class VoicifyAssistant(
             .build()
         client.newCall(assistantRequest).enqueue(object : Callback{
             override fun onFailure(call: Call, e: IOException) {
-
+                if(!errorHandlers.isNullOrEmpty())
+                {
+                    errorHandlers?.forEach {handle ->  handle.invoke("Assistant Call Failed", request)}
+                }
             }
             override fun onResponse(call: Call, response: Response) {
                 fireAfterSpeechEffects = emptyArray()
@@ -201,7 +204,10 @@ class VoicifyAssistant(
                     .build()
                 client.newCall(userDataRequest).enqueue(object : Callback{
                     override fun onFailure(call: Call, e: IOException) {
-
+                        if(!errorHandlers.isNullOrEmpty())
+                        {
+                            errorHandlers?.forEach {handle ->  handle.invoke("User Data Call Failed, request", request)}
+                        }
                     }
                     override fun onResponse(call: Call, response: Response) {
                         if(response.code == 200 || response.code == 204)

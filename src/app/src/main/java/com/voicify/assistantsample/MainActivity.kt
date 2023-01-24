@@ -1,5 +1,6 @@
 package com.voicify.assistantsample
 
+import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -10,6 +11,7 @@ import com.voicify.voicify_assistant_sdk.assistant.AssistantDrawerUI
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.AssistantSettingsProps
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.BodyProps
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.HeaderProps
+import com.voicify.voicify_assistant_sdk.models.CustomAssistantRequest
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,21 +26,21 @@ class MainActivity : AppCompatActivity() {
                 val voiceAssistant = AssistantDrawerUI.newInstance(
                     AssistantSettingsProps(
                         serverRootUrl = "https://assistant.voicify.com",
-                        appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
+                        appId = "99a803b7-5b37-426c-a02e-63c8215c71eb" ,
                         appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
                         locale = "en-US",
                         channel = "My App",
                         device = "My device",
                         textToSpeechVoice = "",
                         autoRunConversation = false,
-                        initializeWithWelcomeMessage = false,
+                        initializeWithWelcomeMessage = true,
                         textToSpeechProvider = "Google",
                         useVoiceInput = true,
                         useOutputSpeech = true,
                         useDraftContent = false,
                         noTracking = true,
                         initializeWithText = false,
-                        effects = arrayOf("Play", "Navigate")
+                        effects = arrayOf("Play"),
                     ),
                     HeaderProps(
                     ),
@@ -77,10 +79,21 @@ class MainActivity : AppCompatActivity() {
                         binding.nowPlayingTextView.text = "Now playing"
                     }
                 }
+
+                val onAssistantError: (String, CustomAssistantRequest) -> Unit = {errorMessage, request ->
+                    this.runOnUiThread {
+                        voiceAssistant.dismiss()
+                        val alertDialogBuilder = AlertDialog.Builder(this)
+                        alertDialogBuilder.setTitle("ERROR")
+                        alertDialogBuilder.setMessage("ASSISTANT UNAVAILABLE")
+                        alertDialogBuilder.show()
+                    }
+                }
 //                val sessionAttributes = mapOf("sessionData" to ExampleSessionData(id="conifguredId", user = "user"))
 //                voiceAssistant.addSessionAttributes(sessionAttributes)
                 voiceAssistant.onEffect(onEffect)
                 voiceAssistant.onAssistantDismiss(onAssistantDismiss)
+//                voiceAssistant.onAssistantError(onAssistantError)
                 voiceAssistant.show(supportFragmentManager, "assistantDrawerUI")
             }
         }

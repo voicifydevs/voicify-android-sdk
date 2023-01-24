@@ -38,7 +38,7 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
             <LinearLayout
-                android:id="@+id/assistantAvatarBackgroundLayout"
+                android:id="@+id/assistantAvatarBackgroundContainerLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -74,6 +74,13 @@
                 android:id="@+id/closeAssistantImageView"
                 android:layout_width="25dp"
                 android:layout_height="25dp" />
+
+            <ImageView
+                android:id="@+id/closeAssistantNoInternetImageView"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/close_assistant"
+                android:visibility="gone"/>
         </LinearLayout>
         <View
             android:id="@+id/bodyBorderTopView"

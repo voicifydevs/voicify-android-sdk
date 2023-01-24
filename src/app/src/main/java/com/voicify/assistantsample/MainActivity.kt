@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
 //                voiceAssistant.addSessionAttributes(sessionAttributes)
                 voiceAssistant.onEffect(onEffect)
                 voiceAssistant.onAssistantDismiss(onAssistantDismiss)
-                voiceAssistant.onAssistantError(onAssistantError)
+                //voiceAssistant.onAssistantError(onAssistantError)
                 voiceAssistant.show(supportFragmentManager, "assistantDrawerUI")
             }
         }

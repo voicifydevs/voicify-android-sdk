@@ -494,8 +494,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 bodyContainerLayout.visibility = View.VISIBLE
                 spokenTextView.text = ""
                 hintsRecyclerView.visibility = View.VISIBLE
-                closeAssistantNoInternetImageView.visibility = View.GONE
                 closeAssistantImageView.visibility = View.VISIBLE
+                closeAssistantNoInternetImageView.visibility = View.GONE
                 if(!response.hints.isNullOrEmpty())
                 {
                     if(!hintsList.isNullOrEmpty())
@@ -616,11 +616,14 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         // handle errors"Assistant Call Failed"
         assistant.onError{errorMessage, request, ->
-            if(errorMessage == "Assistant Call Failed")
-            {
-                closeAssistantImageView.visibility = View.GONE
-                closeAssistantNoInternetImageView.visibility = View.VISIBLE
+            activity?.runOnUiThread{
+                if(errorMessage == "Assistant Call Failed")
+                {
+                    closeAssistantImageView.visibility = View.GONE
+                    closeAssistantNoInternetImageView.visibility = View.VISIBLE
+                }
             }
+
             if(onAssistantErrorCallback != null)
             {
                 this.onAssistantErrorCallback?.invoke(errorMessage, request)

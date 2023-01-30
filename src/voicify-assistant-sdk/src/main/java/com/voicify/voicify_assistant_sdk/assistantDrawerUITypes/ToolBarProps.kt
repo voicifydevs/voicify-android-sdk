@@ -2,7 +2,7 @@ package com.voicify.voicify_assistant_sdk.assistantDrawerUITypes
 
 import java.io.Serializable
 
-data class ToolBarProps(
+data class ToolbarProps(
     val backgroundColor: String? = null,
     val micBorderRadius: Float? = null,
     val micImagePadding: Int? = null,

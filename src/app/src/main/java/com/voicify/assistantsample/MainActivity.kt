@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.voicify.assistantsample.databinding.ActivityMainBinding
-import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.ToolBarProps
+import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.ToolbarProps
 import com.voicify.voicify_assistant_sdk.assistant.AssistantDrawerUI
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.AssistantSettingsProps
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.BodyProps
@@ -25,28 +25,10 @@ class MainActivity : AppCompatActivity() {
             if (savedInstanceState == null) {
                 val voiceAssistant = AssistantDrawerUI.newInstance(
                     AssistantSettingsProps(
-                        serverRootUrl = "https://assistant.voicify.com",
-                        appId = "91915956-286c-4102-97f1-98cecafdd4d6" ,
-                        appKey = "N2EzM2VkMjgtNjk1Yi00M2ViLThhNTEtY2UxYzhkMWU0Zjcx",
-                        locale = "en-US",
-                        channel = "My App",
-                        device = "My device",
-                        textToSpeechVoice = "",
-                        autoRunConversation = false,
-                        initializeWithWelcomeMessage = true,
-                        textToSpeechProvider = "Google",
-                        useVoiceInput = true,
-                        useOutputSpeech = true,
-                        useDraftContent = false,
-                        noTracking = true,
-                        initializeWithText = false,
-                        effects = arrayOf("Play"),
-                    ),
-                    HeaderProps(
-                    ),
-                    BodyProps(
-                    ),
-                    ToolBarProps(
+                        configurationId = "a0542ef6-f4cd-40b7-8653-ca4a2b949fe3",
+                        serverRootUrl ="https://dev-assistant.voicify.com",
+                        appId = "bc9fa6bf-6cea-4fad-af12-d388b64dbdb9",
+                        appKey = "ZjcyNmNkNjEtNmY5My00NTg3LWI5ZmQtMjJkNzE3NGMwYTI4"
                     )
                 )
                 val onEffect: (String, Any) -> Unit = { effectName, data ->
@@ -90,10 +72,10 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 //                val sessionAttributes = mapOf("sessionData" to ExampleSessionData(id="conifguredId", user = "user"))
-//                voiceAssistant.addSessionAttributes(sessionAttributes)
+//              voiceAssistant.addSessionAttributes(sessionAttributes)
                 voiceAssistant.onEffect(onEffect)
                 voiceAssistant.onAssistantDismiss(onAssistantDismiss)
-                //voiceAssistant.onAssistantError(onAssistantError)
+                voiceAssistant.onAssistantError(onAssistantError)
                 voiceAssistant.show(supportFragmentManager, "assistantDrawerUI")
             }
         }

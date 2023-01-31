@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
                 binding.assistantMic.isClickable = false
                 val voiceAssistant = AssistantDrawerUI.newInstance(
                     AssistantSettingsProps(
-                        //configurationId = "a0542ef6-f4cd-40b7-8653-ca4a2b949fe3",
+                        configurationId = "52954a41-864f-4c81-b4d9-55ff9e365481",
                         serverRootUrl ="https://dev-assistant.voicify.com",
                         appId = "bc9fa6bf-6cea-4fad-af12-d388b64dbdb9",
                         appKey = "ZjcyNmNkNjEtNmY5My00NTg3LWI5ZmQtMjJkNzE3NGMwYTI4",

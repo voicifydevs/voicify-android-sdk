@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
                         serverRootUrl ="https://dev-assistant.voicify.com",
                         appId = "bc9fa6bf-6cea-4fad-af12-d388b64dbdb9",
                         appKey = "ZjcyNmNkNjEtNmY5My00NTg3LWI5ZmQtMjJkNzE3NGMwYTI4",
+                        initializeWithWelcomeMessage = true
                     )
                 )
                 val onEffect: (String, Any) -> Unit = { effectName, data ->

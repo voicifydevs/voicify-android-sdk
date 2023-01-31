@@ -15,7 +15,6 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.VectorDrawable
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -71,6 +70,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private var headerProps: HeaderProps? = null
     private var bodyProps: BodyProps? = null
     private var toolbarProps: ToolbarProps? = null
+    private var configurationHeaderProps: HeaderProps? = null
+    private var configurationBodyProps: BodyProps? = null
+    private var configurationToolbarProps: ToolbarProps? = null
     private var assistantIsListening: Boolean = false
     private var isUsingSpeech: Boolean = true
     private var isDrawer: Boolean = true
@@ -107,14 +109,18 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             }
 
             val job = GlobalScope.launch (Dispatchers.IO + coroutineExceptionHandler){
-                configuration = withContext(Dispatchers.Default) {
-                    customAssistantConfigurationService.getCustomAssistantConfiguration(
-                        assistantSettingProps?.configurationId ?: "",
-                        assistantSettingProps?.serverRootUrl ?: "",
-                        assistantSettingProps?.appId ?: "",
-                        assistantSettingProps?.appKey ?: ""
-                    )
-                }
+                configuration =
+                    withContext(Dispatchers.Default) {
+                        customAssistantConfigurationService.getCustomAssistantConfiguration(
+                            assistantSettingProps?.configurationId ?: "",
+                            assistantSettingProps?.serverRootUrl ?: "",
+                            assistantSettingProps?.appId ?: "",
+                            assistantSettingProps?.appKey ?: ""
+                        )
+                    }
+                configurationHeaderProps = configuration?.styles?.header
+                configurationBodyProps = configuration?.styles?.body
+                configurationToolbarProps = configuration?.styles?.toolbar
             }
             runBlocking {
                 job.join()
@@ -284,15 +290,15 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox")) toolbarProps?.micActiveColor else toolbarProps?.micInactiveColor)
         }
         loadImageFromUrl(
-            headerProps?.closeAssistantButtonImage
+            headerProps?.closeAssistantButtonImage ?: configurationHeaderProps?.closeAssistantButtonImage
                 ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/a6de04bb-e572-4a55-8cd9-1a7628285829/delete-2.png",
             closeAssistantImageView,
-            headerProps?.closeAssistantColor
+            headerProps?.closeAssistantColor ?: configurationHeaderProps?.closeAssistantColor
         )
         loadImageFromUrl(if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && assistantSettingProps?.useVoiceInput != true) toolbarProps?.sendInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/0c5aa61c-7d6c-4272-abd2-75d9f5771214/Send-2-.png"
         else toolbarProps?.sendActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/7a39bc6f-eef5-4185-bcf8-2a645aff53b2/Send-3-.png", sendMessageImageView,
-            if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && assistantSettingProps?.useVoiceInput != true) toolbarProps?.sendInactiveColor else toolbarProps?.sendActiveColor)
-        loadImageFromUrl(headerProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png", assistantAvatarImageView, headerProps?.assistantImageColor)
+            if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == false) toolbarProps?.sendInactiveColor else toolbarProps?.sendActiveColor)
+        loadImageFromUrl(headerProps?.assistantImage ?: configurationHeaderProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png", assistantAvatarImageView, headerProps?.assistantImageColor ?: configurationHeaderProps?.assistantImageColor)
 
         //Text Views
         val assistantStateTextView = window.findViewById<TextView>(R.id.assistantStateTextView)
@@ -309,7 +315,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         if(!toolbarProps?.backgroundColor.isNullOrEmpty()){
             drawerLayout.setBackgroundColor(Color.parseColor(toolbarProps?.backgroundColor));
         }
-        else if (assistantSettingProps?.backgroundColor.isNullOrEmpty())
+        else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
         {
             drawerLayout.setBackgroundColor(Color.parseColor("#ffffff"));
         }
@@ -367,8 +373,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
 
         //set Text View Styles
-        speakTextView.setTextColor(if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && assistantSettingProps?.useVoiceInput != false) Color.parseColor(toolbarProps?.speakActiveTitleColor ?: "#3E77A5") else Color.parseColor(toolbarProps?.speakInactiveTitleColor ?:"#8F97A1"))
-        typeTextView.setTextColor(if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && assistantSettingProps?.useVoiceInput != false) Color.parseColor(toolbarProps?.typeInactiveTitleColor ?:"#8F97A1") else Color.parseColor(toolbarProps?.typeActiveTitleColor ?:"#3E77A5"))
+        speakTextView.setTextColor(if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == true) Color.parseColor(toolbarProps?.speakActiveTitleColor ?: "#3E77A5") else Color.parseColor(toolbarProps?.speakInactiveTitleColor ?:"#8F97A1"))
+        typeTextView.setTextColor(if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == true) Color.parseColor(toolbarProps?.typeInactiveTitleColor ?:"#8F97A1") else Color.parseColor(toolbarProps?.typeActiveTitleColor ?:"#3E77A5"))
         speakTextView.textSize = toolbarProps?.speakFontSize ?: 12f
         speakTextView.typeface = Typeface.create(toolbarProps?.speakFontFamily ?: "sans-serif", Typeface.NORMAL)
         typeTextView.textSize = toolbarProps?.typeFontSize ?: 12f
@@ -382,24 +388,24 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         spokenTextView.textSize = 16f
         spokenTextView.typeface = Typeface.create(toolbarProps?.partialSpeechResultFontFamily ?: "sans-serif", Typeface.NORMAL)
         assistantStateTextView.setTextColor(Color.parseColor(toolbarProps?.assistantStateTextColor ?: "#8F97A1"))
-        isUsingSpeech = !(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && assistantSettingProps?.useVoiceInput != false
-        assistantNameTextView.typeface = Typeface.create(headerProps?.fontFamily ?: "sans-serif", Typeface.NORMAL)
-        assistantNameTextView.text = headerProps?.assistantName ?: "Voicify Assistant"
-        assistantNameTextView.textSize = headerProps?.fontSize ?: 18f
+        isUsingSpeech = !(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == true
+        assistantNameTextView.typeface = Typeface.create(headerProps?.fontFamily ?: configurationHeaderProps?.fontFamily ?: "sans-serif", Typeface.NORMAL)
+        assistantNameTextView.text = headerProps?.assistantName ?: configurationHeaderProps?.assistantName ?: "Voicify Assistant"
+        assistantNameTextView.textSize = headerProps?.fontSize ?: configurationHeaderProps?.fontSize ?: 18f
         inputTextMessageEditTextView.hint = toolbarProps?.placeholder ?: "Enter a message..."
         inputTextMessageEditTextView.typeface = Typeface.create(toolbarProps?.textboxFontFamily ?: "sans-serif", Typeface.NORMAL)
-        assistantNameTextView.setTextColor(Color.parseColor(headerProps?.assistantNameTextColor ?: "#000000"))
+        assistantNameTextView.setTextColor(Color.parseColor(headerProps?.assistantNameTextColor ?: configurationHeaderProps?.assistantNameTextColor ?: "#000000"))
 
         //Create Styles
         val closeAssistantImageBackgroundStyle = GradientDrawable()
-        closeAssistantImageBackgroundStyle.cornerRadius = headerProps?.closeAssistantButtonBorderRadius ?: 0f
-        closeAssistantImageBackgroundStyle.setStroke(headerProps?.assistantImageBorderWidth ?: 0, Color.parseColor(headerProps?.closeAssistantButtonBorderColor ?: "#00ffffff"))
-        closeAssistantImageBackgroundStyle.setColor(Color.parseColor(headerProps?.closeAssistantButtonBackgroundColor ?: "#00ffffff"))
+        closeAssistantImageBackgroundStyle.cornerRadius = headerProps?.closeAssistantButtonBorderRadius ?: configurationHeaderProps?.closeAssistantButtonBorderRadius ?: 0f
+        closeAssistantImageBackgroundStyle.setStroke(headerProps?.assistantImageBorderWidth ?: configurationHeaderProps?.assistantImageBorderWidth ?: 0, Color.parseColor(headerProps?.closeAssistantButtonBorderColor ?: configurationHeaderProps?.closeAssistantButtonBorderColor ?: "#00ffffff"))
+        closeAssistantImageBackgroundStyle.setColor(Color.parseColor(headerProps?.closeAssistantButtonBackgroundColor ?: configurationHeaderProps?.closeAssistantButtonBackgroundColor ?: "#00ffffff"))
 
         val avatarBackgroundStyle = GradientDrawable()
-        avatarBackgroundStyle.cornerRadius = headerProps?.assistantImageBorderRadius ?: 48f
-        avatarBackgroundStyle.setStroke(headerProps?.assistantImageBorderWidth ?: 4, Color.parseColor(headerProps?.assistantImageBorderColor ?: "#CBCCD2"))
-        avatarBackgroundStyle.setColor(Color.parseColor(headerProps?.assistantImageBackgroundColor ?: "#ffffff"))
+        avatarBackgroundStyle.cornerRadius = headerProps?.assistantImageBorderRadius ?: configurationHeaderProps?.assistantImageBorderRadius ?: 48f
+        avatarBackgroundStyle.setStroke(headerProps?.assistantImageBorderWidth ?: configurationHeaderProps?.assistantImageBorderWidth ?: 4, Color.parseColor(headerProps?.assistantImageBorderColor ?: configurationHeaderProps?.assistantImageBorderColor ?: "#CBCCD2"))
+        avatarBackgroundStyle.setColor(Color.parseColor(headerProps?.assistantImageBackgroundColor ?: configurationHeaderProps?.assistantImageBackgroundColor ?: "#ffffff"))
         assistantAvatarBackground.background = avatarBackgroundStyle
         assistantAvatarBackground.setPadding(12,12,12,12)
 
@@ -434,7 +440,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         if(!bodyProps?.backgroundColor.isNullOrEmpty()){
             bodyContainerLayoutStyle.setColor(Color.parseColor(bodyProps?.backgroundColor))
         }
-        else if (assistantSettingProps?.backgroundColor.isNullOrEmpty())
+        else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
         {
             bodyContainerLayoutStyle.setColor(Color.parseColor("#F4F4F6"))
         }
@@ -451,9 +457,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         inputTextMessageEditTextView.textSize = toolbarProps?.textboxFontSize ?: 18f
 
         //initialization
-        if(!assistantSettingProps?.locale.toString().isNullOrEmpty())
+        if(!(assistantSettingProps?.locale ?: configuration?.locale).toString().isNullOrEmpty())
         {
-            voicifySTT?.initialize(assistantSettingProps?.locale.toString())
+            voicifySTT?.initialize((assistantSettingProps?.locale ?: configuration?.locale).toString())
         }
         assistant.initializeAndStart()
         assistant.startNewSession(null, null, this.sessionAttributes, this.userAttributes)
@@ -577,20 +583,20 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 {
                     toolbarLayout.setBackgroundColor(Color.parseColor(toolbarProps?.backgroundColor))
                 }
-                else if (assistantSettingProps?.backgroundColor.isNullOrEmpty())
+                else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
                 {
                     toolbarLayout.setBackgroundColor(Color.parseColor("#ffffff"))
                 }
                 toolbarLayout.setPadding(toolbarProps?.paddingLeft ?: getPixelsFromDp(16), getPixelsFromDp(0),toolbarProps?.paddingRight ?: getPixelsFromDp(16),toolbarProps?.paddingBottom ?: getPixelsFromDp(16))
                 assistantAvatarBackground.visibility = View.VISIBLE
-                if(!headerProps?.backgroundColor.isNullOrEmpty()){
-                    headerLayout.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor))
+                if(!(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor).isNullOrEmpty()){
+                    headerLayout.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor))
                 }
-                else if (assistantSettingProps?.backgroundColor.isNullOrEmpty())
+                else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
                 {
                     headerLayout.setBackgroundColor(Color.parseColor("#ffffff"))
                 }
-                headerLayout.setPadding(headerProps?.paddingLeft ?: getPixelsFromDp(16), headerProps?.paddingTop ?: getPixelsFromDp(16), headerProps?.paddingRight ?: getPixelsFromDp(16), headerProps?.paddingBottom ?: getPixelsFromDp(16))
+                headerLayout.setPadding(headerProps?.paddingLeft ?: configurationHeaderProps?.paddingLeft ?: getPixelsFromDp(16), headerProps?.paddingTop ?: configurationHeaderProps?.paddingTop ?: getPixelsFromDp(16), headerProps?.paddingRight ?: configurationHeaderProps?.paddingRight ?: getPixelsFromDp(16), headerProps?.paddingBottom ?: configurationHeaderProps?.paddingBottom ?: getPixelsFromDp(16))
                 bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
                 isDrawer = false
                 micImageView.setBackgroundColor(Color.parseColor(toolbarProps?.micInactiveHighlightColor ?: "#00ffffff"))
@@ -806,20 +812,20 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 {
                     toolbarLayout.setBackgroundColor(Color.parseColor(toolbarProps?.backgroundColor))
                 }
-                else if (assistantSettingProps?.backgroundColor.isNullOrEmpty())
+                else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
                 {
                     toolbarLayout.setBackgroundColor(Color.parseColor("#ffffff"))
                 }
                 toolbarLayout.setPadding(toolbarProps?.paddingLeft ?: getPixelsFromDp(16), getPixelsFromDp(0),toolbarProps?.paddingRight ?: getPixelsFromDp(16),toolbarProps?.paddingBottom ?: getPixelsFromDp(16))
                 assistantAvatarBackgroundContainerLayout.visibility = View.VISIBLE
-                if(!headerProps?.backgroundColor.isNullOrEmpty()){
-                    headerLayout.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor))
+                if(!(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor).isNullOrEmpty()){
+                    headerLayout.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor))
                 }
-                else if (assistantSettingProps?.backgroundColor.isNullOrEmpty())
+                else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
                 {
                     headerLayout.setBackgroundColor(Color.parseColor("#ffffff"))
                 }
-                headerLayout.setPadding(headerProps?.paddingLeft ?: getPixelsFromDp(16), headerProps?.paddingTop ?: getPixelsFromDp(16), headerProps?.paddingRight ?: getPixelsFromDp(16), headerProps?.paddingBottom ?: getPixelsFromDp(16))
+                headerLayout.setPadding(headerProps?.paddingLeft ?: configurationHeaderProps?.paddingLeft ?: getPixelsFromDp(16), headerProps?.paddingTop ?: configurationHeaderProps?.paddingTop ?: getPixelsFromDp(16), headerProps?.paddingRight ?: configurationHeaderProps?.paddingRight ?: getPixelsFromDp(16), headerProps?.paddingBottom ?: configurationHeaderProps?.paddingBottom ?: getPixelsFromDp(16))
                 bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
                 isDrawer = false
                 micImageView.setBackgroundColor(Color.parseColor(toolbarProps?.micInactiveHighlightColor ?: "#00ffffff"))

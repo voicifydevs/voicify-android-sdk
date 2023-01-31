@@ -13,6 +13,10 @@ class CustomAssistantConfigurationService {
     private val client: OkHttpClient = OkHttpClient()
 
     fun getCustomAssistantConfiguration(configurationId: String, serverRootUrl: String, appId: String, appKey: String): CustomAssistantConfigurationResponse?{
+        if(configurationId.isNullOrEmpty())
+        {
+            return null
+        }
         val userDataRequest = Request.Builder()
             .url("${serverRootUrl}/api/CustomAssistantConfiguration/${configurationId}?applicationId=${appId}&applicationSecret=${appKey}")
             .addHeader("Content-Type","application/json")

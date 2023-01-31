@@ -26,11 +26,10 @@ class MainActivity : AppCompatActivity() {
                 binding.assistantMic.isClickable = false
                 val voiceAssistant = AssistantDrawerUI.newInstance(
                     AssistantSettingsProps(
-                        configurationId = "a0542ef6-f4cd-40b7-8653-ca4a2b949fe3",
+                        //configurationId = "a0542ef6-f4cd-40b7-8653-ca4a2b949fe3",
                         serverRootUrl ="https://dev-assistant.voicify.com",
                         appId = "bc9fa6bf-6cea-4fad-af12-d388b64dbdb9",
                         appKey = "ZjcyNmNkNjEtNmY5My00NTg3LWI5ZmQtMjJkNzE3NGMwYTI4",
-                        initializeWithWelcomeMessage = true
                     )
                 )
                 val onEffect: (String, Any) -> Unit = { effectName, data ->

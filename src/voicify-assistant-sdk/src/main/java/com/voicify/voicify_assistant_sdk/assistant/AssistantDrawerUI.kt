@@ -373,8 +373,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
 
         //set Text View Styles
-        speakTextView.setTextColor(if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == true) Color.parseColor(toolbarProps?.speakActiveTitleColor ?: "#3E77A5") else Color.parseColor(toolbarProps?.speakInactiveTitleColor ?:"#8F97A1"))
-        typeTextView.setTextColor(if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == true) Color.parseColor(toolbarProps?.typeInactiveTitleColor ?:"#8F97A1") else Color.parseColor(toolbarProps?.typeActiveTitleColor ?:"#3E77A5"))
+        speakTextView.setTextColor(if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") != true && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) != false) Color.parseColor(toolbarProps?.speakActiveTitleColor ?: "#3E77A5") else Color.parseColor(toolbarProps?.speakInactiveTitleColor ?:"#8F97A1"))
+        typeTextView.setTextColor(if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") != true && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) != false) Color.parseColor(toolbarProps?.typeInactiveTitleColor ?:"#8F97A1") else Color.parseColor(toolbarProps?.typeActiveTitleColor ?:"#3E77A5"))
         speakTextView.textSize = toolbarProps?.speakFontSize ?: 12f
         speakTextView.typeface = Typeface.create(toolbarProps?.speakFontFamily ?: "sans-serif", Typeface.NORMAL)
         typeTextView.textSize = toolbarProps?.typeFontSize ?: 12f
@@ -388,7 +388,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         spokenTextView.textSize = 16f
         spokenTextView.typeface = Typeface.create(toolbarProps?.partialSpeechResultFontFamily ?: "sans-serif", Typeface.NORMAL)
         assistantStateTextView.setTextColor(Color.parseColor(toolbarProps?.assistantStateTextColor ?: "#8F97A1"))
-        isUsingSpeech = !(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == true
+        isUsingSpeech = (assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") != true && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) != false
         assistantNameTextView.typeface = Typeface.create(headerProps?.fontFamily ?: configurationHeaderProps?.fontFamily ?: "sans-serif", Typeface.NORMAL)
         assistantNameTextView.text = headerProps?.assistantName ?: configurationHeaderProps?.assistantName ?: "Voicify Assistant"
         assistantNameTextView.textSize = headerProps?.fontSize ?: configurationHeaderProps?.fontSize ?: 18f
@@ -463,7 +463,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
         assistant.initializeAndStart()
         assistant.startNewSession(null, null, this.sessionAttributes, this.userAttributes)
-        if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == true)
+        if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") != true && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) != false && (assistantSettingProps?.initializeWithWelcomeMessage ?: configuration?.initializeWithWelcomeMessage) != true)
         {
             voicifySTT?.startListening()
         }

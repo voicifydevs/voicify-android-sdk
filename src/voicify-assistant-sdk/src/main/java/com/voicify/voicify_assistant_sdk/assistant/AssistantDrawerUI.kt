@@ -59,6 +59,9 @@ private const val BODY = "body"
 private const val TOOLBAR = "toolbar"
 
 private var configuration: CustomAssistantConfigurationResponse? = null
+private var configurationHeaderProps: HeaderProps? = null
+private var configurationBodyProps: BodyProps? = null
+private var configurationToolbarProps: ToolbarProps? = null
 /**
  * A simple [Fragment] subclass.
  * Use the [AssistantDrawerUI.newInstance] factory method to
@@ -70,9 +73,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private var headerProps: HeaderProps? = null
     private var bodyProps: BodyProps? = null
     private var toolbarProps: ToolbarProps? = null
-    private var configurationHeaderProps: HeaderProps? = null
-    private var configurationBodyProps: BodyProps? = null
-    private var configurationToolbarProps: ToolbarProps? = null
     private var assistantIsListening: Boolean = false
     private var isUsingSpeech: Boolean = true
     private var isDrawer: Boolean = true

@@ -29,7 +29,7 @@ import io.noties.markwon.ext.tasklist.TaskListPlugin
 import io.noties.markwon.ext.tasklist.TaskListSpan
 
 //https://noties.io/Markwon/docs/v3/ext-tasklist/#task-list-mutation
-internal class MessagesRecyclerViewAdapter(private var messagesList: List<Message>, private var bodyProps: BodyProps?, private var context: Context) :
+internal class MessagesRecyclerViewAdapter(private var messagesList: List<Message>, private var bodyProps: BodyProps?, private var configurationBodyProps: BodyProps?, private var context: Context) :
     RecyclerView.Adapter<MessagesRecyclerViewAdapter.MyViewHolder>() {
     internal inner class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         var messageTextView: TextView = view.findViewById(R.id.messageTextView)
@@ -108,10 +108,10 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             messagesAvatar.visibility = View.GONE
             val messagesTextViewStyle = GradientDrawable()
             messagesTextViewStyle.shape = GradientDrawable.RECTANGLE
-            messagesTextViewStyle.setStroke(bodyProps?.messageSentBorderWidth ?: 0, Color.parseColor(bodyProps?.messageSentBorderColor ?: "#00ffffff"))
-            val cornerRadaii = floatArrayOf(bodyProps?.messageSentBorderTopLeftRadius ?: 18f,bodyProps?.messageSentBorderTopLeftRadius ?: 18f,bodyProps?.messageSentBorderTopRightRadius ?: 0f,bodyProps?.messageSentBorderTopRightRadius ?: 0f, bodyProps?.messageSentBorderBottomLeftRadius ?: 18f,bodyProps?.messageSentBorderBottomLeftRadius ?: 18f,bodyProps?.messageSentBorderBottomRightRadius ?: 18f, bodyProps?.messageSentBorderBottomRightRadius ?: 18f)
+            messagesTextViewStyle.setStroke(bodyProps?.messageSentBorderWidth ?: configurationBodyProps?.messageSentBorderWidth ?: 0, Color.parseColor(bodyProps?.messageSentBorderColor ?: configurationBodyProps?.messageSentBorderColor ?: "#00ffffff"))
+            val cornerRadaii = floatArrayOf(bodyProps?.messageSentBorderTopLeftRadius ?: configurationBodyProps?.messageSentBorderTopLeftRadius ?: 18f,bodyProps?.messageSentBorderTopLeftRadius ?: configurationBodyProps?.messageSentBorderTopLeftRadius ?: 18f,bodyProps?.messageSentBorderTopRightRadius ?: configurationBodyProps?.messageSentBorderTopRightRadius ?: 0f,bodyProps?.messageSentBorderTopRightRadius ?: configurationBodyProps?.messageSentBorderTopRightRadius ?: 0f, bodyProps?.messageSentBorderBottomLeftRadius ?: configurationBodyProps?.messageSentBorderBottomLeftRadius ?: 18f,bodyProps?.messageSentBorderBottomLeftRadius ?: configurationBodyProps?.messageSentBorderBottomLeftRadius ?: 18f,bodyProps?.messageSentBorderBottomRightRadius ?: configurationBodyProps?.messageSentBorderBottomRightRadius ?: 18f, bodyProps?.messageSentBorderBottomRightRadius ?: configurationBodyProps?.messageSentBorderBottomRightRadius ?: 18f)
             messagesTextViewStyle.cornerRadii = cornerRadaii
-            messagesTextViewStyle.setColor(Color.parseColor(bodyProps?.messageSentBackgroundColor ?: "#80000000"))
+            messagesTextViewStyle.setColor(Color.parseColor(bodyProps?.messageSentBackgroundColor ?: configurationBodyProps?.messageSentBackgroundColor ?: "#80000000"))
             messageTextView.background = messagesTextViewStyle
             messagesSpace.visibility = View.VISIBLE
             val messagesContainerLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
@@ -119,27 +119,27 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             messagesContainerLayoutParams.marginStart = 150
             messagesContainerLinearLayout.layoutParams = messagesContainerLayoutParams
             messageTextView.setPadding(20,20,20,20)
-            messageTextView.setTextColor(Color.parseColor(bodyProps?.messageSentTextColor ?: "#ffffff"))
+            messageTextView.setTextColor(Color.parseColor(bodyProps?.messageSentTextColor ?: configurationBodyProps?.messageSentTextColor ?: "#ffffff"))
             messageTextView.textSize = bodyProps?.messageSentFontSize ?: 14f
-            messageTextView.typeface = Typeface.create(bodyProps?.messageSentFontFamily ?: "sans-serif", Typeface.NORMAL)
+            messageTextView.typeface = Typeface.create(bodyProps?.messageSentFontFamily ?: configurationBodyProps?.messageSentFontFamily ?: "sans-serif", Typeface.NORMAL)
         }
         else
         {
             val avatarBackgroundStyle = GradientDrawable()
-            avatarBackgroundStyle.cornerRadius = bodyProps?.assistantImageBorderRadius ?: 38f
-            avatarBackgroundStyle.setStroke(bodyProps?.assistantImageBorderWidth ?: 4, Color.parseColor(bodyProps?.assistantImageBorderColor ?: "#CBCCD2"))
-            avatarBackgroundStyle.setColor(Color.parseColor(bodyProps?.assistantImageBackgroundColor ?: "#ffffff"))
+            avatarBackgroundStyle.cornerRadius = bodyProps?.assistantImageBorderRadius ?: configurationBodyProps?.assistantImageBorderRadius ?: 38f
+            avatarBackgroundStyle.setStroke(bodyProps?.assistantImageBorderWidth ?: configurationBodyProps?.assistantImageBorderWidth ?: 4, Color.parseColor(bodyProps?.assistantImageBorderColor ?: configurationBodyProps?.assistantImageBorderColor ?: "#CBCCD2"))
+            avatarBackgroundStyle.setColor(Color.parseColor(bodyProps?.assistantImageBackgroundColor ?: configurationBodyProps?.assistantImageBackgroundColor ?: "#ffffff"))
             avatarBackground.background = avatarBackgroundStyle
             avatarBackground.setPadding(12,12,12,12)
             avatarBackground.visibility = View.VISIBLE
             messagesAvatar.visibility = View.VISIBLE
-            loadImageFromUrl(bodyProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png", messagesAvatar, bodyProps?.assistantImageColor)
+            loadImageFromUrl(bodyProps?.assistantImage ?: configurationBodyProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png", messagesAvatar, bodyProps?.assistantImageColor ?: configurationBodyProps?.assistantImageColor)
             val messagesTextViewStyle = GradientDrawable()
             messagesTextViewStyle.shape = GradientDrawable.RECTANGLE
-            messagesTextViewStyle.setStroke(bodyProps?.messageReceivedBorderWidth ?: 4, Color.parseColor(bodyProps?.messageReceivedBorderColor ?: "#CBCCD2"))
-            val cornerRadaii = floatArrayOf(bodyProps?.messageReceivedBorderTopLeftRadius ?: 0f, bodyProps?.messageReceivedBorderTopLeftRadius ?: 0f,bodyProps?.messageReceivedBorderTopRightRadius ?: 18f,bodyProps?.messageReceivedBorderTopRightRadius ?: 18f, bodyProps?.messageReceivedBorderBottomLeftRadius ?: 18f,bodyProps?.messageReceivedBorderBottomLeftRadius ?: 18f,bodyProps?.messageReceivedBorderBottomRightRadius ?: 18f,bodyProps?.messageReceivedBorderBottomRightRadius ?: 18f)
+            messagesTextViewStyle.setStroke(bodyProps?.messageReceivedBorderWidth ?: configurationBodyProps?.messageReceivedBorderWidth ?: 4, Color.parseColor(bodyProps?.messageReceivedBorderColor ?: configurationBodyProps?.messageReceivedBorderColor ?: "#CBCCD2"))
+            val cornerRadaii = floatArrayOf(bodyProps?.messageReceivedBorderTopLeftRadius ?: configurationBodyProps?.messageReceivedBorderTopLeftRadius ?: 0f, bodyProps?.messageReceivedBorderTopLeftRadius ?: configurationBodyProps?.messageReceivedBorderTopLeftRadius ?: 0f,bodyProps?.messageReceivedBorderTopRightRadius ?: configurationBodyProps?.messageReceivedBorderTopRightRadius ?: 18f,bodyProps?.messageReceivedBorderTopRightRadius ?: configurationBodyProps?.messageReceivedBorderTopRightRadius ?: 18f, bodyProps?.messageReceivedBorderBottomLeftRadius ?: configurationBodyProps?.messageReceivedBorderBottomLeftRadius ?: 18f,bodyProps?.messageReceivedBorderBottomLeftRadius ?: configurationBodyProps?.messageReceivedBorderBottomLeftRadius ?: 18f,bodyProps?.messageReceivedBorderBottomRightRadius ?: configurationBodyProps?.messageReceivedBorderBottomRightRadius ?: 18f,bodyProps?.messageReceivedBorderBottomRightRadius ?: configurationBodyProps?.messageReceivedBorderBottomRightRadius ?: 18f)
             messagesTextViewStyle.cornerRadii = cornerRadaii
-            messagesTextViewStyle.setColor(Color.parseColor(bodyProps?.messageReceivedBackgroundColor ?: "#0d000000"))
+            messagesTextViewStyle.setColor(Color.parseColor(bodyProps?.messageReceivedBackgroundColor ?: configurationBodyProps?.messageReceivedBackgroundColor ?: "#0d000000"))
             messageTextView.background = messagesTextViewStyle
             val messagesContainerLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             messagesContainerLayoutParams.setMargins(0, 60, 0 , 0)
@@ -150,9 +150,9 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             messagesTextViewLayoutParams.setMargins(20,40,0,0)
             messageTextView.layoutParams = messagesTextViewLayoutParams
             messageTextView.setPadding(20,20,20,20)
-            messageTextView.setTextColor(Color.parseColor(bodyProps?.messageReceivedTextColor ?: "#000000"))
-            messageTextView.typeface = Typeface.create(bodyProps?.messageReceivedFontFamily ?: "sans-serif", Typeface.NORMAL)
-            messageTextView.textSize = bodyProps?.messageReceivedFontSize ?: 14f
+            messageTextView.setTextColor(Color.parseColor(bodyProps?.messageReceivedTextColor ?: configurationBodyProps?.messageReceivedTextColor ?: "#000000"))
+            messageTextView.typeface = Typeface.create(bodyProps?.messageReceivedFontFamily ?: configurationBodyProps?.messageReceivedFontFamily ?: "sans-serif", Typeface.NORMAL)
+            messageTextView.textSize = bodyProps?.messageReceivedFontSize ?: configurationBodyProps?.messageReceivedFontSize ?: 14f
         }
         markwon.setMarkdown(messageTextView, message.message)
     }

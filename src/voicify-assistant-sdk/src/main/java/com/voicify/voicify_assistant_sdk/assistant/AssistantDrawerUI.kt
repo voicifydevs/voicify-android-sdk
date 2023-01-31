@@ -227,7 +227,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val hintsRecyclerView = window.findViewById<RecyclerView>(R.id.hintsRecyclerView)
         val hintsList = ArrayList<String>()
         val messagesList = ArrayList<Message>()
-        messagesRecyclerViewAdapter = MessagesRecyclerViewAdapter(messagesList, bodyProps, requireContext())
+        messagesRecyclerViewAdapter = MessagesRecyclerViewAdapter(messagesList, bodyProps, configurationBodyProps, requireContext())
 
         voicifyTTS = VoicifyTTSProvider(VoicifyTextToSpeechSettings(
             appId = assistantSettingProps?.appId ?: configuration?.applicationId ?: "",
@@ -266,7 +266,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             hintsRecyclerViewAdapter?.notifyDataSetChanged()
             assistant.makeTextRequest(hint ,null, "Text")
         }
-        hintsRecyclerViewAdapter = HintsRecyclerViewAdapter(hintsList, bodyProps, onHintClicked)
+        hintsRecyclerViewAdapter = HintsRecyclerViewAdapter(hintsList, bodyProps, configurationBodyProps, onHintClicked)
         messagesRecyclerView.layoutManager = LinearLayoutManager(context)
         messagesRecyclerView.adapter = messagesRecyclerViewAdapter
         hintsRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
@@ -322,11 +322,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         drawerLayout.setPadding(toolbarProps?.paddingLeft ?: getPixelsFromDp(16),toolbarProps?.paddingTop ?: getPixelsFromDp(16),toolbarProps?.paddingRight ?: getPixelsFromDp(16),toolbarProps?.paddingBottom ?: getPixelsFromDp(16))
 
         //set View styles
-        bodyBorderTopView.setBackgroundColor(Color.parseColor(bodyProps?.borderTopColor ?: "#CBCCD2"))
-        val bodyBorderTopViewLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, bodyProps?.borderTopWidth ?: 4)
+        bodyBorderTopView.setBackgroundColor(Color.parseColor(bodyProps?.borderTopColor ?: configurationBodyProps?.borderTopColor ?: "#CBCCD2"))
+        val bodyBorderTopViewLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, bodyProps?.borderTopWidth ?: configurationBodyProps?.borderTopWidth ?: 4)
         bodyBorderTopView.layoutParams = bodyBorderTopViewLayoutParams
-        bodyBorderBottomView.setBackgroundColor(Color.parseColor(bodyProps?.borderBottomColor ?: "#CBCCD2"))
-        val bodyBorderBottomViewLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, bodyProps?.borderBottomWidth ?: 4)
+        bodyBorderBottomView.setBackgroundColor(Color.parseColor(bodyProps?.borderBottomColor ?: configurationBodyProps?.borderBottomColor ?: "#CBCCD2"))
+        val bodyBorderBottomViewLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, bodyProps?.borderBottomWidth ?: configurationBodyProps?.borderBottomWidth ?: 4)
         bodyBorderBottomView.layoutParams = bodyBorderBottomViewLayoutParams
         if(!toolbarProps?.equalizerColor.isNullOrEmpty())
         {
@@ -437,8 +437,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
 
         val bodyContainerLayoutStyle = GradientDrawable()
-        if(!bodyProps?.backgroundColor.isNullOrEmpty()){
-            bodyContainerLayoutStyle.setColor(Color.parseColor(bodyProps?.backgroundColor))
+        if(!(bodyProps?.backgroundColor ?: configurationBodyProps?.backgroundColor).isNullOrEmpty()){
+            bodyContainerLayoutStyle.setColor(Color.parseColor(bodyProps?.backgroundColor ?: configurationBodyProps?.backgroundColor))
         }
         else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
         {
@@ -446,10 +446,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
         bodyContainerLayout.background = bodyContainerLayoutStyle
         bodyContainerLayout.setPadding(
-            bodyProps?.paddingLeft ?: 20,
-            bodyProps?.paddingTop ?: 0,
-            bodyProps?.paddingRight ?: 20,
-            bodyProps?.paddingBottom ?: 0
+            bodyProps?.paddingLeft ?: configurationBodyProps?.paddingLeft ?: 20,
+            bodyProps?.paddingTop ?: configurationBodyProps?.paddingTop ?: 0,
+            bodyProps?.paddingRight ?: configurationBodyProps?.paddingRight ?: 20,
+            bodyProps?.paddingBottom ?: configurationBodyProps?.paddingBottom ?: 0
         )
         voicifyTTS?.cancelSpeech = false
         val inputTextMessageEditTextViewStyle = GradientDrawable()

@@ -23,12 +23,13 @@ class MainActivity : AppCompatActivity() {
 
         binding.assistantMic.setOnClickListener {
             if (savedInstanceState == null) {
+                binding.assistantMic.isClickable = false
                 val voiceAssistant = AssistantDrawerUI.newInstance(
                     AssistantSettingsProps(
                         configurationId = "a0542ef6-f4cd-40b7-8653-ca4a2b949fe3",
                         serverRootUrl ="https://dev-assistant.voicify.com",
                         appId = "bc9fa6bf-6cea-4fad-af12-d388b64dbdb9",
-                        appKey = "ZjcyNmNkNjEtNmY5My00NTg3LWI5ZmQtMjJkNzE3NGMwYTI4"
+                        appKey = "ZjcyNmNkNjEtNmY5My00NTg3LWI5ZmQtMjJkNzE3NGMwYTI4",
                     )
                 )
                 val onEffect: (String, Any) -> Unit = { effectName, data ->
@@ -59,6 +60,7 @@ class MainActivity : AppCompatActivity() {
                 val onAssistantDismiss: () -> Unit = {
                     this.runOnUiThread{
                         binding.nowPlayingTextView.text = "Now playing"
+                        binding.assistantMic.isClickable = true
                     }
                 }
 

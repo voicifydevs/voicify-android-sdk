@@ -206,7 +206,7 @@ class VoicifyAssistant(
                     override fun onFailure(call: Call, e: IOException) {
                         if(!errorHandlers.isNullOrEmpty())
                         {
-                            errorHandlers?.forEach {handle ->  handle.invoke("User Data Call Failed, request", request)}
+                            errorHandlers?.forEach {handle ->  handle.invoke("User Data Call Failed", request)}
                         }
                     }
                     override fun onResponse(call: Call, response: Response) {

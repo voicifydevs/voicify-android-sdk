@@ -46,17 +46,20 @@ import com.voicify.voicify_assistant_sdk.R
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.*
 import com.voicify.voicify_assistant_sdk.components.HintsRecyclerViewAdapter
 import com.voicify.voicify_assistant_sdk.components.MessagesRecyclerViewAdapter
+import com.voicify.voicify_assistant_sdk.models.CustomAssistantConfigurationResponse
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantRequest
 import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.*
+import kotlinx.coroutines.*
 import java.lang.reflect.Field
-import kotlin.collections.ArrayList
 import kotlin.math.roundToInt
+
 
 private const val SETTINGS = "assistantSettings"
 private const val HEADER = "header"
 private const val BODY = "body"
 private const val TOOLBAR = "toolbar"
 
+private var configuration: CustomAssistantConfigurationResponse? = null
 /**
  * A simple [Fragment] subclass.
  * Use the [AssistantDrawerUI.newInstance] factory method to
@@ -86,6 +89,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private var onAssistantErrorCallback: ((errorMessage: String, request: CustomAssistantRequest) -> Unit)? = null
     private var sessionAttributes: Map<String, Any>? = emptyMap()
     private var userAttributes: Map<String, Any> = emptyMap()
+    private var customAssistantConfigurationService: CustomAssistantConfigurationService = CustomAssistantConfigurationService()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,11 +99,27 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             bodyProps = it.getSerializable(BODY) as BodyProps?
             toolbarProps = it.getSerializable(TOOLBAR) as ToolbarProps?
         }
-    }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putInt("w", 1)
+        if(!assistantSettingProps?.configurationId.isNullOrEmpty() && configuration == null)
+        {
+            val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
+                configuration = null
+            }
+
+            val job = GlobalScope.launch (Dispatchers.IO + coroutineExceptionHandler){
+                configuration = withContext(Dispatchers.Default) {
+                    customAssistantConfigurationService.getCustomAssistantConfiguration(
+                        assistantSettingProps?.configurationId ?: "",
+                        assistantSettingProps?.serverRootUrl ?: "",
+                        assistantSettingProps?.appId ?: "",
+                        assistantSettingProps?.appKey ?: ""
+                    )
+                }
+            }
+            runBlocking {
+                job.join()
+            }
+        }
     }
 
     @SuppressLint("ResourceType")
@@ -123,7 +143,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
                     isKeyboardActive = true
                 }
-
             }
             else
             {
@@ -158,6 +177,24 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 containerLayout.setBackgroundColor(Color.parseColor(assistantSettingProps?.backgroundColor))
             }
         }
+        else if (!configuration?.styles?.assistant?.backgroundColor.isNullOrEmpty()){
+            val splitColors = configuration?.styles?.assistant?.backgroundColor?.split(",")
+            if (splitColors!!.size > 1)
+            {
+                var colors = intArrayOf()
+                splitColors.forEach {
+                    colors = colors.plus(Color.parseColor(it))
+                }
+                val gradientDrawable = GradientDrawable(
+                    GradientDrawable.Orientation.TOP_BOTTOM,
+                    colors)
+                containerLayout.background = gradientDrawable
+            }
+            else
+            {
+                containerLayout.setBackgroundColor(Color.parseColor(configuration?.styles?.assistant?.backgroundColor))
+            }
+        }
         val drawerLayout = window.findViewById<LinearLayout>(R.id.drawerLayout)
         val bodyContainerLayout = window.findViewById<LinearLayout>(R.id.bodyContainerLayout)
         val headerLayout = window.findViewById<LinearLayout>(R.id.headerLayout)
@@ -187,27 +224,27 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         messagesRecyclerViewAdapter = MessagesRecyclerViewAdapter(messagesList, bodyProps, requireContext())
 
         voicifyTTS = VoicifyTTSProvider(VoicifyTextToSpeechSettings(
-            appId = assistantSettingProps?.appId ?: "",
-            appKey = assistantSettingProps?.appKey ?: "",
-            voice = assistantSettingProps?.textToSpeechVoice ?: "",
+            appId = assistantSettingProps?.appId ?: configuration?.applicationId ?: "",
+            appKey = assistantSettingProps?.appKey ?: configuration?.applicationSecret ?: "",
+            voice = assistantSettingProps?.textToSpeechVoice ?: configuration?.textToSpeechVoice ?: "",
             serverRootUrl = assistantSettingProps?.serverRootUrl ?: "https://assistant.voicify.com/",
-            provider = assistantSettingProps?.textToSpeechProvider ?: "Google"))
+            provider = assistantSettingProps?.textToSpeechProvider ?: configuration?.textToSpeechProvider ?: "Google"))
         voicifySTT = VoicifySTTProvider(requireContext(), requireActivity())
         val assistant = VoicifyAssistant(voicifySTT, voicifyTTS,
             VoicifyAssistantSettings(
-                appId = assistantSettingProps?.appId ?: "",
-                appKey = assistantSettingProps?.appKey ?: "",
+                appId = assistantSettingProps?.appId ?: configuration?.applicationId ?: "",
+                appKey = assistantSettingProps?.appKey ?: configuration?.applicationSecret ?: "",
                 serverRootUrl = assistantSettingProps?.serverRootUrl ?: "",
-                locale = assistantSettingProps?.locale ?: "en-US",
-                channel = assistantSettingProps?.channel ?: "Android",
-                device = assistantSettingProps?.device ?: "Mobile",
-                noTracking = assistantSettingProps?.noTracking ?: false,
-                autoRunConversation = assistantSettingProps?.autoRunConversation ?: false,
-                initializeWithWelcomeMessage = assistantSettingProps?.initializeWithWelcomeMessage ?: false,
-                initializeWithText = assistantSettingProps?.initializeWithText ?: false,
-                useVoiceInput = assistantSettingProps?.useVoiceInput ?: true,
-                useDraftContent = assistantSettingProps?.useDraftContent ?: false,
-                useOutputSpeech = assistantSettingProps?.useOutputSpeech ?: true
+                locale = assistantSettingProps?.locale ?: configuration?.locale ?: "en-US",
+                channel = assistantSettingProps?.channel ?: configuration?.channel ?: "Android",
+                device = assistantSettingProps?.device ?: configuration?.device ?: "Mobile",
+                noTracking = assistantSettingProps?.noTracking ?: configuration?.noTracking ?: false,
+                autoRunConversation = assistantSettingProps?.autoRunConversation ?: configuration?.autoRunConversation ?: false,
+                initializeWithWelcomeMessage = assistantSettingProps?.initializeWithWelcomeMessage ?: configuration?.initializeWithWelcomeMessage ?: false,
+                initializeWithText = assistantSettingProps?.initializeWithText ?: (configuration?.activeInput == "textbox"),
+                useVoiceInput = assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput ?: true,
+                useDraftContent = assistantSettingProps?.useDraftContent ?: configuration?.useDraftContent ?: false,
+                useOutputSpeech = assistantSettingProps?.useOutputSpeech ?: configuration?.useOutputSpeech ?: true
             )
         )
 
@@ -236,20 +273,25 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val assistantAvatarImageView = window.findViewById<ImageView>(R.id.assistantAvatarImageView)
         val dashedLineImageView = window.findViewById<ImageView>(R.id.dashedLineImageView)
         val speakTextView = window.findViewById<TextView>(R.id.speakTextView)
-        if(assistantSettingProps?.useVoiceInput == false)
+        if((assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == false)
         {
             micImageView.visibility = View.GONE
             speakTextView.visibility = View.GONE
         }
         else{
-            loadImageFromUrl(if(assistantSettingProps?.initializeWithText == false) toolbarProps?.micActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/daca643f-6730-4af5-8817-8d9d0d9db0b5/mic-image.png"
+            loadImageFromUrl(if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox")) toolbarProps?.micActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/daca643f-6730-4af5-8817-8d9d0d9db0b5/mic-image.png"
             else toolbarProps?.micInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/3f10b6d7-eb71-4427-adbc-aadacbe8940e/mic-image-1-.png", micImageView,
-                if(assistantSettingProps?.initializeWithText == false) toolbarProps?.micActiveColor else toolbarProps?.micInactiveColor)
+                if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox")) toolbarProps?.micActiveColor else toolbarProps?.micInactiveColor)
         }
-        loadImageFromUrl(headerProps?.closeAssistantButtonImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/a6de04bb-e572-4a55-8cd9-1a7628285829/delete-2.png", closeAssistantImageView, headerProps?.closeAssistantColor,)
-        loadImageFromUrl(if(assistantSettingProps?.initializeWithText == false && assistantSettingProps?.useVoiceInput == true) toolbarProps?.sendInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/0c5aa61c-7d6c-4272-abd2-75d9f5771214/Send-2-.png"
+        loadImageFromUrl(
+            headerProps?.closeAssistantButtonImage
+                ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/a6de04bb-e572-4a55-8cd9-1a7628285829/delete-2.png",
+            closeAssistantImageView,
+            headerProps?.closeAssistantColor
+        )
+        loadImageFromUrl(if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && assistantSettingProps?.useVoiceInput != true) toolbarProps?.sendInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/0c5aa61c-7d6c-4272-abd2-75d9f5771214/Send-2-.png"
         else toolbarProps?.sendActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/7a39bc6f-eef5-4185-bcf8-2a645aff53b2/Send-3-.png", sendMessageImageView,
-            if(assistantSettingProps?.initializeWithText == false && assistantSettingProps?.useVoiceInput == true) toolbarProps?.sendInactiveColor else toolbarProps?.sendActiveColor)
+            if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && assistantSettingProps?.useVoiceInput != true) toolbarProps?.sendInactiveColor else toolbarProps?.sendActiveColor)
         loadImageFromUrl(headerProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png", assistantAvatarImageView, headerProps?.assistantImageColor)
 
         //Text Views
@@ -325,8 +367,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
 
         //set Text View Styles
-        speakTextView.setTextColor(if(assistantSettingProps?.initializeWithText == false && assistantSettingProps?.useVoiceInput == true) Color.parseColor(toolbarProps?.speakActiveTitleColor ?: "#3E77A5") else Color.parseColor(toolbarProps?.speakInactiveTitleColor ?:"#8F97A1"))
-        typeTextView.setTextColor(if(assistantSettingProps?.initializeWithText == false && assistantSettingProps?.useVoiceInput == true) Color.parseColor(toolbarProps?.typeInactiveTitleColor ?:"#8F97A1") else Color.parseColor(toolbarProps?.typeActiveTitleColor ?:"#3E77A5"))
+        speakTextView.setTextColor(if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && assistantSettingProps?.useVoiceInput != false) Color.parseColor(toolbarProps?.speakActiveTitleColor ?: "#3E77A5") else Color.parseColor(toolbarProps?.speakInactiveTitleColor ?:"#8F97A1"))
+        typeTextView.setTextColor(if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && assistantSettingProps?.useVoiceInput != false) Color.parseColor(toolbarProps?.typeInactiveTitleColor ?:"#8F97A1") else Color.parseColor(toolbarProps?.typeActiveTitleColor ?:"#3E77A5"))
         speakTextView.textSize = toolbarProps?.speakFontSize ?: 12f
         speakTextView.typeface = Typeface.create(toolbarProps?.speakFontFamily ?: "sans-serif", Typeface.NORMAL)
         typeTextView.textSize = toolbarProps?.typeFontSize ?: 12f
@@ -340,7 +382,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         spokenTextView.textSize = 16f
         spokenTextView.typeface = Typeface.create(toolbarProps?.partialSpeechResultFontFamily ?: "sans-serif", Typeface.NORMAL)
         assistantStateTextView.setTextColor(Color.parseColor(toolbarProps?.assistantStateTextColor ?: "#8F97A1"))
-        isUsingSpeech = assistantSettingProps?.initializeWithText == false && assistantSettingProps?.useVoiceInput == true
+        isUsingSpeech = !(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && assistantSettingProps?.useVoiceInput != false
         assistantNameTextView.typeface = Typeface.create(headerProps?.fontFamily ?: "sans-serif", Typeface.NORMAL)
         assistantNameTextView.text = headerProps?.assistantName ?: "Voicify Assistant"
         assistantNameTextView.textSize = headerProps?.fontSize ?: 18f
@@ -379,7 +421,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         sendTextLayoutStyle.setColor(Color.parseColor(toolbarProps?.textboxActiveHighlightColor ?: "#1f1e7eb9"))
         sendTextLayoutStyle.cornerRadius = 24f
 
-        if(assistantSettingProps?.initializeWithText == true || assistantSettingProps?.useVoiceInput == false)
+        if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") || (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == false)
         {
             speakingAnimationLayout.visibility = View.GONE
             sendTextLayout.background = sendTextLayoutStyle
@@ -415,7 +457,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
         assistant.initializeAndStart()
         assistant.startNewSession(null, null, this.sessionAttributes, this.userAttributes)
-        if(assistantSettingProps?.initializeWithText == false && assistantSettingProps?.initializeWithWelcomeMessage == false)
+        if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == true)
         {
             voicifySTT?.startListening()
         }
@@ -618,7 +660,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
        }
 
         // handle errors"Assistant Call Failed"
-        assistant.onError{errorMessage, request, ->
+        assistant.onError{ errorMessage, request ->
             activity?.runOnUiThread{
                 if(errorMessage == "Assistant Call Failed")
                 {
@@ -743,7 +785,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         bottomSheetBehavior = BottomSheetBehavior.from((view.parent as View))
         bottomSheetBehavior?.isDraggable = false
-        if(assistantSettingProps?.initializeWithWelcomeMessage == true)
+        if((assistantSettingProps?.initializeWithWelcomeMessage ?: configuration?.initializeWithWelcomeMessage) == true)
         {
             activity?.runOnUiThread {
                 drawerLayout.visibility = View.VISIBLE
@@ -924,6 +966,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     fun addUserAttributes(userAttributes: Map<String, Any>){
         this.userAttributes = userAttributes
     }
+
     companion object {
         /**
          * Use this factory method to create a new instance of

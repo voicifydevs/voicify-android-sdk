@@ -26,11 +26,11 @@ class MainActivity : AppCompatActivity() {
                 binding.assistantMic.isClickable = false
                 val voiceAssistant = AssistantDrawerUI.newInstance(
                     AssistantSettingsProps(
-                        configurationId = "52954a41-864f-4c81-b4d9-55ff9e365481",
+                        configurationId = "3d65b1d8-b5e0-46c0-91fc-6a104906753b",
                         serverRootUrl ="https://dev-assistant.voicify.com",
                         appId = "bc9fa6bf-6cea-4fad-af12-d388b64dbdb9",
                         appKey = "ZjcyNmNkNjEtNmY5My00NTg3LWI5ZmQtMjJkNzE3NGMwYTI4",
-                    )
+                    ),
                 )
                 val onEffect: (String, Any) -> Unit = { effectName, data ->
                     if(effectName == "Dismiss")

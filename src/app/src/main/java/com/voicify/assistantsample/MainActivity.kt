@@ -14,24 +14,22 @@ import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.HeaderProps
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantRequest
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        val voiceAssistant = AssistantDrawerUI.newInstance(
+            AssistantSettingsProps(
+                configurationId = "3d65b1d8-b5e0-46c0-91fc-6a104906753b",
+                serverRootUrl ="https://dev-assistant.voicify.com",
+                appId = "bc9fa6bf-6cea-4fad-af12-d388b64dbdb9",
+                appKey = "ZjcyNmNkNjEtNmY5My00NTg3LWI5ZmQtMjJkNzE3NGMwYTI4",
+            ),
+        )
         binding.assistantMic.setOnClickListener {
             if (savedInstanceState == null) {
                 binding.assistantMic.isClickable = false
-                val voiceAssistant = AssistantDrawerUI.newInstance(
-                    AssistantSettingsProps(
-                        configurationId = "3d65b1d8-b5e0-46c0-91fc-6a104906753b",
-                        serverRootUrl ="https://dev-assistant.voicify.com",
-                        appId = "bc9fa6bf-6cea-4fad-af12-d388b64dbdb9",
-                        appKey = "ZjcyNmNkNjEtNmY5My00NTg3LWI5ZmQtMjJkNzE3NGMwYTI4",
-                    ),
-                )
                 val onEffect: (String, Any) -> Unit = { effectName, data ->
                     if(effectName == "Dismiss")
                     {

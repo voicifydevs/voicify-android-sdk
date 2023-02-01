@@ -15,6 +15,7 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.VectorDrawable
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -100,31 +101,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             headerProps = it.getSerializable(HEADER) as HeaderProps?
             bodyProps = it.getSerializable(BODY) as BodyProps?
             toolbarProps = it.getSerializable(TOOLBAR) as ToolbarProps?
-        }
-
-        if(!assistantSettingProps?.configurationId.isNullOrEmpty() && configuration == null)
-        {
-            val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
-                configuration = null
-            }
-
-            val job = GlobalScope.launch (Dispatchers.IO + coroutineExceptionHandler){
-                configuration =
-                    withContext(Dispatchers.Default) {
-                        customAssistantConfigurationService.getCustomAssistantConfiguration(
-                            assistantSettingProps?.configurationId ?: "",
-                            assistantSettingProps?.serverRootUrl ?: "",
-                            assistantSettingProps?.appId ?: "",
-                            assistantSettingProps?.appKey ?: ""
-                        )
-                    }
-                configurationHeaderProps = configuration?.styles?.header
-                configurationBodyProps = configuration?.styles?.body
-                configurationToolbarProps = configuration?.styles?.toolbar
-            }
-            runBlocking {
-                job.join()
-            }
         }
     }
 
@@ -1019,13 +995,37 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance( assistantSettingsProps: AssistantSettingsProps, headerProps: HeaderProps? = null, bodyProps: BodyProps? = null, toolbarProps: ToolbarProps? = null) =
+        fun newInstance( assistantSettingsProperties: AssistantSettingsProps, headerProps: HeaderProps? = null, bodyProps: BodyProps? = null, toolbarProps: ToolbarProps? = null) =
             AssistantDrawerUI().apply {
                 arguments = Bundle().apply {
-                    putSerializable(SETTINGS, assistantSettingsProps)
+                    putSerializable(SETTINGS, assistantSettingsProperties)
                     putSerializable(HEADER, headerProps)
                     putSerializable(BODY, bodyProps)
                     putSerializable(TOOLBAR, toolbarProps)
+                }
+                if(!assistantSettingsProperties?.configurationId.isNullOrEmpty() && configuration == null)
+                {
+                    val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
+                        configuration = null
+                    }
+
+                    val job = GlobalScope.launch (Dispatchers.IO + coroutineExceptionHandler){
+                        configuration =
+                            withContext(Dispatchers.Default) {
+                                customAssistantConfigurationService.getCustomAssistantConfiguration(
+                                    assistantSettingsProperties?.configurationId ?: "",
+                                    assistantSettingsProperties?.serverRootUrl ?: "",
+                                    assistantSettingsProperties?.appId ?: "",
+                                    assistantSettingsProperties?.appKey ?: ""
+                                )
+                            }
+                        configurationHeaderProps = configuration?.styles?.header
+                        configurationBodyProps = configuration?.styles?.body
+                        configurationToolbarProps = configuration?.styles?.toolbar
+                    }
+                    runBlocking {
+                        job.join()
+                    }
                 }
             }
     }

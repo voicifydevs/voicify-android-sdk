@@ -1009,22 +1009,16 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                         configuration = null
                     }
 
-                    val job = GlobalScope.launch (Dispatchers.IO + coroutineExceptionHandler){
-                        configuration =
-                            withContext(Dispatchers.Default) {
-                                customAssistantConfigurationService.getCustomAssistantConfiguration(
-                                    assistantSettingsProperties?.configurationId ?: "",
-                                    assistantSettingsProperties?.serverRootUrl ?: "",
-                                    assistantSettingsProperties?.appId ?: "",
-                                    assistantSettingsProperties?.appKey ?: ""
-                                )
-                            }
+                    GlobalScope.async (Dispatchers.IO + coroutineExceptionHandler){
+                        configuration = customAssistantConfigurationService.getCustomAssistantConfiguration(
+                                assistantSettingsProperties?.configurationId ?: "",
+                                assistantSettingsProperties?.serverRootUrl ?: "",
+                                assistantSettingsProperties?.appId ?: "",
+                                assistantSettingsProperties?.appKey ?: ""
+                            )
                         configurationHeaderProps = configuration?.styles?.header
                         configurationBodyProps = configuration?.styles?.body
                         configurationToolbarProps = configuration?.styles?.toolbar
-                    }
-                    runBlocking {
-                        job.join()
                     }
                 }
             }

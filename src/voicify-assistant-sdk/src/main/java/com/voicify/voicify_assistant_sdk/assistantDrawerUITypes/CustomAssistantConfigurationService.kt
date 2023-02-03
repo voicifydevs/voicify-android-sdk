@@ -16,6 +16,7 @@ class CustomAssistantConfigurationService {
         Log.d("JAMES", "WE IN HERE?")
         if(configurationId.isNullOrEmpty())
         {
+            Log.d("JAMES", "RETURNING NULL")
             return null
         }
         val userDataRequest = Request.Builder()
@@ -29,9 +30,11 @@ class CustomAssistantConfigurationService {
             Log.d("JAMES", "Success")
             val gson = Gson()
             val configurationResult = response.body?.string()
-            return gson.fromJson(configurationResult, CustomAssistantConfigurationResponse::class.java)
+            val response =  gson.fromJson(configurationResult, CustomAssistantConfigurationResponse::class.java)
+            return response
         }
         else{
+            Log.d("JAMES",response.code.toString())
             Log.d("JAMES", response.body?.string().toString())
         }
         return null

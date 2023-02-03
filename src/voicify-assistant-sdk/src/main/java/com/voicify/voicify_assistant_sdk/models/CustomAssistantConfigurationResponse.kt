@@ -25,7 +25,6 @@ data class CustomAssistantConfigurationResponse(
     val theme: String? = null,
     val font: String? = null,
     val primaryColor: String? = null,
-    val platformConfigurationsModel: PlatformConfigurationsModel? = null,
     val styles: ConfigurationStyle? = null
 )
 

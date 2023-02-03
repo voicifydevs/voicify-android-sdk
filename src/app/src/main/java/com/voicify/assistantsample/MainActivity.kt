@@ -21,10 +21,66 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         val voiceAssistant = AssistantDrawerUI.newInstance(
             AssistantSettingsProps(
-                configurationId = "f09e76c7-86fb-43e8-9931-822f122345a6",
-                serverRootUrl ="https://dev-assistant.voicify.com",
+                serverRootUrl = "https://dev-assistant.voicify.com",
                 appId = "52dfe3a1-b44e-4ff1-ac02-04f0a139cd51",
                 appKey = "NmYxNjM3ZDAtYzdiOC00NGVjLWE1OGMtZGNmMjJlOWYxMDAx",
+                locale = "en-US",
+                channel = "My App",
+                device = "My device",
+                textToSpeechVoice = "",
+                autoRunConversation = false,
+                initializeWithWelcomeMessage = true,
+                textToSpeechProvider = "Google",
+                useVoiceInput = true,
+                useOutputSpeech = true,
+                useDraftContent = false,
+                noTracking = true,
+                initializeWithText = false,
+                backgroundColor = "#202C36,#3E77A5"
+            ),
+            HeaderProps(
+                backgroundColor = "#00000000",
+                assistantName = "pink",
+                assistantNameTextColor = "#FFFFFF",
+                assistantImage = "https://voicify-dev-files.s3.amazonaws.com/52dfe3a1-b44e-4ff1-ac02-04f0a139cd51/d23550ef-0b21-4a2d-886a-19c831689e98/mary-headshot.png",
+                fontFamily = "Helvetica",
+                closeAssistantColor = "#FFFFFF"
+            ),
+            BodyProps(
+                backgroundColor = "#00000000",
+                messageSentTextColor = "#FFFFFF",
+                messageSentBackgroundColor = "#69275f",
+                messageReceivedTextColor = "#FFFFFF",
+                messageReceivedBackgroundColor = null,
+                messageSentFontFamily = "Helvetica",
+                messageReceivedFontFamily = "Helvetica",
+                hintsTextColor = "#FFFFFF",
+                hintsBackgroundColor = "#00000000",
+                hintsFontFamily = "Helvetica",
+                assistantImage = "https://voicify-dev-files.s3.amazonaws.com/52dfe3a1-b44e-4ff1-ac02-04f0a139cd51/d23550ef-0b21-4a2d-886a-19c831689e98/mary-headshot.png"
+            ),
+            ToolbarProps(
+                backgroundColor = "#00000000",
+                speakActiveTitleColor = "#FFFFFF",
+                speakInactiveTitleColor = "#FFFFFF",
+                typeActiveTitleColor = "#FFFFFF",
+                typeInactiveTitleColor = "#FFFFFF",
+                partialSpeechResultTextColor = "#FFFFFF",
+                fullSpeechResultTextColor = "#FFFFFF",
+                speechResultBoxBackgroundColor = "#69275f",
+                textInputTextColor = "#FFFFFF",
+                helpTextFontColor = "#FFFFFF",
+                partialSpeechResultFontFamily = "Helvetica",
+                assistantStateFontFamily = "Helvetica",
+                helpTextFontFamily = "Helvetica",
+                speakFontFamily = "Helvetica",
+                typeFontFamily = "Helvetica",
+                textboxFontFamily = "Helvetica",
+                equalizerColor = "#b3ffffff,#b3ffffff",
+                micActiveColor = "#FFFFFF",
+                sendActiveColor = "#FFFFFF",
+                sendInactiveColor = "#FFFFFF",
+                assistantStateTextColor = "#FFFFFF"
             )
         )
         binding.assistantMic.setOnClickListener {

@@ -175,6 +175,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         if(!isLoadingConfiguration)
         {
+            Log.d("JAMES", "WE ARE NOT LOADING IN ON CREATE VIEW")
+            containerLayout.visibility = View.VISIBLE
+            activityIndicator.visibility = View.GONE
             val assistant = initializeAssistant()
             val onHintClicked: (String) -> Unit = {  hint ->
                 messagesList.add(Message(hint, "Sent"))
@@ -293,6 +296,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         bottomSheetBehavior = BottomSheetBehavior.from((view.parent as View))
         bottomSheetBehavior?.isDraggable = false
+        if(!isLoadingConfiguration){
+            Log.d("JAMES", "WE ARE NOT LOADING IN ON CREATE VIEW")
+        }
         checkInitializeWithWelcome(drawerLayout, bodyContainerLayout, spokenTextView, hintsRecyclerView, drawerFooterLayout,
                                     dashedLineImageView, toolbarLayout, assistantAvatarBackgroundContainerLayout, headerLayout,
                                     micImageView, assistantStateTextView, drawerWelcomeTextView, assistantAvatarImageView,
@@ -551,6 +557,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         if((assistantSettingProps?.initializeWithWelcomeMessage ?: configurationKotlin?.initializeWithWelcomeMessage) == true)
         {
             activity?.runOnUiThread {
+                Log.d("JAMES", "WE ARE IN HERE")
                 drawer.visibility = View.VISIBLE
                 bodyLayout.visibility = View.VISIBLE
                 spokenText.text = ""
@@ -562,7 +569,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     drawerFooter.layoutParams = drawerFooterLayoutParams
                     dashedLineView.visibility = View.INVISIBLE;
                 }
-
+                Log.d("JAMES", "WE ARE IN HERE1")
                 drawer.setPadding(0,0,0,0)
                 drawer.setBackgroundColor(Color.TRANSPARENT)
                 if(!(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor).isNullOrEmpty())
@@ -582,6 +589,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 {
                     header.setBackgroundColor(Color.parseColor("#ffffff"))
                 }
+                Log.d("JAMES", "WE ARE IN HERE2")
                 header.setPadding(headerProps?.paddingLeft ?: configurationHeaderProps?.paddingLeft ?: getPixelsFromDp(16), headerProps?.paddingTop ?: configurationHeaderProps?.paddingTop ?: getPixelsFromDp(16), headerProps?.paddingRight ?: configurationHeaderProps?.paddingRight ?: getPixelsFromDp(16), headerProps?.paddingBottom ?: configurationHeaderProps?.paddingBottom ?: getPixelsFromDp(16))
                 bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
                 isDrawer = false
@@ -592,13 +600,18 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 drawer.layoutParams = params
                 assistantStateText.text = ""
                 drawerText.text = ""
+                Log.d("JAMES", "WE ARE IN HERE3")
                 assistantAvatar.visibility = View.VISIBLE
                 assistantName.visibility = View.VISIBLE
                 messagesRecycler.visibility = View.VISIBLE
                 bodyTopBorder.visibility = View.VISIBLE
                 bodyBottomBorder.visibility = View.VISIBLE
                 messagesRecyclerViewAdapter?.notifyDataSetChanged()
-                messagesRecycler.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
+                if(messagesRecyclerViewAdapter?.itemCount ?: 0 > 0)
+                {
+                    messagesRecycler.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
+                }
+                Log.d("JAMES", "WE ARE IN HERE4")
             }
         }
     }
@@ -1145,10 +1158,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     putSerializable(BODY, bodyProps)
                     putSerializable(TOOLBAR, toolbarProps)
                 }
-                if(!assistantSettingsProperties?.configurationId.isNullOrEmpty() && configurationKotlin == null)
+                if(configurationKotlin == null)
                 {
                     val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
                         configurationKotlin = null
+                        Log.d("JAMES","exception")
                     }
 
                     GlobalScope.async (Dispatchers.IO + coroutineExceptionHandler){
@@ -1157,11 +1171,12 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                                 assistantSettingsProperties?.serverRootUrl ?: "",
                                 assistantSettingsProperties?.appId ?: "",
                                 assistantSettingsProperties?.appKey ?: ""
-                            )?.platformConfigurationsModel?.kotlin
+                            )
                         configurationHeaderProps = configurationKotlin?.styles?.header
                         configurationBodyProps = configurationKotlin?.styles?.body
                         configurationToolbarProps = configurationKotlin?.styles?.toolbar
                         isLoadingConfiguration = false
+                        Log.d("JAMES", configurationKotlin.toString())
                         val params = Bundle()
                         params.putSerializable("configurationHeader", configurationHeaderProps)
                         params.putSerializable("configurationBody", configurationBodyProps)

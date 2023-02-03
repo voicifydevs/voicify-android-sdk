@@ -25,12 +25,13 @@ object NotificationCenter {
     fun postNotification(
         context: Context,
         notification: NotificationType,
-        params: Bundle
+        params: Bundle? = null
     ) {
         val intent = Intent(notification.name)
         // insert parameters if needed
-        intent.putExtra("data", params)
-
+        if(params?.isEmpty == false){
+            intent.putExtra("data", params)
+        }
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
     }
 }

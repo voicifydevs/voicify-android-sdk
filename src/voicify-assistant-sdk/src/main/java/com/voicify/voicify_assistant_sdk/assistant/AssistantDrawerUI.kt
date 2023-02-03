@@ -135,6 +135,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         //Progress Bars
         val activityIndicator = window.findViewById<ProgressBar>(R.id.activityIndicator)
+        activityIndicator.setBackgroundColor(Color.parseColor("#80000000"))
 
         // Views
         val bodyBorderTopView = window.findViewById<View>(R.id.bodyBorderTopView)
@@ -229,9 +230,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             override fun onReceive(context: Context, intent: Intent) {
                 activity?.runOnUiThread{
                     Log.d("JAMES", "LOADING COMPLETE")
-                    configurationHeaderProps = intent.getSerializableExtra("configurationHeader") as? HeaderProps
-                    configurationBodyProps = intent.getSerializableExtra("configurationBody") as? BodyProps
-                    configurationToolbarProps = intent.getSerializableExtra("configurationToolbar") as? ToolbarProps
                     containerLayout.visibility = View.VISIBLE
                     activityIndicator.visibility = View.GONE
                     val assistant = initializeAssistant()
@@ -247,11 +245,14 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                         hintsRecyclerViewAdapter?.notifyDataSetChanged()
                         assistant.makeTextRequest(hint ,null, "Text")
                     }
-                    initializeImageViews(micImageView,closeAssistantImageView,sendMessageImageView,assistantAvatarImageView, speakTextView)
-                    initializeLinearLayouts(drawerLayout, closeAssistantBackground, assistantAvatarBackground, bodyContainerLayout)
-                    initializeRecyclerViews(messagesRecyclerView, hintsRecyclerView, messagesList, hintsList, onHintClicked)
-                    initializeTextViews(speakTextView, typeTextView, drawerWelcomeTextView, spokenTextView, assistantStateTextView, assistantNameTextView, inputTextMessageEditTextView)
+
                     addGradientBackground(containerLayout)
+                    initializeImageViews(micImageView, closeAssistantImageView, sendMessageImageView, assistantAvatarImageView, speakTextView)
+                    initializeLinearLayouts(drawerLayout, closeAssistantBackground, assistantAvatarBackground, bodyContainerLayout)
+                    checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
+                    initializeRecyclerViews(messagesRecyclerView, hintsRecyclerView, messagesList, hintsList, onHintClicked)
+                    initializeViews(bodyBorderTopView,bodyBorderBottomView,speakingAnimationBars)
+                    initializeTextViews(speakTextView, typeTextView, drawerWelcomeTextView, spokenTextView, assistantStateTextView, assistantNameTextView, inputTextMessageEditTextView)
 
                     //UI Initialization
                     checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
@@ -296,13 +297,28 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         bottomSheetBehavior = BottomSheetBehavior.from((view.parent as View))
         bottomSheetBehavior?.isDraggable = false
-        if(!isLoadingConfiguration){
+        if(!isLoadingConfiguration) {
             Log.d("JAMES", "WE ARE NOT LOADING IN ON CREATE VIEW")
+            checkInitializeWithWelcome(
+                drawerLayout,
+                bodyContainerLayout,
+                spokenTextView,
+                hintsRecyclerView,
+                drawerFooterLayout,
+                dashedLineImageView,
+                toolbarLayout,
+                assistantAvatarBackgroundContainerLayout,
+                headerLayout,
+                micImageView,
+                assistantStateTextView,
+                drawerWelcomeTextView,
+                assistantAvatarImageView,
+                assistantNameTextView,
+                messagesRecyclerView,
+                bodyBorderTopView,
+                bodyBorderBottomView
+            )
         }
-        checkInitializeWithWelcome(drawerLayout, bodyContainerLayout, spokenTextView, hintsRecyclerView, drawerFooterLayout,
-                                    dashedLineImageView, toolbarLayout, assistantAvatarBackgroundContainerLayout, headerLayout,
-                                    micImageView, assistantStateTextView, drawerWelcomeTextView, assistantAvatarImageView,
-                                    assistantNameTextView, messagesRecyclerView, bodyBorderTopView, bodyBorderBottomView)
     }
 
     override fun onDismiss(dialog: DialogInterface) {
@@ -556,8 +572,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                                             bodyTopBorder: View, bodyBottomBorder: View){
         if((assistantSettingProps?.initializeWithWelcomeMessage ?: configurationKotlin?.initializeWithWelcomeMessage) == true)
         {
-            activity?.runOnUiThread {
-                Log.d("JAMES", "WE ARE IN HERE")
                 drawer.visibility = View.VISIBLE
                 bodyLayout.visibility = View.VISIBLE
                 spokenText.text = ""
@@ -569,7 +583,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     drawerFooter.layoutParams = drawerFooterLayoutParams
                     dashedLineView.visibility = View.INVISIBLE;
                 }
-                Log.d("JAMES", "WE ARE IN HERE1")
                 drawer.setPadding(0,0,0,0)
                 drawer.setBackgroundColor(Color.TRANSPARENT)
                 if(!(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor).isNullOrEmpty())
@@ -589,7 +602,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 {
                     header.setBackgroundColor(Color.parseColor("#ffffff"))
                 }
-                Log.d("JAMES", "WE ARE IN HERE2")
                 header.setPadding(headerProps?.paddingLeft ?: configurationHeaderProps?.paddingLeft ?: getPixelsFromDp(16), headerProps?.paddingTop ?: configurationHeaderProps?.paddingTop ?: getPixelsFromDp(16), headerProps?.paddingRight ?: configurationHeaderProps?.paddingRight ?: getPixelsFromDp(16), headerProps?.paddingBottom ?: configurationHeaderProps?.paddingBottom ?: getPixelsFromDp(16))
                 bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
                 isDrawer = false
@@ -600,7 +612,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 drawer.layoutParams = params
                 assistantStateText.text = ""
                 drawerText.text = ""
-                Log.d("JAMES", "WE ARE IN HERE3")
                 assistantAvatar.visibility = View.VISIBLE
                 assistantName.visibility = View.VISIBLE
                 messagesRecycler.visibility = View.VISIBLE
@@ -611,8 +622,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 {
                     messagesRecycler.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
                 }
-                Log.d("JAMES", "WE ARE IN HERE4")
-            }
+
         }
     }
     private fun startNewAssistantSession(assistant: VoicifyAssistant){
@@ -1162,7 +1172,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 {
                     val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
                         configurationKotlin = null
-                        Log.d("JAMES","exception")
+                        isLoadingConfiguration = false
                     }
 
                     GlobalScope.async (Dispatchers.IO + coroutineExceptionHandler){
@@ -1176,12 +1186,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                         configurationBodyProps = configurationKotlin?.styles?.body
                         configurationToolbarProps = configurationKotlin?.styles?.toolbar
                         isLoadingConfiguration = false
-                        Log.d("JAMES", configurationKotlin.toString())
-                        val params = Bundle()
-                        params.putSerializable("configurationHeader", configurationHeaderProps)
-                        params.putSerializable("configurationBody", configurationBodyProps)
-                        params.putSerializable("configurationToolbar", configurationToolbarProps)
-                        NotificationCenter.postNotification(requireContext(), NotificationType.LOADING_COMPLETE, params);
+                        Log.d("JAMES", "we are in the async method oh boy")
+                        NotificationCenter.postNotification(requireContext(), NotificationType.LOADING_COMPLETE);
                     }
                 }
             }

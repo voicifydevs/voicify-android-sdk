@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         val voiceAssistant = AssistantDrawerUI.newInstance(
             AssistantSettingsProps(
-                configurationId = "3d65b1d8-b5e0-46c0-91fc-6a104906753b",
+                configurationId = "f09e76c7-86fb-43e8-9931-822f122345a6",
                 serverRootUrl ="https://dev-assistant.voicify.com",
                 appId = "bc9fa6bf-6cea-4fad-af12-d388b64dbdb9",
                 appKey = "ZjcyNmNkNjEtNmY5My00NTg3LWI5ZmQtMjJkNzE3NGMwYTI4",

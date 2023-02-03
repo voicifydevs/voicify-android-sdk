@@ -4,8 +4,10 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Rect
@@ -24,10 +26,7 @@ import android.view.View
 import android.view.View.OnTouchListener
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.annotation.ColorInt
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
@@ -50,8 +49,10 @@ import com.voicify.voicify_assistant_sdk.components.MessagesRecyclerViewAdapter
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantConfigurationResponse
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantRequest
 import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.*
-import kotlinx.coroutines.*
-import org.w3c.dom.Text
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import java.lang.reflect.Field
 import kotlin.math.roundToInt
 
@@ -65,6 +66,8 @@ private var configuration: CustomAssistantConfigurationResponse? = null
 private var configurationHeaderProps: HeaderProps? = null
 private var configurationBodyProps: BodyProps? = null
 private var configurationToolbarProps: ToolbarProps? = null
+private var loginResponseReceiver: BroadcastReceiver? = null
+private var isLoadingConfiguration = true
 /**
  * A simple [Fragment] subclass.
  * Use the [AssistantDrawerUI.newInstance] factory method to
@@ -145,6 +148,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         initializeLinearLayouts(drawerLayout, closeAssistantBackground, assistantAvatarBackground, bodyContainerLayout)
         addGradientBackground(containerLayout)
 
+        val activityIndicator = window.findViewById<ProgressBar>(R.id.activityIndicator)
+
         // Views
         val bodyBorderTopView = window.findViewById<View>(R.id.bodyBorderTopView)
         val bodyBorderBottomView = window.findViewById<View>(R.id.bodyBorderBottomView)
@@ -186,243 +191,82 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val dashedLineImageView = window.findViewById<ImageView>(R.id.dashedLineImageView)
         initializeImageViews(micImageView, closeAssistantImageView, sendMessageImageView, assistantAvatarImageView, speakTextView)
 
-        //Set initialize with text style
-        if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") || (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == false)
+        if(!isLoadingConfiguration)
         {
-            speakingAnimationLayout.visibility = View.GONE
-            sendTextLayout.background = sendTextLayoutStyle
-            isUsingSpeech = false
-            spokenTextView.visibility = View.GONE
-            assistantStateTextView.visibility = View.GONE
+            //UI Initialization
+            checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
+            startNewAssistantSession(assistant)
+
+            //Add Listeners
+            addKeyboardActiveListener(window)
+            addSpeechToTextListeners(assistant, spokenTextView, assistantStateTextView, micImageView)
+            addMicClickListener(micImageView, messagesRecyclerView, speakingAnimationLayout, sendTextLayout, dashedLineImageView, drawerFooterLayout,
+                spokenTextView, assistantStateTextView, speakTextView, typeTextView, sendMessageImageView)
+            addSendMessageClickListener(sendMessageImageView, inputTextMessageEditTextView, messagesList, messagesRecyclerView, assistant)
+            addAssistantHandlers(assistant, drawerLayout, bodyContainerLayout, spokenTextView, hintsRecyclerView, closeAssistantImageView, closeAssistantNoInternetImageView,
+                hintsList, drawerWelcomeTextView, drawerFooterLayout, dashedLineImageView, messagesList, messagesRecyclerView, toolbarLayout, headerLayout,
+                assistantAvatarBackground, micImageView, assistantStateTextView, assistantAvatarImageView, assistantNameTextView, bodyBorderTopView, bodyBorderBottomView)
+
+            addTextboxClickListener(inputTextMessageEditTextView, assistantStateTextView, spokenTextView, speakingAnimationLayout, sendTextLayoutStyle,
+                sendTextLayout, drawerFooterLayout, dashedLineImageView, speakTextView, typeTextView, micImageView, sendMessageImageView)
+            closeAssistantImageView.setOnClickListener{
+                dismiss()
+            }
+            closeAssistantNoInternetImageView.setOnClickListener{
+                dismiss()
+            }
         }
 
-        //Initialize the assistant
-        if(!(assistantSettingProps?.locale ?: configuration?.locale).toString().isNullOrEmpty())
-        {
-            voicifySTT?.initialize((assistantSettingProps?.locale ?: configuration?.locale).toString())
-        }
-        assistant.initializeAndStart()
-        assistant.startNewSession(null, null, this.sessionAttributes, this.userAttributes)
-        if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") != true && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) != false && (assistantSettingProps?.initializeWithWelcomeMessage ?: configuration?.initializeWithWelcomeMessage) != true)
-        {
-            voicifySTT?.startListening()
-        }
+        loginResponseReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                activity?.runOnUiThread{
+                    Log.d("JAMES", "LOADING COMPLETE")
+                    configurationHeaderProps = intent.getSerializableExtra("configurationHeader") as? HeaderProps
+                    configurationBodyProps = intent.getSerializableExtra("configurationBody") as? BodyProps
+                    configurationToolbarProps = intent.getSerializableExtra("configurationToolbar") as? ToolbarProps
+                    containerLayout.visibility = View.VISIBLE
+                    activityIndicator.visibility = View.GONE
+                    initializeImageViews(micImageView,closeAssistantImageView,sendMessageImageView,assistantAvatarImageView, speakTextView)
+                    initializeLinearLayouts(drawerLayout, closeAssistantBackground, assistantAvatarBackground, bodyContainerLayout)
+                    initializeRecyclerViews(messagesRecyclerView, hintsRecyclerView, messagesList, hintsList, onHintClicked)
+                    initializeTextViews(speakTextView, typeTextView, drawerWelcomeTextView, spokenTextView, assistantStateTextView, assistantNameTextView, inputTextMessageEditTextView)
+                    addGradientBackground(containerLayout)
 
-        //Listeners
-        addKeyboardActiveListener(window)
-        addSpeechToTextListeners(assistant, spokenTextView, assistantStateTextView, micImageView)
-        //Assistant
-        assistant.onResponseReceived { response ->
-            activity?.runOnUiThread{
-                drawerLayout.visibility = View.VISIBLE
-                bodyContainerLayout.visibility = View.VISIBLE
-                spokenTextView.text = ""
-                hintsRecyclerView.visibility = View.VISIBLE
-                closeAssistantImageView.visibility = View.VISIBLE
-                closeAssistantNoInternetImageView.visibility = View.GONE
-                if(!response.hints.isNullOrEmpty())
-                {
-                    if(!hintsList.isNullOrEmpty())
-                    {
-                        hintsList.clear()
-                        hintsRecyclerViewAdapter?.notifyDataSetChanged()
+                    //UI Initialization
+                    checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
+                    checkInitializeWithWelcome(drawerLayout, bodyContainerLayout, spokenTextView, hintsRecyclerView, drawerFooterLayout,
+                        dashedLineImageView, toolbarLayout, assistantAvatarBackgroundContainerLayout, headerLayout,
+                        micImageView, assistantStateTextView, drawerWelcomeTextView, assistantAvatarImageView,
+                        assistantNameTextView, messagesRecyclerView, bodyBorderTopView, bodyBorderBottomView)
+                    startNewAssistantSession(assistant)
+
+                    //Add Listeners
+                    addKeyboardActiveListener(window)
+                    addSpeechToTextListeners(assistant, spokenTextView, assistantStateTextView, micImageView)
+                    addMicClickListener(micImageView, messagesRecyclerView, speakingAnimationLayout, sendTextLayout, dashedLineImageView, drawerFooterLayout,
+                        spokenTextView, assistantStateTextView, speakTextView, typeTextView, sendMessageImageView)
+                    addSendMessageClickListener(sendMessageImageView, inputTextMessageEditTextView, messagesList, messagesRecyclerView, assistant)
+                    addAssistantHandlers(assistant, drawerLayout, bodyContainerLayout, spokenTextView, hintsRecyclerView, closeAssistantImageView, closeAssistantNoInternetImageView,
+                        hintsList, drawerWelcomeTextView, drawerFooterLayout, dashedLineImageView, messagesList, messagesRecyclerView, toolbarLayout, headerLayout,
+                        assistantAvatarBackground, micImageView, assistantStateTextView, assistantAvatarImageView, assistantNameTextView, bodyBorderTopView, bodyBorderBottomView)
+
+                    addTextboxClickListener(inputTextMessageEditTextView, assistantStateTextView, spokenTextView, speakingAnimationLayout, sendTextLayoutStyle,
+                        sendTextLayout, drawerFooterLayout, dashedLineImageView, speakTextView, typeTextView, micImageView, sendMessageImageView)
+                    closeAssistantImageView.setOnClickListener{
+                        dismiss()
                     }
-                    response.hints.forEach { hint ->
-                        hintsList.add(hint)
-                        hintsRecyclerViewAdapter?.notifyDataSetChanged()
-                    }
-                }
-                else
-                {
-                    hintsRecyclerView.visibility = View.GONE
-                }
-                if(!isUsingSpeech)
-                {
-                    val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                    drawerFooterLayoutParams.setMargins(0,0,0,0)
-                    drawerFooterLayout.layoutParams = drawerFooterLayoutParams
-                    dashedLineImageView.visibility = View.INVISIBLE;
-                }
-                if(!speechFullResult.isNullOrEmpty())
-                {
-                    messagesList.add(Message(speechFullResult as String, "Sent"))
-                    messagesRecyclerViewAdapter?.notifyDataSetChanged()
-                    messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
-                }
-                speechFullResult = null
-                drawerLayout.setPadding(0,0,0,0)
-                drawerLayout.setBackgroundColor(Color.TRANSPARENT)
-                if(!(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor).isNullOrEmpty())
-                {
-                    toolbarLayout.setBackgroundColor(Color.parseColor(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor))
-                }
-                else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
-                {
-                    toolbarLayout.setBackgroundColor(Color.parseColor("#ffffff"))
-                }
-                toolbarLayout.setPadding(toolbarProps?.paddingLeft ?: configurationToolbarProps?.paddingLeft ?: getPixelsFromDp(16), getPixelsFromDp(0),toolbarProps?.paddingRight ?: configurationToolbarProps?.paddingRight ?: getPixelsFromDp(16),toolbarProps?.paddingBottom ?: configurationToolbarProps?.paddingBottom ?: getPixelsFromDp(16))
-                assistantAvatarBackground.visibility = View.VISIBLE
-                if(!(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor).isNullOrEmpty()){
-                    headerLayout.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor))
-                }
-                else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
-                {
-                    headerLayout.setBackgroundColor(Color.parseColor("#ffffff"))
-                }
-                headerLayout.setPadding(headerProps?.paddingLeft ?: configurationHeaderProps?.paddingLeft ?: getPixelsFromDp(16), headerProps?.paddingTop ?: configurationHeaderProps?.paddingTop ?: getPixelsFromDp(16), headerProps?.paddingRight ?: configurationHeaderProps?.paddingRight ?: getPixelsFromDp(16), headerProps?.paddingBottom ?: configurationHeaderProps?.paddingBottom ?: getPixelsFromDp(16))
-                bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
-                isDrawer = false
-                micImageView.setBackgroundColor(Color.parseColor(toolbarProps?.micInactiveHighlightColor ?: configurationToolbarProps?.micInactiveHighlightColor ?: "#00ffffff"))
-                val metrics = activity?.resources?.displayMetrics
-                var params = drawerLayout.layoutParams
-                params.height = metrics?.heightPixels as Int
-                drawerLayout.layoutParams = params
-                assistantStateTextView.text = ""
-                drawerWelcomeTextView.text = ""
-                assistantAvatarImageView.visibility = View.VISIBLE
-                assistantNameTextView.visibility = View.VISIBLE
-                messagesRecyclerView.visibility = View.VISIBLE
-                bodyBorderTopView.visibility = View.VISIBLE
-                bodyBorderBottomView.visibility = View.VISIBLE
-                messagesList.add(Message(response.displayText?.trim() as String, "Received"))
-                messagesRecyclerViewAdapter?.notifyDataSetChanged()
-                messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
-            }
-        }
-
-        assistantSettingProps?.effects?.forEach { effect ->
-            assistant.onEffect(effect) { data ->
-                onEffectCallback?.invoke(effect, data)
-            }
-        }
-
-        // add out of box close effect
-        assistant.onEffect("closeAssistant"){
-            dismiss()
-        }
-
-        // handle errors"Assistant Call Failed"
-        assistant.onError{ errorMessage, request ->
-            activity?.runOnUiThread{
-                if(errorMessage == "Assistant Call Failed")
-                {
-                    closeAssistantImageView.visibility = View.GONE
-                    closeAssistantNoInternetImageView.visibility = View.VISIBLE
-                }
-            }
-
-            if(onAssistantErrorCallback != null)
-            {
-                this.onAssistantErrorCallback?.invoke(errorMessage, request)
-            }
-        }
-
-        //Views
-        micImageView.setOnClickListener{
-            clearAnimationValues()
-            val colorStateList = ColorStateList.valueOf(Color.parseColor(toolbarProps?.textInputLineColor ?: configurationToolbarProps?.textInputLineColor ?: "#000000"))
-            ViewCompat.setBackgroundTintList(inputTextMessage,colorStateList)
-            if(!isUsingSpeech)
-            {
-                voicifySTT?.cancel = false
-                isUsingSpeech = true
-                messagesRecyclerViewAdapter?.notifyDataSetChanged()
-                messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
-                speakingAnimationLayout.visibility = View.VISIBLE
-                sendTextLayout.setBackgroundColor(Color.parseColor(toolbarProps?.textboxInactiveHighlightColor ?: configurationToolbarProps?.textboxInactiveHighlightColor ?: "#00ffffff"))
-                dashedLineImageView.visibility = View.VISIBLE;
-                hideKeyboard()
-               if(!isDrawer){
-                    val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                    drawerFooterLayoutParams.setMargins(0,getPixelsFromDp(20),0,0)
-                    drawerFooterLayout.layoutParams = drawerFooterLayoutParams
-                }
-                spokenTextView.visibility = View.VISIBLE
-                assistantStateTextView.visibility = View.VISIBLE
-                speakTextView.setTextColor(Color.parseColor(toolbarProps?.speakActiveTitleColor ?: configurationToolbarProps?.speakActiveTitleColor ?: "#3E77A5"))
-                typeTextView.setTextColor(Color.parseColor(toolbarProps?.typeInactiveTitleColor ?: configurationToolbarProps?.speakInactiveTitleColor ?: "#8F97A1"))
-                loadImageFromUrl(toolbarProps?.micActiveImage ?: configurationToolbarProps?.micActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/daca643f-6730-4af5-8817-8d9d0d9db0b5/mic-image.png", micImageView, toolbarProps?.micActiveColor ?: configurationToolbarProps?.micActiveColor)
-                loadImageFromUrl(toolbarProps?.sendInactiveImage ?: configurationToolbarProps?.sendInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/0c5aa61c-7d6c-4272-abd2-75d9f5771214/Send-2-.png", sendMessageImageView, toolbarProps?.sendInactiveColor ?: configurationToolbarProps?.sendInactiveColor)
-            }
-            if(!assistantIsListening)
-            {
-                voicifyTTS?.stop()
-                voicifySTT?.startListening()
-            }
-            else
-            {
-                cancelSpeech()
-                assistantStateTextView.text = "I didn't catch that..."
-            }
-        }
-
-        sendMessageImageView.setOnClickListener{
-            if(inputTextMessageEditTextView.text.toString().isNotEmpty())
-            {
-                messagesList.add(Message(inputTextMessageEditTextView.text.toString(), "Sent"))
-                messagesRecyclerViewAdapter?.notifyDataSetChanged()
-                messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
-                val inputText = inputTextMessageEditTextView.text.toString()
-                inputTextMessageEditTextView.setText("")
-                hideKeyboard()
-                assistant.makeTextRequest(inputText,null, "Text")
-            }
-        }
-
-        inputTextMessageEditTextView.setOnTouchListener(object : OnTouchListener {
-            @SuppressLint("ClickableViewAccessibility")
-            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-                when(event?.action) {
-                    MotionEvent.ACTION_UP -> {
-                        val colorStateList = ColorStateList.valueOf(Color.parseColor(toolbarProps?.textInputActiveLineColor ?: configurationToolbarProps?.textInputActiveLineColor ?: "#000000"))
-                        ViewCompat.setBackgroundTintList(inputTextMessage,colorStateList)
-                        if (assistantIsListening) {
-                            cancelSpeech()
-                            assistantStateTextView.text = ""
-                            spokenTextView.text = ""
-                        }
-                        if (isUsingSpeech) {
-                            voicifySTT?.cancel = true
-                            speakingAnimationLayout.visibility = View.GONE
-                            sendTextLayout.background = sendTextLayoutStyle
-                            isUsingSpeech = false
-                            if(!isDrawer)
-                            {
-                                val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                                drawerFooterLayoutParams.setMargins(0,0,0,0)
-                                drawerFooterLayout.layoutParams = drawerFooterLayoutParams
-                                dashedLineImageView.visibility = View.INVISIBLE;
-                            }
-                            spokenTextView.visibility = View.GONE
-                            assistantStateTextView.visibility = View.GONE
-                            speakTextView.setTextColor(Color.parseColor(toolbarProps?.speakInactiveTitleColor ?: configurationToolbarProps?.speakInactiveTitleColor ?: "#8F97A1"))
-                            typeTextView.setTextColor(Color.parseColor(toolbarProps?.typeActiveTitleColor ?: configurationToolbarProps?.speakActiveTitleColor ?: "#3E77A5"))
-                            loadImageFromUrl(
-                                toolbarProps?.micInactiveImage ?: configurationToolbarProps?.micInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/3f10b6d7-eb71-4427-adbc-aadacbe8940e/mic-image-1-.png",
-                                micImageView,
-                                toolbarProps?.micInactiveColor ?: configurationToolbarProps?.micInactiveColor
-                            )
-                            loadImageFromUrl(
-                                toolbarProps?.sendActiveImage ?: configurationToolbarProps?.sendActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/7a39bc6f-eef5-4185-bcf8-2a645aff53b2/Send-3-.png",
-                                sendMessageImageView,
-                                toolbarProps?.sendActiveColor ?: configurationToolbarProps?.sendActiveColor
-                            )
-                        }
+                    closeAssistantNoInternetImageView.setOnClickListener{
+                        dismiss()
                     }
                 }
-                v?.performClick()
-                return v?.onTouchEvent(event) ?: true
             }
-        })
-
-        closeAssistantImageView.setOnClickListener{
-            dismiss()
         }
-
-        closeAssistantNoInternetImageView.setOnClickListener{
-            dismiss()
+        NotificationCenter.addObserver(requireContext(), NotificationType.LOADING_COMPLETE, loginResponseReceiver);
+        if(isLoadingConfiguration)
+        {
+            containerLayout.visibility = View.GONE
+            activityIndicator.visibility = View.VISIBLE
         }
-
         // Inflate the layout for this fragment
         return window
     }
@@ -431,59 +275,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         bottomSheetBehavior = BottomSheetBehavior.from((view.parent as View))
         bottomSheetBehavior?.isDraggable = false
-        if((assistantSettingProps?.initializeWithWelcomeMessage ?: configuration?.initializeWithWelcomeMessage) == true)
-        {
-            activity?.runOnUiThread {
-                drawerLayout.visibility = View.VISIBLE
-                bodyContainerLayout.visibility = View.VISIBLE
-                spokenTextView.text = ""
-                hintsRecyclerView.visibility = View.VISIBLE
-                if(!isUsingSpeech)
-                {
-                    val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                    drawerFooterLayoutParams.setMargins(0,0,0,0)
-                    drawerFooterLayout.layoutParams = drawerFooterLayoutParams
-                    dashedLineImageView.visibility = View.INVISIBLE;
-                }
-
-                drawerLayout.setPadding(0,0,0,0)
-                drawerLayout.setBackgroundColor(Color.TRANSPARENT)
-                if(!(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor).isNullOrEmpty())
-                {
-                    toolbarLayout.setBackgroundColor(Color.parseColor(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor))
-                }
-                else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
-                {
-                    toolbarLayout.setBackgroundColor(Color.parseColor("#ffffff"))
-                }
-                toolbarLayout.setPadding(toolbarProps?.paddingLeft ?: configurationToolbarProps?.paddingLeft ?: getPixelsFromDp(16), getPixelsFromDp(0),toolbarProps?.paddingRight ?: configurationToolbarProps?.paddingRight ?: getPixelsFromDp(16),toolbarProps?.paddingBottom ?: configurationToolbarProps?.paddingBottom ?: getPixelsFromDp(16))
-                assistantAvatarBackgroundContainerLayout.visibility = View.VISIBLE
-                if(!(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor).isNullOrEmpty()){
-                    headerLayout.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor))
-                }
-                else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
-                {
-                    headerLayout.setBackgroundColor(Color.parseColor("#ffffff"))
-                }
-                headerLayout.setPadding(headerProps?.paddingLeft ?: configurationHeaderProps?.paddingLeft ?: getPixelsFromDp(16), headerProps?.paddingTop ?: configurationHeaderProps?.paddingTop ?: getPixelsFromDp(16), headerProps?.paddingRight ?: configurationHeaderProps?.paddingRight ?: getPixelsFromDp(16), headerProps?.paddingBottom ?: configurationHeaderProps?.paddingBottom ?: getPixelsFromDp(16))
-                bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
-                isDrawer = false
-                micImageView.setBackgroundColor(Color.parseColor(toolbarProps?.micInactiveHighlightColor ?: configurationToolbarProps?.micInactiveHighlightColor ?: "#00ffffff"))
-                val metrics = activity?.resources?.displayMetrics
-                var params = drawerLayout.layoutParams
-                params.height = metrics?.heightPixels as Int
-                drawerLayout.layoutParams = params
-                assistantStateTextView.text = ""
-                drawerWelcomeTextView.text = ""
-                assistantAvatarImageView.visibility = View.VISIBLE
-                assistantNameTextView.visibility = View.VISIBLE
-                messagesRecyclerView.visibility = View.VISIBLE
-                bodyBorderTopView.visibility = View.VISIBLE
-                bodyBorderBottomView.visibility = View.VISIBLE
-                messagesRecyclerViewAdapter?.notifyDataSetChanged()
-                messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
-            }
-        }
+        checkInitializeWithWelcome(drawerLayout, bodyContainerLayout, spokenTextView, hintsRecyclerView, drawerFooterLayout,
+                                    dashedLineImageView, toolbarLayout, assistantAvatarBackgroundContainerLayout, headerLayout,
+                                    micImageView, assistantStateTextView, drawerWelcomeTextView, assistantAvatarImageView,
+                                    assistantNameTextView, messagesRecyclerView, bodyBorderTopView, bodyBorderBottomView)
     }
 
     override fun onDismiss(dialog: DialogInterface) {
@@ -497,7 +292,12 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val manager = parentFragmentManager
         val transaction: FragmentTransaction = manager.beginTransaction()
         transaction.remove(this)
-        transaction.commit()
+        transaction.commitAllowingStateLoss();
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        NotificationCenter.removeObserver(requireContext(), loginResponseReceiver)
     }
 
     private fun initializeLinearLayouts(drawer: LinearLayout, closeBackground: LinearLayout, avatarBackground: LinearLayout, bodyLayout: LinearLayout){
@@ -646,6 +446,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     }
 
     private fun initializeImageViews(micImage: ImageView, closeAssistant: ImageView, sendMessage: ImageView, assistantAvatar: ImageView, speakText: TextView){
+        Log.d("JAMES", configuration?.applicationId ?: "null")
         if((assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == false)
         {
             micImage.visibility = View.GONE
@@ -711,6 +512,200 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 useOutputSpeech = assistantSettingProps?.useOutputSpeech ?: configuration?.useOutputSpeech ?: true
             )
         )
+    }
+
+    private fun checkInitializeWithText(animationLayout: LinearLayout, sendLayoutStyle: GradientDrawable, sendLayout: LinearLayout, spokenText: TextView, assistantStateText: TextView){
+        if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") || (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == false)
+        {
+            animationLayout.visibility = View.GONE
+            sendLayout.background = sendLayoutStyle
+            isUsingSpeech = false
+            spokenText.visibility = View.GONE
+            assistantStateText.visibility = View.GONE
+        }
+    }
+
+    private fun checkInitializeWithWelcome(drawer: LinearLayout, bodyLayout: LinearLayout, spokenText: TextView, hintsRecycler: RecyclerView,
+                                            drawerFooter: LinearLayout, dashedLineView: ImageView, toolbar: LinearLayout,
+                                           assistantAvatarBackground: LinearLayout, header: LinearLayout, micImage: ImageView, assistantStateText: TextView,
+                                           drawerText: TextView, assistantAvatar: ImageView, assistantName: TextView, messagesRecycler: RecyclerView,
+                                            bodyTopBorder: View, bodyBottomBorder: View){
+        if((assistantSettingProps?.initializeWithWelcomeMessage ?: configuration?.initializeWithWelcomeMessage) == true)
+        {
+            activity?.runOnUiThread {
+                drawer.visibility = View.VISIBLE
+                bodyLayout.visibility = View.VISIBLE
+                spokenText.text = ""
+                hintsRecycler.visibility = View.VISIBLE
+                if(!isUsingSpeech)
+                {
+                    val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                    drawerFooterLayoutParams.setMargins(0,0,0,0)
+                    drawerFooter.layoutParams = drawerFooterLayoutParams
+                    dashedLineView.visibility = View.INVISIBLE;
+                }
+
+                drawer.setPadding(0,0,0,0)
+                drawer.setBackgroundColor(Color.TRANSPARENT)
+                if(!(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor).isNullOrEmpty())
+                {
+                    toolbar.setBackgroundColor(Color.parseColor(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor))
+                }
+                else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
+                {
+                    toolbar.setBackgroundColor(Color.parseColor("#ffffff"))
+                }
+                toolbar.setPadding(toolbarProps?.paddingLeft ?: configurationToolbarProps?.paddingLeft ?: getPixelsFromDp(16), getPixelsFromDp(0),toolbarProps?.paddingRight ?: configurationToolbarProps?.paddingRight ?: getPixelsFromDp(16),toolbarProps?.paddingBottom ?: configurationToolbarProps?.paddingBottom ?: getPixelsFromDp(16))
+                assistantAvatarBackground.visibility = View.VISIBLE
+                if(!(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor).isNullOrEmpty()){
+                    header.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor))
+                }
+                else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
+                {
+                    header.setBackgroundColor(Color.parseColor("#ffffff"))
+                }
+                header.setPadding(headerProps?.paddingLeft ?: configurationHeaderProps?.paddingLeft ?: getPixelsFromDp(16), headerProps?.paddingTop ?: configurationHeaderProps?.paddingTop ?: getPixelsFromDp(16), headerProps?.paddingRight ?: configurationHeaderProps?.paddingRight ?: getPixelsFromDp(16), headerProps?.paddingBottom ?: configurationHeaderProps?.paddingBottom ?: getPixelsFromDp(16))
+                bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
+                isDrawer = false
+                micImage.setBackgroundColor(Color.parseColor(toolbarProps?.micInactiveHighlightColor ?: configurationToolbarProps?.micInactiveHighlightColor ?: "#00ffffff"))
+                val metrics = activity?.resources?.displayMetrics
+                var params = drawerLayout.layoutParams
+                params.height = metrics?.heightPixels as Int
+                drawer.layoutParams = params
+                assistantStateText.text = ""
+                drawerText.text = ""
+                assistantAvatar.visibility = View.VISIBLE
+                assistantName.visibility = View.VISIBLE
+                messagesRecycler.visibility = View.VISIBLE
+                bodyTopBorder.visibility = View.VISIBLE
+                bodyBottomBorder.visibility = View.VISIBLE
+                messagesRecyclerViewAdapter?.notifyDataSetChanged()
+                messagesRecycler.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
+            }
+        }
+    }
+    private fun startNewAssistantSession(assistant: VoicifyAssistant){
+        if(!(assistantSettingProps?.locale ?: configuration?.locale).toString().isNullOrEmpty())
+        {
+            voicifySTT?.initialize((assistantSettingProps?.locale ?: configuration?.locale).toString())
+        }
+        assistant.initializeAndStart()
+        assistant.startNewSession(null, null, this.sessionAttributes, this.userAttributes)
+        if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") != true && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) != false && (assistantSettingProps?.initializeWithWelcomeMessage ?: configuration?.initializeWithWelcomeMessage) != true)
+        {
+            voicifySTT?.startListening()
+        }
+    }
+
+    private fun addAssistantHandlers(assistant: VoicifyAssistant, drawer: LinearLayout, bodyLayout: LinearLayout, spokenText: TextView, hintsRecycler: RecyclerView,
+                                     closeAssistant: ImageView, closeAssistantNoInternet: ImageView, hintsList: ArrayList<String>, drawerText: TextView,
+                                    drawerFooter: LinearLayout, dashedLineView: ImageView, messagesList: ArrayList<Message>, messagesRecycler: RecyclerView,
+                                    toolbar: LinearLayout, header: LinearLayout, avatarBackground: LinearLayout, micImage: ImageView, assistantStateText: TextView,
+                                    avatarImage: ImageView, assistantName: TextView, bodyTopBorder: View, bodyBottomBorder: View){
+        assistant.onResponseReceived { response ->
+            activity?.runOnUiThread{
+                drawer.visibility = View.VISIBLE
+                bodyLayout.visibility = View.VISIBLE
+                spokenText.text = ""
+                hintsRecycler.visibility = View.VISIBLE
+                closeAssistant.visibility = View.VISIBLE
+                closeAssistantNoInternet.visibility = View.GONE
+                if(!response.hints.isNullOrEmpty())
+                {
+                    if(!hintsList.isNullOrEmpty())
+                    {
+                        hintsList.clear()
+                        hintsRecyclerViewAdapter?.notifyDataSetChanged()
+                    }
+                    response.hints.forEach { hint ->
+                        hintsList.add(hint)
+                        hintsRecyclerViewAdapter?.notifyDataSetChanged()
+                    }
+                }
+                else
+                {
+                    hintsRecycler.visibility = View.GONE
+                }
+                if(!isUsingSpeech)
+                {
+                    val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                    drawerFooterLayoutParams.setMargins(0,0,0,0)
+                    drawerFooter.layoutParams = drawerFooterLayoutParams
+                    dashedLineView.visibility = View.INVISIBLE;
+                }
+                if(!speechFullResult.isNullOrEmpty())
+                {
+                    messagesList.add(Message(speechFullResult as String, "Sent"))
+                    messagesRecyclerViewAdapter?.notifyDataSetChanged()
+                    messagesRecycler.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
+                }
+                speechFullResult = null
+                drawer.setPadding(0,0,0,0)
+                drawer.setBackgroundColor(Color.TRANSPARENT)
+                if(!(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor).isNullOrEmpty())
+                {
+                    toolbar.setBackgroundColor(Color.parseColor(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor))
+                }
+                else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
+                {
+                    toolbar.setBackgroundColor(Color.parseColor("#ffffff"))
+                }
+                toolbar.setPadding(toolbarProps?.paddingLeft ?: configurationToolbarProps?.paddingLeft ?: getPixelsFromDp(16), getPixelsFromDp(0),toolbarProps?.paddingRight ?: configurationToolbarProps?.paddingRight ?: getPixelsFromDp(16),toolbarProps?.paddingBottom ?: configurationToolbarProps?.paddingBottom ?: getPixelsFromDp(16))
+                avatarBackground.visibility = View.VISIBLE
+                if(!(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor).isNullOrEmpty()){
+                    header.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor))
+                }
+                else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
+                {
+                    header.setBackgroundColor(Color.parseColor("#ffffff"))
+                }
+                header.setPadding(headerProps?.paddingLeft ?: configurationHeaderProps?.paddingLeft ?: getPixelsFromDp(16), headerProps?.paddingTop ?: configurationHeaderProps?.paddingTop ?: getPixelsFromDp(16), headerProps?.paddingRight ?: configurationHeaderProps?.paddingRight ?: getPixelsFromDp(16), headerProps?.paddingBottom ?: configurationHeaderProps?.paddingBottom ?: getPixelsFromDp(16))
+                bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
+                isDrawer = false
+                micImage.setBackgroundColor(Color.parseColor(toolbarProps?.micInactiveHighlightColor ?: configurationToolbarProps?.micInactiveHighlightColor ?: "#00ffffff"))
+                val metrics = activity?.resources?.displayMetrics
+                var params = drawerLayout.layoutParams
+                params.height = metrics?.heightPixels as Int
+                drawer.layoutParams = params
+                assistantStateText.text = ""
+                drawerText.text = ""
+                avatarImage.visibility = View.VISIBLE
+                assistantName.visibility = View.VISIBLE
+                messagesRecycler.visibility = View.VISIBLE
+                bodyTopBorder.visibility = View.VISIBLE
+                bodyBottomBorder.visibility = View.VISIBLE
+                messagesList.add(Message(response.displayText?.trim() as String, "Received"))
+                messagesRecyclerViewAdapter?.notifyDataSetChanged()
+                messagesRecycler.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
+            }
+        }
+
+        assistantSettingProps?.effects?.forEach { effect ->
+            assistant.onEffect(effect) { data ->
+                onEffectCallback?.invoke(effect, data)
+            }
+        }
+
+        // add out of box close effect
+        assistant.onEffect("closeAssistant"){
+            dismiss()
+        }
+
+        // handle errors"Assistant Call Failed"
+        assistant.onError{ errorMessage, request ->
+            activity?.runOnUiThread{
+                if(errorMessage == "Assistant Call Failed")
+                {
+                    closeAssistantImageView.visibility = View.GONE
+                    closeAssistantNoInternetImageView.visibility = View.VISIBLE
+                }
+            }
+
+            if(onAssistantErrorCallback != null)
+            {
+                this.onAssistantErrorCallback?.invoke(errorMessage, request)
+            }
+        }
     }
 
     private fun addSpeechToTextListeners(assistant: VoicifyAssistant, spokenText: TextView, assistantStateText: TextView, micImage: ImageView){
@@ -784,6 +779,113 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 }
             }
         }
+    }
+
+    private fun addMicClickListener(micImage: ImageView, messagesRecycler: RecyclerView, speakingAnimationLayout: LinearLayout, sendLayout: LinearLayout, dashedLineView: ImageView,
+                                    drawerFooter: LinearLayout, spokenText: TextView, assistantStateText: TextView, speakText: TextView, typeText: TextView,
+                                    sendMessage: ImageView){
+        micImage.setOnClickListener{
+            clearAnimationValues()
+            val colorStateList = ColorStateList.valueOf(Color.parseColor(toolbarProps?.textInputLineColor ?: configurationToolbarProps?.textInputLineColor ?: "#000000"))
+            ViewCompat.setBackgroundTintList(inputTextMessage,colorStateList)
+            if(!isUsingSpeech)
+            {
+                voicifySTT?.cancel = false
+                isUsingSpeech = true
+                messagesRecyclerViewAdapter?.notifyDataSetChanged()
+                messagesRecycler.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
+                speakingAnimationLayout.visibility = View.VISIBLE
+                sendLayout.setBackgroundColor(Color.parseColor(toolbarProps?.textboxInactiveHighlightColor ?: configurationToolbarProps?.textboxInactiveHighlightColor ?: "#00ffffff"))
+                dashedLineView.visibility = View.VISIBLE;
+                hideKeyboard()
+                if(!isDrawer){
+                    val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                    drawerFooterLayoutParams.setMargins(0,getPixelsFromDp(20),0,0)
+                    drawerFooter.layoutParams = drawerFooterLayoutParams
+                }
+                spokenText.visibility = View.VISIBLE
+                assistantStateText.visibility = View.VISIBLE
+                speakText.setTextColor(Color.parseColor(toolbarProps?.speakActiveTitleColor ?: configurationToolbarProps?.speakActiveTitleColor ?: "#3E77A5"))
+                typeText.setTextColor(Color.parseColor(toolbarProps?.typeInactiveTitleColor ?: configurationToolbarProps?.speakInactiveTitleColor ?: "#8F97A1"))
+                loadImageFromUrl(toolbarProps?.micActiveImage ?: configurationToolbarProps?.micActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/daca643f-6730-4af5-8817-8d9d0d9db0b5/mic-image.png", micImage, toolbarProps?.micActiveColor ?: configurationToolbarProps?.micActiveColor)
+                loadImageFromUrl(toolbarProps?.sendInactiveImage ?: configurationToolbarProps?.sendInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/0c5aa61c-7d6c-4272-abd2-75d9f5771214/Send-2-.png", sendMessage, toolbarProps?.sendInactiveColor ?: configurationToolbarProps?.sendInactiveColor)
+            }
+            if(!assistantIsListening)
+            {
+                voicifyTTS?.stop()
+                voicifySTT?.startListening()
+            }
+            else
+            {
+                cancelSpeech()
+                assistantStateTextView.text = "I didn't catch that..."
+            }
+        }
+    }
+
+    private fun addSendMessageClickListener(sendMessage: ImageView, inputTextMessage: EditText, messagesList: ArrayList<Message>, messagesRecycler: RecyclerView, assistant: VoicifyAssistant) {
+        sendMessage.setOnClickListener{
+            if(inputTextMessage.text.toString().isNotEmpty())
+            {
+                messagesList.add(Message(inputTextMessage.text.toString(), "Sent"))
+                messagesRecyclerViewAdapter?.notifyDataSetChanged()
+                messagesRecycler.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
+                val inputText = inputTextMessage.text.toString()
+                inputTextMessage.setText("")
+                hideKeyboard()
+                assistant.makeTextRequest(inputText,null, "Text")
+            }
+        }
+    }
+
+    private fun addTextboxClickListener(inputTextMessage: EditText, assistantStateText: TextView, spokenText: TextView, speakingAnimationLayout: LinearLayout,
+                                        sendTextLayoutStyle: GradientDrawable, sendLayout: LinearLayout, drawerFooter: LinearLayout, dashedLineView: ImageView,
+                                        speakText: TextView, typeText: TextView, micImage: ImageView, sendMessage: ImageView) {
+        inputTextMessage.setOnTouchListener(object : OnTouchListener {
+            @SuppressLint("ClickableViewAccessibility")
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                when(event?.action) {
+                    MotionEvent.ACTION_UP -> {
+                        val colorStateList = ColorStateList.valueOf(Color.parseColor(toolbarProps?.textInputActiveLineColor ?: configurationToolbarProps?.textInputActiveLineColor ?: "#000000"))
+                        ViewCompat.setBackgroundTintList(inputTextMessage,colorStateList)
+                        if (assistantIsListening) {
+                            cancelSpeech()
+                            assistantStateText.text = ""
+                            spokenText.text = ""
+                        }
+                        if (isUsingSpeech) {
+                            voicifySTT?.cancel = true
+                            speakingAnimationLayout.visibility = View.GONE
+                            sendLayout.background = sendTextLayoutStyle
+                            isUsingSpeech = false
+                            if(!isDrawer)
+                            {
+                                val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                                drawerFooterLayoutParams.setMargins(0,0,0,0)
+                                drawerFooter.layoutParams = drawerFooterLayoutParams
+                                dashedLineView.visibility = View.INVISIBLE;
+                            }
+                            spokenText.visibility = View.GONE
+                            assistantStateText.visibility = View.GONE
+                            speakText.setTextColor(Color.parseColor(toolbarProps?.speakInactiveTitleColor ?: configurationToolbarProps?.speakInactiveTitleColor ?: "#8F97A1"))
+                            typeText.setTextColor(Color.parseColor(toolbarProps?.typeActiveTitleColor ?: configurationToolbarProps?.speakActiveTitleColor ?: "#3E77A5"))
+                            loadImageFromUrl(
+                                toolbarProps?.micInactiveImage ?: configurationToolbarProps?.micInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/3f10b6d7-eb71-4427-adbc-aadacbe8940e/mic-image-1-.png",
+                                micImage,
+                                toolbarProps?.micInactiveColor ?: configurationToolbarProps?.micInactiveColor
+                            )
+                            loadImageFromUrl(
+                                toolbarProps?.sendActiveImage ?: configurationToolbarProps?.sendActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/7a39bc6f-eef5-4185-bcf8-2a645aff53b2/Send-3-.png",
+                                sendMessage,
+                                toolbarProps?.sendActiveColor ?: configurationToolbarProps?.sendActiveColor
+                            )
+                        }
+                    }
+                }
+                v?.performClick()
+                return v?.onTouchEvent(event) ?: true
+            }
+        })
     }
 
     private fun Fragment.hideKeyboard() {
@@ -1041,6 +1143,12 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                         configurationHeaderProps = configuration?.styles?.header
                         configurationBodyProps = configuration?.styles?.body
                         configurationToolbarProps = configuration?.styles?.toolbar
+                        isLoadingConfiguration = false
+                        val params = Bundle()
+                        params.putSerializable("configurationHeader", configurationHeaderProps)
+                        params.putSerializable("configurationBody", configurationBodyProps)
+                        params.putSerializable("configurationToolbar", configurationToolbarProps)
+                        NotificationCenter.postNotification(requireContext(), NotificationType.LOADING_COMPLETE, params);
                     }
                 }
             }

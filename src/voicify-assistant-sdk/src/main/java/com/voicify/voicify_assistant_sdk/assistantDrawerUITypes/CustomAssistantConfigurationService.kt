@@ -18,7 +18,7 @@ class CustomAssistantConfigurationService {
             return null
         }
         val userDataRequest = Request.Builder()
-            .url("${serverRootUrl}/api/CustomAssistantConfiguration/${configurationId}?applicationId=${appId}&applicationSecret=${appKey}")
+            .url("${serverRootUrl}/api/CustomAssistantConfiguration/${configurationId}/Kotlin?applicationId=${appId}&applicationSecret=${appKey}")
             .addHeader("Content-Type","application/json")
             .get()
             .build()
@@ -29,6 +29,9 @@ class CustomAssistantConfigurationService {
             val gson = Gson()
             val configurationResult = response.body?.string()
             return gson.fromJson(configurationResult, CustomAssistantConfigurationResponse::class.java)
+        }
+        else{
+            Log.d("JAMES", response.body?.string().toString())
         }
         return null
     }

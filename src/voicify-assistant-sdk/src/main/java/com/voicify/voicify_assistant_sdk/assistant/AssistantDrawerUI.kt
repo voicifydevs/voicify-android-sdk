@@ -62,7 +62,7 @@ private const val HEADER = "header"
 private const val BODY = "body"
 private const val TOOLBAR = "toolbar"
 
-private var configuration: CustomAssistantConfigurationResponse? = null
+private var configurationKotlin: CustomAssistantConfigurationResponse? = null
 private var configurationHeaderProps: HeaderProps? = null
 private var configurationBodyProps: BodyProps? = null
 private var configurationToolbarProps: ToolbarProps? = null
@@ -116,23 +116,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     ): View {
         val window = inflater.inflate(R.layout.fragment_assistant_drawer_u_i, container, false)
         val hintsList = ArrayList<String>()
-        val assistant = initializeAssistant()
         val messagesList = ArrayList<Message>()
-        val onHintClicked: (String) -> Unit = {  hint ->
-            messagesList.add(Message(hint, "Sent"))
-            clearAnimationValues()
-            messagesRecyclerViewAdapter?.notifyDataSetChanged()
-            messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
-            hideKeyboard()
-            hintsList.clear()
-            cancelSpeech()
-            voicifyTTS?.stop()
-            hintsRecyclerViewAdapter?.notifyDataSetChanged()
-            assistant.makeTextRequest(hint ,null, "Text")
-        }
 
         scale = requireContext().resources.displayMetrics.density
-        isUsingSpeech = (assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") != true && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) != false
+        isUsingSpeech = (assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == "textbox") != true && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) != false
 
         //Linear Layouts
         val containerLayout = window.findViewById<LinearLayout>(R.id.container)
@@ -145,9 +132,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val assistantAvatarBackground = window.findViewById<LinearLayout>(R.id.assistantAvatarBackgroundContainerLayout)
         val closeAssistantBackground = window.findViewById<LinearLayout>(R.id.closeAssistantBackgroundContainerLayout)
         val drawerFooterLayout = window.findViewById<LinearLayout>(R.id.drawerFooterLayout)
-        initializeLinearLayouts(drawerLayout, closeAssistantBackground, assistantAvatarBackground, bodyContainerLayout)
-        addGradientBackground(containerLayout)
 
+        //Progress Bars
         val activityIndicator = window.findViewById<ProgressBar>(R.id.activityIndicator)
 
         // Views
@@ -162,12 +148,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val speakingAnimationBar7 = window.findViewById<View>(R.id.speakingAnimationBar7)
         val speakingAnimationBar8 = window.findViewById<View>(R.id.speakingAnimationBar8)
         val speakingAnimationBars = arrayOf(speakingAnimationBar1,speakingAnimationBar2,speakingAnimationBar3,speakingAnimationBar4,speakingAnimationBar5,speakingAnimationBar6,speakingAnimationBar7,speakingAnimationBar8)
-        initializeViews(bodyBorderTopView,bodyBorderBottomView,speakingAnimationBars)
 
         // Recycler Views
         val messagesRecyclerView = window.findViewById<RecyclerView>(R.id.messagesRecyclerView)
         val hintsRecyclerView = window.findViewById<RecyclerView>(R.id.hintsRecyclerView)
-        initializeRecyclerViews(messagesRecyclerView, hintsRecyclerView, messagesList, hintsList, onHintClicked)
 
         //Text Views
         val assistantStateTextView = window.findViewById<TextView>(R.id.assistantStateTextView)
@@ -180,7 +164,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val sendTextLayoutStyle = GradientDrawable()
         sendTextLayoutStyle.setColor(Color.parseColor(toolbarProps?.textboxActiveHighlightColor ?: configurationToolbarProps?.textboxActiveHighlightColor ?: "#1f1e7eb9"))
         sendTextLayoutStyle.cornerRadius = 24f
-        initializeTextViews(speakTextView, typeTextView, drawerWelcomeTextView, spokenTextView, assistantStateTextView, assistantNameTextView, inputTextMessageEditTextView)
 
         //Image Views
         val micImageView = window.findViewById<ImageView>(R.id.micImageView)
@@ -189,12 +172,32 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val sendMessageImageView = window.findViewById<ImageView>(R.id.sendMessageButtonImageView)
         val assistantAvatarImageView = window.findViewById<ImageView>(R.id.assistantAvatarImageView)
         val dashedLineImageView = window.findViewById<ImageView>(R.id.dashedLineImageView)
-        initializeImageViews(micImageView, closeAssistantImageView, sendMessageImageView, assistantAvatarImageView, speakTextView)
 
         if(!isLoadingConfiguration)
         {
+            val assistant = initializeAssistant()
+            val onHintClicked: (String) -> Unit = {  hint ->
+                messagesList.add(Message(hint, "Sent"))
+                clearAnimationValues()
+                messagesRecyclerViewAdapter?.notifyDataSetChanged()
+                messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
+                hideKeyboard()
+                hintsList.clear()
+                cancelSpeech()
+                voicifyTTS?.stop()
+                hintsRecyclerViewAdapter?.notifyDataSetChanged()
+                assistant.makeTextRequest(hint ,null, "Text")
+            }
+
             //UI Initialization
+            addGradientBackground(containerLayout)
+            initializeImageViews(micImageView, closeAssistantImageView, sendMessageImageView, assistantAvatarImageView, speakTextView)
+            initializeLinearLayouts(drawerLayout, closeAssistantBackground, assistantAvatarBackground, bodyContainerLayout)
             checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
+            initializeRecyclerViews(messagesRecyclerView, hintsRecyclerView, messagesList, hintsList, onHintClicked)
+            initializeViews(bodyBorderTopView,bodyBorderBottomView,speakingAnimationBars)
+            initializeTextViews(speakTextView, typeTextView, drawerWelcomeTextView, spokenTextView, assistantStateTextView, assistantNameTextView, inputTextMessageEditTextView)
+
             startNewAssistantSession(assistant)
 
             //Add Listeners
@@ -202,6 +205,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             addSpeechToTextListeners(assistant, spokenTextView, assistantStateTextView, micImageView)
             addMicClickListener(micImageView, messagesRecyclerView, speakingAnimationLayout, sendTextLayout, dashedLineImageView, drawerFooterLayout,
                 spokenTextView, assistantStateTextView, speakTextView, typeTextView, sendMessageImageView)
+
             addSendMessageClickListener(sendMessageImageView, inputTextMessageEditTextView, messagesList, messagesRecyclerView, assistant)
             addAssistantHandlers(assistant, drawerLayout, bodyContainerLayout, spokenTextView, hintsRecyclerView, closeAssistantImageView, closeAssistantNoInternetImageView,
                 hintsList, drawerWelcomeTextView, drawerFooterLayout, dashedLineImageView, messagesList, messagesRecyclerView, toolbarLayout, headerLayout,
@@ -209,6 +213,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
             addTextboxClickListener(inputTextMessageEditTextView, assistantStateTextView, spokenTextView, speakingAnimationLayout, sendTextLayoutStyle,
                 sendTextLayout, drawerFooterLayout, dashedLineImageView, speakTextView, typeTextView, micImageView, sendMessageImageView)
+
             closeAssistantImageView.setOnClickListener{
                 dismiss()
             }
@@ -226,6 +231,19 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     configurationToolbarProps = intent.getSerializableExtra("configurationToolbar") as? ToolbarProps
                     containerLayout.visibility = View.VISIBLE
                     activityIndicator.visibility = View.GONE
+                    val assistant = initializeAssistant()
+                    val onHintClicked: (String) -> Unit = {  hint ->
+                        messagesList.add(Message(hint, "Sent"))
+                        clearAnimationValues()
+                        messagesRecyclerViewAdapter?.notifyDataSetChanged()
+                        messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int);
+                        hideKeyboard()
+                        hintsList.clear()
+                        cancelSpeech()
+                        voicifyTTS?.stop()
+                        hintsRecyclerViewAdapter?.notifyDataSetChanged()
+                        assistant.makeTextRequest(hint ,null, "Text")
+                    }
                     initializeImageViews(micImageView,closeAssistantImageView,sendMessageImageView,assistantAvatarImageView, speakTextView)
                     initializeLinearLayouts(drawerLayout, closeAssistantBackground, assistantAvatarBackground, bodyContainerLayout)
                     initializeRecyclerViews(messagesRecyclerView, hintsRecyclerView, messagesList, hintsList, onHintClicked)
@@ -304,7 +322,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         if(!(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor).isNullOrEmpty()){
             drawer.setBackgroundColor(Color.parseColor(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor));
         }
-        else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
+        else if ((assistantSettingProps?.backgroundColor ?: configurationKotlin?.styles?.assistant?.backgroundColor).isNullOrEmpty())
         {
             drawer.setBackgroundColor(Color.parseColor("#ffffff"));
         }
@@ -329,7 +347,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         if(!(bodyProps?.backgroundColor ?: configurationBodyProps?.backgroundColor).isNullOrEmpty()){
             bodyContainerLayoutStyle.setColor(Color.parseColor(bodyProps?.backgroundColor ?: configurationBodyProps?.backgroundColor))
         }
-        else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
+        else if ((assistantSettingProps?.backgroundColor ?: configurationKotlin?.styles?.assistant?.backgroundColor).isNullOrEmpty())
         {
             bodyContainerLayoutStyle.setColor(Color.parseColor("#F4F4F6"))
         }
@@ -405,11 +423,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     }
 
     private fun initializeTextViews(speakText: TextView, typeText: TextView, drawerText: TextView, spokenText: TextView, assistantStateText: TextView, assistantNameText: TextView, inputTextMessage: EditText){
-        speakText.setTextColor(if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") != true && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) != false) Color.parseColor(toolbarProps?.speakActiveTitleColor ?: configurationToolbarProps?.speakActiveTitleColor ?: "#3E77A5") else Color.parseColor(toolbarProps?.speakInactiveTitleColor ?: configurationToolbarProps?.speakInactiveTitleColor ?:"#8F97A1"))
+        speakText.setTextColor(if((assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == "textbox") != true && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) != false) Color.parseColor(toolbarProps?.speakActiveTitleColor ?: configurationToolbarProps?.speakActiveTitleColor ?: "#3E77A5") else Color.parseColor(toolbarProps?.speakInactiveTitleColor ?: configurationToolbarProps?.speakInactiveTitleColor ?:"#8F97A1"))
         speakText.textSize = toolbarProps?.speakFontSize ?: configurationToolbarProps?.speakFontSize ?: 12f
         speakText.typeface = Typeface.create(toolbarProps?.speakFontFamily ?: configurationToolbarProps?.speakFontFamily ?: "sans-serif", Typeface.NORMAL)
 
-        typeText.setTextColor(if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") != true && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) != false) Color.parseColor(toolbarProps?.typeInactiveTitleColor ?: configurationToolbarProps?.typeInactiveTitleColor ?:"#8F97A1") else Color.parseColor(toolbarProps?.typeActiveTitleColor ?: configurationToolbarProps?.typeActiveTitleColor ?:"#3E77A5"))
+        typeText.setTextColor(if((assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == "textbox") != true && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) != false) Color.parseColor(toolbarProps?.typeInactiveTitleColor ?: configurationToolbarProps?.typeInactiveTitleColor ?:"#8F97A1") else Color.parseColor(toolbarProps?.typeActiveTitleColor ?: configurationToolbarProps?.typeActiveTitleColor ?:"#3E77A5"))
         typeText.textSize = toolbarProps?.typeFontSize ?: configurationToolbarProps?.typeFontSize ?: 12f
         typeText.typeface = Typeface.create(toolbarProps?.typeFontFamily ?: configurationToolbarProps?.typeFontFamily ?: "sans-serif", Typeface.NORMAL)
 
@@ -446,16 +464,16 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     }
 
     private fun initializeImageViews(micImage: ImageView, closeAssistant: ImageView, sendMessage: ImageView, assistantAvatar: ImageView, speakText: TextView){
-        Log.d("JAMES", configuration?.applicationId ?: "null")
-        if((assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == false)
+        Log.d("JAMES", configurationKotlin?.applicationId ?: "null")
+        if((assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) == false)
         {
             micImage.visibility = View.GONE
             speakText.visibility = View.GONE
         }
         else{
-            loadImageFromUrl(if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") != true) toolbarProps?.micActiveImage ?: configurationToolbarProps?.micActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/daca643f-6730-4af5-8817-8d9d0d9db0b5/mic-image.png"
+            loadImageFromUrl(if((assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == "textbox") != true) toolbarProps?.micActiveImage ?: configurationToolbarProps?.micActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/daca643f-6730-4af5-8817-8d9d0d9db0b5/mic-image.png"
             else toolbarProps?.micInactiveImage ?: configurationToolbarProps?.micInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/3f10b6d7-eb71-4427-adbc-aadacbe8940e/mic-image-1-.png", micImage,
-                if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox")) toolbarProps?.micActiveColor ?: configurationToolbarProps?.micActiveColor else toolbarProps?.micInactiveColor ?: configurationToolbarProps?.micInactiveColor)
+                if(!(assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == "textbox")) toolbarProps?.micActiveColor ?: configurationToolbarProps?.micActiveColor else toolbarProps?.micInactiveColor ?: configurationToolbarProps?.micInactiveColor)
         }
 
         loadImageFromUrl(
@@ -465,9 +483,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             headerProps?.closeAssistantColor ?: configurationHeaderProps?.closeAssistantColor
         )
 
-        loadImageFromUrl(if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && assistantSettingProps?.useVoiceInput != true) toolbarProps?.sendInactiveImage ?: configurationToolbarProps?.sendInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/0c5aa61c-7d6c-4272-abd2-75d9f5771214/Send-2-.png"
+        loadImageFromUrl(if(!(assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == "textbox") && assistantSettingProps?.useVoiceInput != true) toolbarProps?.sendInactiveImage ?: configurationToolbarProps?.sendInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/0c5aa61c-7d6c-4272-abd2-75d9f5771214/Send-2-.png"
         else toolbarProps?.sendActiveImage ?: configurationToolbarProps?.sendActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/7a39bc6f-eef5-4185-bcf8-2a645aff53b2/Send-3-.png", sendMessage,
-            if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == false) toolbarProps?.sendInactiveColor ?: configurationToolbarProps?.sendInactiveColor else toolbarProps?.sendActiveColor ?: configurationToolbarProps?.sendActiveColor)
+            if(!(assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == "textbox") && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) == false) toolbarProps?.sendInactiveColor ?: configurationToolbarProps?.sendInactiveColor else toolbarProps?.sendActiveColor ?: configurationToolbarProps?.sendActiveColor)
 
         loadImageFromUrl(headerProps?.assistantImage ?: configurationHeaderProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png", assistantAvatar, headerProps?.assistantImageColor ?: configurationHeaderProps?.assistantImageColor)
 
@@ -488,34 +506,34 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
     private fun initializeAssistant(): VoicifyAssistant {
         voicifyTTS = VoicifyTTSProvider(VoicifyTextToSpeechSettings(
-            appId = assistantSettingProps?.appId ?: configuration?.applicationId ?: "",
-            appKey = assistantSettingProps?.appKey ?: configuration?.applicationSecret ?: "",
-            voice = assistantSettingProps?.textToSpeechVoice ?: configuration?.textToSpeechVoice ?: "",
+            appId = assistantSettingProps?.appId ?: configurationKotlin?.applicationId ?: "",
+            appKey = assistantSettingProps?.appKey ?: configurationKotlin?.applicationSecret ?: "",
+            voice = assistantSettingProps?.textToSpeechVoice ?: configurationKotlin?.textToSpeechVoice ?: "",
             serverRootUrl = assistantSettingProps?.serverRootUrl ?: "https://assistant.voicify.com/",
-            provider = assistantSettingProps?.textToSpeechProvider ?: configuration?.textToSpeechProvider ?: "Google"))
+            provider = assistantSettingProps?.textToSpeechProvider ?: configurationKotlin?.textToSpeechProvider ?: "Google"))
         voicifySTT = VoicifySTTProvider(requireContext(), requireActivity())
         voicifyTTS?.cancelSpeech = false
         return VoicifyAssistant(voicifySTT, voicifyTTS,
             VoicifyAssistantSettings(
-                appId = assistantSettingProps?.appId ?: configuration?.applicationId ?: "",
-                appKey = assistantSettingProps?.appKey ?: configuration?.applicationSecret ?: "",
+                appId = assistantSettingProps?.appId ?: configurationKotlin?.applicationId ?: "",
+                appKey = assistantSettingProps?.appKey ?: configurationKotlin?.applicationSecret ?: "",
                 serverRootUrl = assistantSettingProps?.serverRootUrl ?: "",
-                locale = assistantSettingProps?.locale ?: configuration?.locale ?: "en-US",
-                channel = assistantSettingProps?.channel ?: configuration?.channel ?: "Android",
-                device = assistantSettingProps?.device ?: configuration?.device ?: "Mobile",
-                noTracking = assistantSettingProps?.noTracking ?: configuration?.noTracking ?: false,
-                autoRunConversation = assistantSettingProps?.autoRunConversation ?: configuration?.autoRunConversation ?: false,
-                initializeWithWelcomeMessage = assistantSettingProps?.initializeWithWelcomeMessage ?: configuration?.initializeWithWelcomeMessage ?: false,
-                initializeWithText = assistantSettingProps?.initializeWithText ?: (configuration?.activeInput == "textbox"),
-                useVoiceInput = assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput ?: true,
-                useDraftContent = assistantSettingProps?.useDraftContent ?: configuration?.useDraftContent ?: false,
-                useOutputSpeech = assistantSettingProps?.useOutputSpeech ?: configuration?.useOutputSpeech ?: true
+                locale = assistantSettingProps?.locale ?: configurationKotlin?.locale ?: "en-US",
+                channel = assistantSettingProps?.channel ?: configurationKotlin?.channel ?: "Android",
+                device = assistantSettingProps?.device ?: configurationKotlin?.device ?: "Mobile",
+                noTracking = assistantSettingProps?.noTracking ?: configurationKotlin?.noTracking ?: false,
+                autoRunConversation = assistantSettingProps?.autoRunConversation ?: configurationKotlin?.autoRunConversation ?: false,
+                initializeWithWelcomeMessage = assistantSettingProps?.initializeWithWelcomeMessage ?: configurationKotlin?.initializeWithWelcomeMessage ?: false,
+                initializeWithText = assistantSettingProps?.initializeWithText ?: (configurationKotlin?.activeInput == "textbox"),
+                useVoiceInput = assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput ?: true,
+                useDraftContent = assistantSettingProps?.useDraftContent ?: configurationKotlin?.useDraftContent ?: false,
+                useOutputSpeech = assistantSettingProps?.useOutputSpeech ?: configurationKotlin?.useOutputSpeech ?: true
             )
         )
     }
 
     private fun checkInitializeWithText(animationLayout: LinearLayout, sendLayoutStyle: GradientDrawable, sendLayout: LinearLayout, spokenText: TextView, assistantStateText: TextView){
-        if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") || (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == false)
+        if((assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == "textbox") || (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) == false)
         {
             animationLayout.visibility = View.GONE
             sendLayout.background = sendLayoutStyle
@@ -530,7 +548,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                                            assistantAvatarBackground: LinearLayout, header: LinearLayout, micImage: ImageView, assistantStateText: TextView,
                                            drawerText: TextView, assistantAvatar: ImageView, assistantName: TextView, messagesRecycler: RecyclerView,
                                             bodyTopBorder: View, bodyBottomBorder: View){
-        if((assistantSettingProps?.initializeWithWelcomeMessage ?: configuration?.initializeWithWelcomeMessage) == true)
+        if((assistantSettingProps?.initializeWithWelcomeMessage ?: configurationKotlin?.initializeWithWelcomeMessage) == true)
         {
             activity?.runOnUiThread {
                 drawer.visibility = View.VISIBLE
@@ -551,7 +569,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 {
                     toolbar.setBackgroundColor(Color.parseColor(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor))
                 }
-                else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
+                else if ((assistantSettingProps?.backgroundColor ?: configurationKotlin?.styles?.assistant?.backgroundColor).isNullOrEmpty())
                 {
                     toolbar.setBackgroundColor(Color.parseColor("#ffffff"))
                 }
@@ -560,7 +578,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 if(!(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor).isNullOrEmpty()){
                     header.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor))
                 }
-                else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
+                else if ((assistantSettingProps?.backgroundColor ?: configurationKotlin?.styles?.assistant?.backgroundColor).isNullOrEmpty())
                 {
                     header.setBackgroundColor(Color.parseColor("#ffffff"))
                 }
@@ -585,13 +603,13 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
     }
     private fun startNewAssistantSession(assistant: VoicifyAssistant){
-        if(!(assistantSettingProps?.locale ?: configuration?.locale).toString().isNullOrEmpty())
+        if(!(assistantSettingProps?.locale ?: configurationKotlin?.locale).toString().isNullOrEmpty())
         {
-            voicifySTT?.initialize((assistantSettingProps?.locale ?: configuration?.locale).toString())
+            voicifySTT?.initialize((assistantSettingProps?.locale ?: configurationKotlin?.locale).toString())
         }
         assistant.initializeAndStart()
         assistant.startNewSession(null, null, this.sessionAttributes, this.userAttributes)
-        if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == "textbox") != true && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) != false && (assistantSettingProps?.initializeWithWelcomeMessage ?: configuration?.initializeWithWelcomeMessage) != true)
+        if((assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == "textbox") != true && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) != false && (assistantSettingProps?.initializeWithWelcomeMessage ?: configurationKotlin?.initializeWithWelcomeMessage) != true)
         {
             voicifySTT?.startListening()
         }
@@ -646,7 +664,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 {
                     toolbar.setBackgroundColor(Color.parseColor(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor))
                 }
-                else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
+                else if ((assistantSettingProps?.backgroundColor ?: configurationKotlin?.styles?.assistant?.backgroundColor).isNullOrEmpty())
                 {
                     toolbar.setBackgroundColor(Color.parseColor("#ffffff"))
                 }
@@ -655,7 +673,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 if(!(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor).isNullOrEmpty()){
                     header.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor))
                 }
-                else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
+                else if ((assistantSettingProps?.backgroundColor ?: configurationKotlin?.styles?.assistant?.backgroundColor).isNullOrEmpty())
                 {
                     header.setBackgroundColor(Color.parseColor("#ffffff"))
                 }
@@ -955,8 +973,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 containerLayout.setBackgroundColor(Color.parseColor(assistantSettingProps?.backgroundColor))
             }
         }
-        else if (!configuration?.styles?.assistant?.backgroundColor.isNullOrEmpty()){
-            val splitColors = configuration?.styles?.assistant?.backgroundColor?.split(",")
+        else if (!configurationKotlin?.styles?.assistant?.backgroundColor.isNullOrEmpty()){
+            val splitColors = configurationKotlin?.styles?.assistant?.backgroundColor?.split(",")
             if (splitColors!!.size > 1)
             {
                 var colors = intArrayOf()
@@ -970,7 +988,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             }
             else
             {
-                containerLayout.setBackgroundColor(Color.parseColor(configuration?.styles?.assistant?.backgroundColor))
+                containerLayout.setBackgroundColor(Color.parseColor(configurationKotlin?.styles?.assistant?.backgroundColor))
             }
         }
     }
@@ -1127,22 +1145,22 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     putSerializable(BODY, bodyProps)
                     putSerializable(TOOLBAR, toolbarProps)
                 }
-                if(!assistantSettingsProperties?.configurationId.isNullOrEmpty() && configuration == null)
+                if(!assistantSettingsProperties?.configurationId.isNullOrEmpty() && configurationKotlin == null)
                 {
                     val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
-                        configuration = null
+                        configurationKotlin = null
                     }
 
                     GlobalScope.async (Dispatchers.IO + coroutineExceptionHandler){
-                        configuration = customAssistantConfigurationService.getCustomAssistantConfiguration(
+                        configurationKotlin = customAssistantConfigurationService.getCustomAssistantConfiguration(
                                 assistantSettingsProperties?.configurationId ?: "",
                                 assistantSettingsProperties?.serverRootUrl ?: "",
                                 assistantSettingsProperties?.appId ?: "",
                                 assistantSettingsProperties?.appKey ?: ""
-                            )
-                        configurationHeaderProps = configuration?.styles?.header
-                        configurationBodyProps = configuration?.styles?.body
-                        configurationToolbarProps = configuration?.styles?.toolbar
+                            )?.platformConfigurationsModel?.kotlin
+                        configurationHeaderProps = configurationKotlin?.styles?.header
+                        configurationBodyProps = configurationKotlin?.styles?.body
+                        configurationToolbarProps = configurationKotlin?.styles?.toolbar
                         isLoadingConfiguration = false
                         val params = Bundle()
                         params.putSerializable("configurationHeader", configurationHeaderProps)

@@ -13,6 +13,7 @@ class CustomAssistantConfigurationService {
     private val client: OkHttpClient = OkHttpClient()
 
     fun getCustomAssistantConfiguration(configurationId: String, serverRootUrl: String, appId: String, appKey: String): CustomAssistantConfigurationResponse?{
+        Log.d("JAMES", "WE IN HERE?")
         if(configurationId.isNullOrEmpty())
         {
             return null

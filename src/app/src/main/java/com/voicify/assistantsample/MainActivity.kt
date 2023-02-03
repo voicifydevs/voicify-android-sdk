@@ -23,8 +23,8 @@ class MainActivity : AppCompatActivity() {
             AssistantSettingsProps(
                 configurationId = "f09e76c7-86fb-43e8-9931-822f122345a6",
                 serverRootUrl ="https://dev-assistant.voicify.com",
-                appId = "bc9fa6bf-6cea-4fad-af12-d388b64dbdb9",
-                appKey = "ZjcyNmNkNjEtNmY5My00NTg3LWI5ZmQtMjJkNzE3NGMwYTI4",
+                appId = "52dfe3a1-b44e-4ff1-ac02-04f0a139cd51",
+                appKey = "NmYxNjM3ZDAtYzdiOC00NGVjLWE1OGMtZGNmMjJlOWYxMDAx",
             )
         )
         binding.assistantMic.setOnClickListener {

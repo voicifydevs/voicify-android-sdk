@@ -4,10 +4,8 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
+import android.content.*
+import android.content.Context.MODE_PRIVATE
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Rect
@@ -61,6 +59,8 @@ private const val SETTINGS = "assistantSettings"
 private const val HEADER = "header"
 private const val BODY = "body"
 private const val TOOLBAR = "toolbar"
+private const val CONFIGURATION = "configuration"
+private const val CONFIGURATION_KOTLIN = "configurationKotlin"
 
 private var configurationKotlin: CustomAssistantConfigurationResponse? = null
 private var configurationHeaderProps: HeaderProps? = null
@@ -98,6 +98,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private var sessionAttributes: Map<String, Any>? = emptyMap()
     private var userAttributes: Map<String, Any> = emptyMap()
     private var customAssistantConfigurationService: CustomAssistantConfigurationService = CustomAssistantConfigurationService()
+    val gson = Gson()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -135,7 +136,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         //Progress Bars
         val activityIndicator = window.findViewById<ProgressBar>(R.id.activityIndicator)
-        activityIndicator.setBackgroundColor(Color.parseColor("#80000000"))
+        activityIndicator.setBackgroundColor(Color.parseColor("#99000000"))
 
         // Views
         val bodyBorderTopView = window.findViewById<View>(R.id.bodyBorderTopView)
@@ -289,6 +290,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             containerLayout.visibility = View.GONE
             activityIndicator.visibility = View.VISIBLE
         }
+
         // Inflate the layout for this fragment
         return window
     }
@@ -1182,6 +1184,21 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                                 assistantSettingsProperties?.appId ?: "",
                                 assistantSettingsProperties?.appKey ?: ""
                             )
+                        if(configurationKotlin == null && !assistantSettingProps?.configurationId.isNullOrEmpty())
+                        {
+                         // if the configuration call returns null, but the configuration id is specified, try to grab the config from shared preferences
+                            val prefs = requireActivity().getSharedPreferences(CONFIGURATION, MODE_PRIVATE)
+                            val preferenceConfig = prefs.getString(CONFIGURATION_KOTLIN ,"")
+                            if (!preferenceConfig.isNullOrEmpty())
+                            {
+                                configurationKotlin = gson.fromJson(preferenceConfig, CustomAssistantConfigurationResponse::class.java)
+                            }
+                        }
+                        else{
+                            val editor = requireActivity().getSharedPreferences(CONFIGURATION, MODE_PRIVATE).edit()
+                            editor.putString(CONFIGURATION_KOTLIN, gson.toJson(configurationKotlin))
+                            editor.apply()
+                        }
                         configurationHeaderProps = configurationKotlin?.styles?.header
                         configurationBodyProps = configurationKotlin?.styles?.body
                         configurationToolbarProps = configurationKotlin?.styles?.toolbar

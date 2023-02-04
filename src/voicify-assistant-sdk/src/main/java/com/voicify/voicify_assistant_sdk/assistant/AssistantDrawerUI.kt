@@ -1196,6 +1196,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
                         configurationKotlin = null
                         isLoadingConfiguration = false
+                        NotificationCenter.postNotification(requireContext(), NotificationType.LOADING_COMPLETE);
                         Log.d("JAMES","here???")
                     }
 

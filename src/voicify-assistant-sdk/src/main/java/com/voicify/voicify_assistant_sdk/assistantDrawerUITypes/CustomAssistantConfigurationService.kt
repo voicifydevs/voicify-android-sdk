@@ -1,12 +1,8 @@
 package com.voicify.voicify_assistant_sdk.assistantDrawerUITypes
 
-import android.util.Log
 import com.google.gson.Gson
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantConfigurationResponse
-import com.voicify.voicify_assistant_sdk.models.CustomAssistantResponse
-import com.voicify.voicify_assistant_sdk.models.VoicifyUserData
 import okhttp3.*
-import java.io.IOException
 import java.lang.Exception
 
 

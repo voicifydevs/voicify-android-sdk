@@ -15,7 +15,6 @@ class CustomAssistantConfigurationService {
 
     fun getCustomAssistantConfiguration(configurationId: String, serverRootUrl: String, appId: String, appKey: String): CustomAssistantConfigurationResponse?{
         try{
-            Log.d("JAMES", "HELOO?????")
             if(configurationId.isNullOrEmpty())
             {
                 return null
@@ -28,16 +27,10 @@ class CustomAssistantConfigurationService {
             val response = client.newCall(userDataRequest).execute()
             if(response.code == 200)
             {
-                Log.d("JAMES", "Success")
                 val gson = Gson()
                 val configurationResult = response.body?.string()
                 return gson.fromJson(configurationResult, CustomAssistantConfigurationResponse::class.java)
             }
-            else{
-                Log.d("JAMES",response.code.toString())
-                Log.d("JAMES", response.body?.string().toString())
-            }
-            Log.d("JAMES","SOMETHING IS FAIL")
             return null
         }
         catch(e: Exception){

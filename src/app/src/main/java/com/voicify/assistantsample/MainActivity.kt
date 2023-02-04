@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
                 binding.assistantMic.isClickable = false
                 val onEffect: (String, Any) -> Unit = { effectName, data ->
                     if(effectName == "Dismiss")
+
                     {
                         Log.d("JAMES","CLOSING")
                         voiceAssistant.dismiss()

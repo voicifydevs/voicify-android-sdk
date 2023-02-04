@@ -51,6 +51,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
+import java.lang.Exception
 import java.lang.reflect.Field
 import kotlin.math.roundToInt
 
@@ -107,6 +108,26 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             headerProps = it.getSerializable(HEADER) as HeaderProps?
             bodyProps = it.getSerializable(BODY) as BodyProps?
             toolbarProps = it.getSerializable(TOOLBAR) as ToolbarProps?
+        }
+        if(configurationKotlin == null && !assistantSettingProps?.configurationId.isNullOrEmpty())
+        {
+            Log.d("JAMES", "TRYING SHARED PREFS")
+            // if the configuration call returns null, but the configuration id is specified, try to grab the config from shared preferences
+            val prefs = requireActivity().getSharedPreferences(CONFIGURATION, MODE_PRIVATE)
+            if(prefs != null)
+            {
+                val preferenceConfig = prefs.getString(CONFIGURATION_KOTLIN ,"")
+                if (!preferenceConfig.isNullOrEmpty())
+                {
+                    Log.d("JAMES", "GRABBING SHARED PREFS")
+                    configurationKotlin = gson.fromJson(preferenceConfig, CustomAssistantConfigurationResponse::class.java)
+                }
+            }
+        }
+        else{
+            val editor = requireActivity().getSharedPreferences(CONFIGURATION, MODE_PRIVATE).edit()
+            editor.putString(CONFIGURATION_KOTLIN, gson.toJson(configurationKotlin))
+            editor.apply()
         }
     }
 
@@ -1175,36 +1196,27 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
                         configurationKotlin = null
                         isLoadingConfiguration = false
+                        Log.d("JAMES","here???")
                     }
 
                     GlobalScope.async (Dispatchers.IO + coroutineExceptionHandler){
-                        configurationKotlin = customAssistantConfigurationService.getCustomAssistantConfiguration(
+                        try{
+                            configurationKotlin = customAssistantConfigurationService.getCustomAssistantConfiguration(
                                 assistantSettingsProperties?.configurationId ?: "",
                                 assistantSettingsProperties?.serverRootUrl ?: "",
                                 assistantSettingsProperties?.appId ?: "",
                                 assistantSettingsProperties?.appKey ?: ""
                             )
-                        if(configurationKotlin == null && !assistantSettingProps?.configurationId.isNullOrEmpty())
-                        {
-                         // if the configuration call returns null, but the configuration id is specified, try to grab the config from shared preferences
-                            val prefs = requireActivity().getSharedPreferences(CONFIGURATION, MODE_PRIVATE)
-                            val preferenceConfig = prefs.getString(CONFIGURATION_KOTLIN ,"")
-                            if (!preferenceConfig.isNullOrEmpty())
-                            {
-                                configurationKotlin = gson.fromJson(preferenceConfig, CustomAssistantConfigurationResponse::class.java)
-                            }
+                            configurationHeaderProps = configurationKotlin?.styles?.header
+                            configurationBodyProps = configurationKotlin?.styles?.body
+                            configurationToolbarProps = configurationKotlin?.styles?.toolbar
+                            isLoadingConfiguration = false
+                            Log.d("JAMES", "we are in the async method oh boy")
+                            NotificationCenter.postNotification(requireContext(), NotificationType.LOADING_COMPLETE);
                         }
-                        else{
-                            val editor = requireActivity().getSharedPreferences(CONFIGURATION, MODE_PRIVATE).edit()
-                            editor.putString(CONFIGURATION_KOTLIN, gson.toJson(configurationKotlin))
-                            editor.apply()
+                        catch(e: Exception){
+                            NotificationCenter.postNotification(requireContext(), NotificationType.LOADING_COMPLETE)
                         }
-                        configurationHeaderProps = configurationKotlin?.styles?.header
-                        configurationBodyProps = configurationKotlin?.styles?.body
-                        configurationToolbarProps = configurationKotlin?.styles?.toolbar
-                        isLoadingConfiguration = false
-                        Log.d("JAMES", "we are in the async method oh boy")
-                        NotificationCenter.postNotification(requireContext(), NotificationType.LOADING_COMPLETE);
                     }
                 }
             }

@@ -153,9 +153,8 @@ class VoicifyAssistant(
                 }
                 if(!fireBeforeSpeechEffects.isNullOrEmpty())
                 {
-                    runBlocking {
-                        launch { fireEffects(fireBeforeSpeechEffects, request) }
-                    }
+                    fireEffects(fireBeforeSpeechEffects, request)
+
                 }
 
                 textToSpeechProvider?.clearHandlers()
@@ -163,9 +162,9 @@ class VoicifyAssistant(
                 {
                     textToSpeechProvider?.addFinishListener {
                         if(!fireAfterSpeechEffects.isNullOrEmpty()){
-                            runBlocking {
-                                launch { fireEffects(fireAfterSpeechEffects, request) }
-                            }
+
+                            fireEffects(fireAfterSpeechEffects, request)
+
                         }
                         else if ((settings.autoRunConversation && settings.useVoiceInput
                                     && inputType == "Speech" && settings.useOutputSpeech &&
@@ -177,9 +176,7 @@ class VoicifyAssistant(
                 }
                 else{
                     if(!fireAfterSpeechEffects.isNullOrEmpty()){
-                        runBlocking {
-                            launch {fireEffects(fireAfterSpeechEffects, request)}
-                        }
+                            fireEffects(fireAfterSpeechEffects, request)
                     }
                 }
 
@@ -320,7 +317,11 @@ class VoicifyAssistant(
             supportsDisplayText = true,
             supportsTextInput = true,
             supportsSsml = this.settings.useOutputSpeech,
-            supportsVoiceInput = this.settings.useVoiceInput
+            supportsVoiceInput = this.settings.useVoiceInput,
+            supportsAudio = true,
+            supportsVideo = true,
+            supportsBackgroundImage = true,
+            supportsForegroundImage = true
         )
     }
 

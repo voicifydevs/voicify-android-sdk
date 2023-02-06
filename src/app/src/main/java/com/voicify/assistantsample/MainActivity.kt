@@ -21,10 +21,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         val voiceAssistant = AssistantDrawerUI.newInstance(
             AssistantSettingsProps(
-                configurationId = "a0326b82-000e-4bbd-aa21-6f5b2e414b11",
-                serverRootUrl = "https://dev-assistant.voicify.com",
-                appId = "52dfe3a1-b44e-4ff1-ac02-04f0a139cd51",
-                appKey = "NmYxNjM3ZDAtYzdiOC00NGVjLWE1OGMtZGNmMjJlOWYxMDAx"
+                //configurationId = "a0326b82-000e-4bbd-aa21-6f5b2e414b11",
+                serverRootUrl = "https://assistant.voicify.com",
+                appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
+                appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3"
             )
         )
         binding.assistantMic.setOnClickListener {
@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity() {
 //              voiceAssistant.addSessionAttributes(sessionAttributes)
                 voiceAssistant.onEffect(onEffect)
                 voiceAssistant.onAssistantDismiss(onAssistantDismiss)
-                voiceAssistant.onAssistantError(onAssistantError)
+                //voiceAssistant.onAssistantError(onAssistantError)
                 voiceAssistant.show(supportFragmentManager, "assistantDrawerUI")
             }
         }

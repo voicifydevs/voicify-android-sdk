@@ -24,7 +24,8 @@ class MainActivity : AppCompatActivity() {
                 //configurationId = "a0326b82-000e-4bbd-aa21-6f5b2e414b11",
                 serverRootUrl = "https://assistant.voicify.com",
                 appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
-                appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3"
+                appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
+                effects = arrayOf("Play")
             )
         )
         binding.assistantMic.setOnClickListener {

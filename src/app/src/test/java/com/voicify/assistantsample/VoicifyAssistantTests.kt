@@ -44,7 +44,6 @@ null,
         var tempEndSessionResponse: CustomAssistantResponse? = null
         var tempAudioResponse: MediaItemModel? = null
         var tempVideoResponse: MediaItemModel? = null
-        var playEffectFired: Boolean = false
 
         assistant.startNewSession()
 
@@ -55,11 +54,7 @@ null,
         assistant.onResponseReceived{response ->
             tempResponse = response
         }
-        //EffectHandlers
-        assistant.onEffect(effectName = "play"){data ->
-            System.out.println("play effect fired")
-            playEffectFired = true
-        }
+
         //AudioHandlers
         assistant.onPlayAudio{mediaItem ->
             System.out.println("audio fired")

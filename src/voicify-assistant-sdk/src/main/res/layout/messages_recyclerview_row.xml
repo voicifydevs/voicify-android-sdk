@@ -17,8 +17,8 @@
         android:visibility="gone">
         <ImageView
             android:id="@+id/messagesAssistantAvatarImageView"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+            android:layout_width="27dp"
+            android:layout_height="27dp"
             android:visibility="gone"/>
         </LinearLayout>
     <TextView

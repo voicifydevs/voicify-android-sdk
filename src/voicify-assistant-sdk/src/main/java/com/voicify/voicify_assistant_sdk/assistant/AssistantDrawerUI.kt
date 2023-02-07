@@ -7,9 +7,11 @@ import android.app.Activity
 import android.content.*
 import android.content.Context.MODE_PRIVATE
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.Typeface
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.VectorDrawable
@@ -27,6 +29,8 @@ import androidx.annotation.ColorInt
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.graphics.drawable.RoundedBitmapDrawable
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
@@ -363,8 +367,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         val avatarBackgroundStyle = GradientDrawable()
         avatarBackgroundStyle.cornerRadius = headerProps?.assistantImageBorderRadius ?: configurationHeaderProps?.assistantImageBorderRadius ?: 48f
-        avatarBackgroundStyle.setStroke(headerProps?.assistantImageBorderWidth ?: configurationHeaderProps?.assistantImageBorderWidth ?: 4, Color.parseColor(headerProps?.assistantImageBorderColor ?: configurationHeaderProps?.assistantImageBorderColor ?: "#CBCCD2"))
-        avatarBackgroundStyle.setColor(Color.parseColor(headerProps?.assistantImageBackgroundColor ?: configurationHeaderProps?.assistantImageBackgroundColor ?: "#ffffff"))
+        avatarBackgroundStyle.setStroke(headerProps?.assistantImageBorderWidth ?: configurationHeaderProps?.assistantImageBorderWidth ?: 0, Color.parseColor(headerProps?.assistantImageBorderColor ?: configurationHeaderProps?.assistantImageBorderColor ?: "#CBCCD2"))
+        avatarBackgroundStyle.setColor(Color.parseColor(headerProps?.assistantImageBackgroundColor ?: configurationHeaderProps?.assistantImageBackgroundColor ?: "#00000000"))
         avatarBackground.background = avatarBackgroundStyle
         avatarBackground.setPadding(12,12,12,12)
 
@@ -511,7 +515,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         else toolbarProps?.sendActiveImage ?: configurationToolbarProps?.sendActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/7a39bc6f-eef5-4185-bcf8-2a645aff53b2/Send-3-.png", sendMessage,
             if(!(assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == "textbox") && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) == false) toolbarProps?.sendInactiveColor ?: configurationToolbarProps?.sendInactiveColor else toolbarProps?.sendActiveColor ?: configurationToolbarProps?.sendActiveColor)
 
-        loadImageFromUrl(headerProps?.assistantImage ?: configurationHeaderProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png", assistantAvatar, headerProps?.assistantImageColor ?: configurationHeaderProps?.assistantImageColor)
+        loadImageFromUrl(headerProps?.assistantImage ?: configurationHeaderProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png", assistantAvatar, headerProps?.assistantImageColor ?: configurationHeaderProps?.assistantImageColor, true)
 
         val micImageLayoutParams = LinearLayout.LayoutParams(toolbarProps?.micImageWidth ?: configurationToolbarProps?.micImageWidth ?: getPixelsFromDp(48), toolbarProps?.micImageHeight ?: configurationToolbarProps?.micImageHeight ?: getPixelsFromDp(48))
         micImageLayoutParams.setMargins(0,getPixelsFromDp(12),0,0)
@@ -1018,8 +1022,27 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
     }
 
-    private fun loadImageFromUrl(url: String, view: ImageView, imageColor: String? = null){
-        if(imageColor.isNullOrEmpty())
+    private fun loadImageFromUrl(url: String, view: ImageView, imageColor: String? = null, isAssistantAvatar: Boolean = false){
+        if(isAssistantAvatar)
+        {
+            Picasso.get().load(url).into(view , object: Callback {
+                override fun onSuccess() {
+                    val imageBitmap = view.drawable as BitmapDrawable
+                    val bitmap = imageBitmap.bitmap
+                    val imageDrawable = RoundedBitmapDrawableFactory.create(resources, bitmap);
+                    imageDrawable.isCircular = true;
+                    imageDrawable.cornerRadius = headerProps?.assistantImageBorderRadius ?: configurationHeaderProps?.assistantImageBorderRadius ?: 200f
+                    view.setImageDrawable(imageDrawable);
+                    if(!imageColor.isNullOrEmpty())
+                    {
+                        DrawableCompat.setTint(view.drawable, Color.parseColor(imageColor))
+                    }
+                }
+                override fun onError(e: Exception?) {
+                }
+            });
+        }
+        else if(imageColor.isNullOrEmpty())
         {
             Picasso.get().load(url).into(view)
         }

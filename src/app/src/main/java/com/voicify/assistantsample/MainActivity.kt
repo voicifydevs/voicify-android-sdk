@@ -34,7 +34,9 @@ class MainActivity : AppCompatActivity() {
                 serverRootUrl = "https://dev-assistant.voicify.com",
                 appId = "52dfe3a1-b44e-4ff1-ac02-04f0a139cd51",
                 appKey = "NmYxNjM3ZDAtYzdiOC00NGVjLWE1OGMtZGNmMjJlOWYxMDAx"
-            )
+            ),
+//            headerProps = HeaderProps(assistantImageBorderRadius = 0f),
+//            bodyProps = BodyProps(assistantImageBorderRadius = 0f)
         )
 
         binding.assistantMic.setOnClickListener {

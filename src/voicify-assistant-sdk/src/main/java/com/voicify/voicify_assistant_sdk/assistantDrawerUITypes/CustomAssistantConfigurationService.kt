@@ -1,5 +1,6 @@
 package com.voicify.voicify_assistant_sdk.assistantDrawerUITypes
 
+import android.util.Log
 import com.google.gson.Gson
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantConfigurationResponse
 import okhttp3.*
@@ -25,6 +26,7 @@ class CustomAssistantConfigurationService {
             {
                 val gson = Gson()
                 val configurationResult = response.body?.string()
+                Log.d("JAMES", configurationResult.toString())
                 return gson.fromJson(configurationResult, CustomAssistantConfigurationResponse::class.java)
             }
             return null

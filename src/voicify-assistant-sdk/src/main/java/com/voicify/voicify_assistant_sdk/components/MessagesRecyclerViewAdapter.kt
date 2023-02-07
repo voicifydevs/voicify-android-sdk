@@ -3,6 +3,7 @@ package com.voicify.voicify_assistant_sdk.components
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.text.TextPaint
@@ -16,6 +17,7 @@ import android.widget.Space
 import android.widget.TextView
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
@@ -27,6 +29,7 @@ import io.noties.markwon.core.CorePlugin
 import io.noties.markwon.ext.tasklist.TaskListItem
 import io.noties.markwon.ext.tasklist.TaskListPlugin
 import io.noties.markwon.ext.tasklist.TaskListSpan
+import java.lang.Exception
 
 //https://noties.io/Markwon/docs/v3/ext-tasklist/#task-list-mutation
 internal class MessagesRecyclerViewAdapter(private var messagesList: List<Message>, private var bodyProps: BodyProps?, private var configurationBodyProps: BodyProps?, private var context: Context) :
@@ -127,8 +130,8 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
         {
             val avatarBackgroundStyle = GradientDrawable()
             avatarBackgroundStyle.cornerRadius = bodyProps?.assistantImageBorderRadius ?: configurationBodyProps?.assistantImageBorderRadius ?: 38f
-            avatarBackgroundStyle.setStroke(bodyProps?.assistantImageBorderWidth ?: configurationBodyProps?.assistantImageBorderWidth ?: 4, Color.parseColor(bodyProps?.assistantImageBorderColor ?: configurationBodyProps?.assistantImageBorderColor ?: "#CBCCD2"))
-            avatarBackgroundStyle.setColor(Color.parseColor(bodyProps?.assistantImageBackgroundColor ?: configurationBodyProps?.assistantImageBackgroundColor ?: "#ffffff"))
+            avatarBackgroundStyle.setStroke(bodyProps?.assistantImageBorderWidth ?: configurationBodyProps?.assistantImageBorderWidth ?: 0, Color.parseColor(bodyProps?.assistantImageBorderColor ?: configurationBodyProps?.assistantImageBorderColor ?: "#CBCCD2"))
+            avatarBackgroundStyle.setColor(Color.parseColor(bodyProps?.assistantImageBackgroundColor ?: configurationBodyProps?.assistantImageBackgroundColor ?: "#00000000"))
             avatarBackground.background = avatarBackgroundStyle
             avatarBackground.setPadding(12,12,12,12)
             avatarBackground.visibility = View.VISIBLE
@@ -170,20 +173,22 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
     }
 
     private fun loadImageFromUrl(url: String, view: ImageView, imageColor: String? = null){
-        if(imageColor.isNullOrEmpty())
-        {
-            Picasso.get().load(url).into(view)
-        }
-        else{
-            Picasso.get().load(url).into(view, object: Callback {
-                override fun onSuccess() {
-                    DrawableCompat.setTint(view.drawable, Color.parseColor(imageColor));
+        Picasso.get().load(url).into(view , object: Callback {
+            override fun onSuccess() {
+                val imageBitmap = view.drawable as BitmapDrawable
+                val bitmap = imageBitmap.bitmap
+                val imageDrawable = RoundedBitmapDrawableFactory.create(context.resources, bitmap);
+                imageDrawable.isCircular = true;
+                imageDrawable.cornerRadius = bodyProps?.assistantImageBorderRadius ?: configurationBodyProps?.assistantImageBorderRadius ?: 200f
+                view.setImageDrawable(imageDrawable);
+                if(!imageColor.isNullOrEmpty())
+                {
+                    DrawableCompat.setTint(view.drawable, Color.parseColor(imageColor))
                 }
-
-                override fun onError(e: java.lang.Exception?) {
-                }
-            })
-        }
+            }
+            override fun onError(e: Exception?) {
+            }
+        });
     }
 
 }

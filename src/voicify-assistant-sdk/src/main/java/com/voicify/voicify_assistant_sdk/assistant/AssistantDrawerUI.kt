@@ -105,7 +105,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             bodyProps = it.getSerializable(BODY) as BodyProps?
             toolbarProps = it.getSerializable(TOOLBAR) as ToolbarProps?
         }
-        if(configurationKotlin == null && !assistantSettingProps?.configurationId.isNullOrEmpty())
+        if(configurationKotlin == null && !assistantSettingProps?.configurationId.isNullOrEmpty() && !isLoadingConfiguration)
         {
             // if the configuration call returns null, but the configuration id is specified, try to grab the config from shared preferences
             val prefs = requireActivity().getSharedPreferences(CONFIGURATION, MODE_PRIVATE)
@@ -115,6 +115,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 if (!preferenceConfig.isNullOrEmpty())
                 {
                     configurationKotlin = gson.fromJson(preferenceConfig, CustomAssistantConfigurationResponse::class.java)
+                    configurationHeaderProps = configurationKotlin?.styles?.header
+                    configurationBodyProps = configurationKotlin?.styles?.body
+                    configurationToolbarProps = configurationKotlin?.styles?.toolbar
                 }
             }
         }

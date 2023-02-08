@@ -367,10 +367,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         val avatarBackgroundStyle = GradientDrawable()
         avatarBackgroundStyle.cornerRadius = headerProps?.assistantImageBorderRadius ?: configurationHeaderProps?.assistantImageBorderRadius ?: 48f
-        avatarBackgroundStyle.setStroke(headerProps?.assistantImageBorderWidth ?: configurationHeaderProps?.assistantImageBorderWidth ?: 4, Color.parseColor(headerProps?.assistantImageBorderColor ?: configurationHeaderProps?.assistantImageBorderColor ?: "#CBCCD2"))
+        avatarBackgroundStyle.setStroke(headerProps?.assistantImageBorderWidth ?: configurationHeaderProps?.assistantImageBorderWidth ?: 0, Color.parseColor(headerProps?.assistantImageBorderColor ?: configurationHeaderProps?.assistantImageBorderColor ?: "#00000000"))
         avatarBackgroundStyle.setColor(Color.parseColor(headerProps?.assistantImageBackgroundColor ?: configurationHeaderProps?.assistantImageBackgroundColor ?: "#00000000"))
         avatarBackground.background = avatarBackgroundStyle
-        avatarBackground.setPadding(12,12,12,12)
+        avatarBackground.setPadding(headerProps?.assistantImagePadding ?: configurationHeaderProps?.assistantImagePadding ?:12,headerProps?.assistantImagePadding ?: configurationHeaderProps?.assistantImagePadding ?:12,headerProps?.assistantImagePadding ?: configurationHeaderProps?.assistantImagePadding ?:12,headerProps?.assistantImagePadding ?: configurationHeaderProps?.assistantImagePadding ?:12)
 
         val bodyContainerLayoutStyle = GradientDrawable()
         if(!(bodyProps?.backgroundColor ?: configurationBodyProps?.backgroundColor).isNullOrEmpty()){

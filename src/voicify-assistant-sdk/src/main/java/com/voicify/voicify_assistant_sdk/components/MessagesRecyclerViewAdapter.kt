@@ -130,13 +130,12 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
         {
             val avatarBackgroundStyle = GradientDrawable()
             avatarBackgroundStyle.cornerRadius = bodyProps?.assistantImageBorderRadius ?: configurationBodyProps?.assistantImageBorderRadius ?: 38f
-            avatarBackgroundStyle.setStroke(bodyProps?.assistantImageBorderWidth ?: configurationBodyProps?.assistantImageBorderWidth ?: 4, Color.parseColor(bodyProps?.assistantImageBorderColor ?: configurationBodyProps?.assistantImageBorderColor ?: "#CBCCD2"))
-            avatarBackgroundStyle.setColor(Color.parseColor(bodyProps?.assistantImageBackgroundColor ?: configurationBodyProps?.assistantImageBackgroundColor ?: "#ffffff"))
+            avatarBackgroundStyle.setStroke(bodyProps?.assistantImageBorderWidth ?: configurationBodyProps?.assistantImageBorderWidth ?: 0, Color.parseColor(bodyProps?.assistantImageBorderColor ?: configurationBodyProps?.assistantImageBorderColor ?: "#00000000"))
             avatarBackground.background = avatarBackgroundStyle
-            avatarBackground.setPadding(12,12,12,12)
+            avatarBackground.setPadding(bodyProps?.assistantImagePadding ?: configurationBodyProps?.assistantImagePadding ?: 12,bodyProps?.assistantImagePadding ?: configurationBodyProps?.assistantImagePadding ?:12,bodyProps?.assistantImagePadding ?: configurationBodyProps?.assistantImagePadding ?:12,bodyProps?.assistantImagePadding ?: configurationBodyProps?.assistantImagePadding ?:12)
             avatarBackground.visibility = View.VISIBLE
             messagesAvatar.visibility = View.VISIBLE
-            loadImageFromUrl(bodyProps?.assistantImage ?: configurationBodyProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png", messagesAvatar, bodyProps?.assistantImageColor ?: configurationBodyProps?.assistantImageColor)
+            loadImageFromUrl(bodyProps?.assistantImage ?: configurationBodyProps?.assistantImage ?: "https://voicify-dev-files.s3.amazonaws.com/52dfe3a1-b44e-4ff1-ac02-04f0a139cd51/f78ab9db-6708-4e16-a247-ef0a93aeb79f/voicify-logo.png", messagesAvatar, bodyProps?.assistantImageColor ?: configurationBodyProps?.assistantImageColor)
             val messagesTextViewStyle = GradientDrawable()
             messagesTextViewStyle.shape = GradientDrawable.RECTANGLE
             messagesTextViewStyle.setStroke(bodyProps?.messageReceivedBorderWidth ?: configurationBodyProps?.messageReceivedBorderWidth ?: 4, Color.parseColor(bodyProps?.messageReceivedBorderColor ?: configurationBodyProps?.messageReceivedBorderColor ?: "#CBCCD2"))
@@ -150,7 +149,7 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             messagesSpace.visibility = View.GONE
             messagesContainerLinearLayout.layoutParams = messagesContainerLayoutParams
             val messagesTextViewLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            messagesTextViewLayoutParams.setMargins(20,40,0,0)
+            messagesTextViewLayoutParams.setMargins(20,60,0,0)
             messageTextView.layoutParams = messagesTextViewLayoutParams
             messageTextView.setPadding(20,20,20,20)
             messageTextView.setTextColor(Color.parseColor(bodyProps?.messageReceivedTextColor ?: configurationBodyProps?.messageReceivedTextColor ?: "#000000"))

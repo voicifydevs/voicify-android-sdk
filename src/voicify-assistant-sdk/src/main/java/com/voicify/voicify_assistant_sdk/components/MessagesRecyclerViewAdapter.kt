@@ -138,7 +138,7 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             messagesAvatar.visibility = View.VISIBLE
             loadImageFromUrl(bodyProps?.assistantImage ?: configurationBodyProps?.assistantImage ?: "https://voicify-dev-files.s3.amazonaws.com/52dfe3a1-b44e-4ff1-ac02-04f0a139cd51/f78ab9db-6708-4e16-a247-ef0a93aeb79f/voicify-logo.png", messagesAvatar, bodyProps?.assistantImageColor ?: configurationBodyProps?.assistantImageColor)
             val messagesAvatarLayoutParams = LinearLayout.LayoutParams(bodyProps?.assistantImageWidth ?: configurationBodyProps?.assistantImageWidth ?: getPixelsFromDp(28), bodyProps?.assistantImageHeight ?: configurationBodyProps?.assistantImageWidth ?: getPixelsFromDp(28))
-            if(!bodyProps?.assistantImageBackgroundColor.isNullOrEmpty() || configurationBodyProps?.assistantImage.isNullOrEmpty())
+            if(!bodyProps?.assistantImageBackgroundColor.isNullOrEmpty() || !configurationBodyProps?.assistantImageBackgroundColor.isNullOrEmpty())
             {
                 messagesAvatarLayoutParams.width = messagesAvatarLayoutParams.width - getPixelsFromDp(6)
                 messagesAvatarLayoutParams.height = messagesAvatarLayoutParams.height - getPixelsFromDp(6)

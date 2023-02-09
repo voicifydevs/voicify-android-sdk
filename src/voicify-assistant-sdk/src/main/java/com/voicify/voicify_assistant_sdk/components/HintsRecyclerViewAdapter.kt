@@ -28,8 +28,9 @@ internal class HintsRecyclerViewAdapter(private var hintsList: List<String>, pri
         val hint = hintsList[position]
         val hintsContainer = holder.hintsContainerLayout
         val hintTextView = holder.hintsTextView
+        hintTextView.minWidth = 100
         val hintsContainerLayoutStyle = GradientDrawable()
-        hintsContainerLayoutStyle.cornerRadius = bodyProps?.hintsBorderRadius ?: configurationBodyProps?.hintsBorderRadius ?: 34f
+        hintsContainerLayoutStyle.cornerRadius = bodyProps?.hintsBorderRadius ?: configurationBodyProps?.hintsBorderRadius ?: 60f
         hintsContainerLayoutStyle.setStroke(bodyProps?.hintsBorderWidth ?: configurationBodyProps?.hintsBorderWidth ?: 4, Color.parseColor(bodyProps?.hintsBorderColor ?: configurationBodyProps?.hintsBorderColor ?: "#CBCCD2"))
         hintsContainerLayoutStyle.setColor(Color.parseColor(bodyProps?.hintsBackgroundColor ?: configurationBodyProps?.hintsBackgroundColor ?: "#ffffff"))
         hintsContainer.background = hintsContainerLayoutStyle

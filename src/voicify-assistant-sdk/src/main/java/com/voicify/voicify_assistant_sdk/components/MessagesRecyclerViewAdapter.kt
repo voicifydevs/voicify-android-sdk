@@ -112,7 +112,7 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             val messagesTextViewStyle = GradientDrawable()
             messagesTextViewStyle.shape = GradientDrawable.RECTANGLE
             messagesTextViewStyle.setStroke(bodyProps?.messageSentBorderWidth ?: configurationBodyProps?.messageSentBorderWidth ?: 0, Color.parseColor(bodyProps?.messageSentBorderColor ?: configurationBodyProps?.messageSentBorderColor ?: "#00ffffff"))
-            val cornerRadaii = floatArrayOf(bodyProps?.messageSentBorderTopLeftRadius ?: configurationBodyProps?.messageSentBorderTopLeftRadius ?: 18f,bodyProps?.messageSentBorderTopLeftRadius ?: configurationBodyProps?.messageSentBorderTopLeftRadius ?: 18f,bodyProps?.messageSentBorderTopRightRadius ?: configurationBodyProps?.messageSentBorderTopRightRadius ?: 0f,bodyProps?.messageSentBorderTopRightRadius ?: configurationBodyProps?.messageSentBorderTopRightRadius ?: 0f, bodyProps?.messageSentBorderBottomLeftRadius ?: configurationBodyProps?.messageSentBorderBottomLeftRadius ?: 18f,bodyProps?.messageSentBorderBottomLeftRadius ?: configurationBodyProps?.messageSentBorderBottomLeftRadius ?: 18f,bodyProps?.messageSentBorderBottomRightRadius ?: configurationBodyProps?.messageSentBorderBottomRightRadius ?: 18f, bodyProps?.messageSentBorderBottomRightRadius ?: configurationBodyProps?.messageSentBorderBottomRightRadius ?: 18f)
+            val cornerRadaii = floatArrayOf(bodyProps?.messageSentBorderTopLeftRadius ?: configurationBodyProps?.messageSentBorderTopLeftRadius ?: 25f,bodyProps?.messageSentBorderTopLeftRadius ?: configurationBodyProps?.messageSentBorderTopLeftRadius ?: 25f,bodyProps?.messageSentBorderTopRightRadius ?: configurationBodyProps?.messageSentBorderTopRightRadius ?: 0f,bodyProps?.messageSentBorderTopRightRadius ?: configurationBodyProps?.messageSentBorderTopRightRadius ?: 0f, bodyProps?.messageSentBorderBottomLeftRadius ?: configurationBodyProps?.messageSentBorderBottomLeftRadius ?: 25f,bodyProps?.messageSentBorderBottomLeftRadius ?: configurationBodyProps?.messageSentBorderBottomLeftRadius ?: 25f,bodyProps?.messageSentBorderBottomRightRadius ?: configurationBodyProps?.messageSentBorderBottomRightRadius ?: 25f, bodyProps?.messageSentBorderBottomRightRadius ?: configurationBodyProps?.messageSentBorderBottomRightRadius ?: 25f)
             messagesTextViewStyle.cornerRadii = cornerRadaii
             messagesTextViewStyle.setColor(Color.parseColor(bodyProps?.messageSentBackgroundColor ?: configurationBodyProps?.messageSentBackgroundColor ?: "#80000000"))
             messageTextView.background = messagesTextViewStyle
@@ -129,17 +129,25 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
         else
         {
             val avatarBackgroundStyle = GradientDrawable()
-            avatarBackgroundStyle.cornerRadius = bodyProps?.assistantImageBorderRadius ?: configurationBodyProps?.assistantImageBorderRadius ?: 38f
+            avatarBackgroundStyle.cornerRadius = bodyProps?.assistantImageBorderRadius ?: configurationBodyProps?.assistantImageBorderRadius ?: 60f
             avatarBackgroundStyle.setStroke(bodyProps?.assistantImageBorderWidth ?: configurationBodyProps?.assistantImageBorderWidth ?: 0, Color.parseColor(bodyProps?.assistantImageBorderColor ?: configurationBodyProps?.assistantImageBorderColor ?: "#00000000"))
+            avatarBackgroundStyle.setColor(Color.parseColor(bodyProps?.assistantImageBackgroundColor ?: configurationBodyProps?.assistantImageBackgroundColor ?: "#00000000"))
             avatarBackground.background = avatarBackgroundStyle
             avatarBackground.setPadding(bodyProps?.assistantImagePadding ?: configurationBodyProps?.assistantImagePadding ?: 12,bodyProps?.assistantImagePadding ?: configurationBodyProps?.assistantImagePadding ?:12,bodyProps?.assistantImagePadding ?: configurationBodyProps?.assistantImagePadding ?:12,bodyProps?.assistantImagePadding ?: configurationBodyProps?.assistantImagePadding ?:12)
             avatarBackground.visibility = View.VISIBLE
             messagesAvatar.visibility = View.VISIBLE
             loadImageFromUrl(bodyProps?.assistantImage ?: configurationBodyProps?.assistantImage ?: "https://voicify-dev-files.s3.amazonaws.com/52dfe3a1-b44e-4ff1-ac02-04f0a139cd51/f78ab9db-6708-4e16-a247-ef0a93aeb79f/voicify-logo.png", messagesAvatar, bodyProps?.assistantImageColor ?: configurationBodyProps?.assistantImageColor)
+            val messagesAvatarLayoutParams = LinearLayout.LayoutParams(bodyProps?.assistantImageWidth ?: configurationBodyProps?.assistantImageWidth ?: getPixelsFromDp(28), bodyProps?.assistantImageHeight ?: configurationBodyProps?.assistantImageWidth ?: getPixelsFromDp(28))
+            if(!bodyProps?.assistantImageBackgroundColor.isNullOrEmpty() || configurationBodyProps?.assistantImage.isNullOrEmpty())
+            {
+                messagesAvatarLayoutParams.width = messagesAvatarLayoutParams.width - getPixelsFromDp(6)
+                messagesAvatarLayoutParams.height = messagesAvatarLayoutParams.height - getPixelsFromDp(6)
+            }
+            messagesAvatar.layoutParams = messagesAvatarLayoutParams
             val messagesTextViewStyle = GradientDrawable()
             messagesTextViewStyle.shape = GradientDrawable.RECTANGLE
             messagesTextViewStyle.setStroke(bodyProps?.messageReceivedBorderWidth ?: configurationBodyProps?.messageReceivedBorderWidth ?: 4, Color.parseColor(bodyProps?.messageReceivedBorderColor ?: configurationBodyProps?.messageReceivedBorderColor ?: "#CBCCD2"))
-            val cornerRadaii = floatArrayOf(bodyProps?.messageReceivedBorderTopLeftRadius ?: configurationBodyProps?.messageReceivedBorderTopLeftRadius ?: 0f, bodyProps?.messageReceivedBorderTopLeftRadius ?: configurationBodyProps?.messageReceivedBorderTopLeftRadius ?: 0f,bodyProps?.messageReceivedBorderTopRightRadius ?: configurationBodyProps?.messageReceivedBorderTopRightRadius ?: 18f,bodyProps?.messageReceivedBorderTopRightRadius ?: configurationBodyProps?.messageReceivedBorderTopRightRadius ?: 18f, bodyProps?.messageReceivedBorderBottomLeftRadius ?: configurationBodyProps?.messageReceivedBorderBottomLeftRadius ?: 18f,bodyProps?.messageReceivedBorderBottomLeftRadius ?: configurationBodyProps?.messageReceivedBorderBottomLeftRadius ?: 18f,bodyProps?.messageReceivedBorderBottomRightRadius ?: configurationBodyProps?.messageReceivedBorderBottomRightRadius ?: 18f,bodyProps?.messageReceivedBorderBottomRightRadius ?: configurationBodyProps?.messageReceivedBorderBottomRightRadius ?: 18f)
+            val cornerRadaii = floatArrayOf(bodyProps?.messageReceivedBorderTopLeftRadius ?: configurationBodyProps?.messageReceivedBorderTopLeftRadius ?: 0f, bodyProps?.messageReceivedBorderTopLeftRadius ?: configurationBodyProps?.messageReceivedBorderTopLeftRadius ?: 0f,bodyProps?.messageReceivedBorderTopRightRadius ?: configurationBodyProps?.messageReceivedBorderTopRightRadius ?: 25f,bodyProps?.messageReceivedBorderTopRightRadius ?: configurationBodyProps?.messageReceivedBorderTopRightRadius ?: 25f, bodyProps?.messageReceivedBorderBottomLeftRadius ?: configurationBodyProps?.messageReceivedBorderBottomLeftRadius ?: 25f,bodyProps?.messageReceivedBorderBottomLeftRadius ?: configurationBodyProps?.messageReceivedBorderBottomLeftRadius ?: 25f,bodyProps?.messageReceivedBorderBottomRightRadius ?: configurationBodyProps?.messageReceivedBorderBottomRightRadius ?: 25f,bodyProps?.messageReceivedBorderBottomRightRadius ?: configurationBodyProps?.messageReceivedBorderBottomRightRadius ?: 25f)
             messagesTextViewStyle.cornerRadii = cornerRadaii
             messagesTextViewStyle.setColor(Color.parseColor(bodyProps?.messageReceivedBackgroundColor ?: configurationBodyProps?.messageReceivedBackgroundColor ?: "#0d000000"))
             messageTextView.background = messagesTextViewStyle
@@ -188,6 +196,10 @@ internal class MessagesRecyclerViewAdapter(private var messagesList: List<Messag
             override fun onError(e: Exception?) {
             }
         });
+    }
+
+    private fun getPixelsFromDp(dp: Int): Int {
+        return (dp * context.resources.displayMetrics.density + 0.5f).toInt()
     }
 
 }

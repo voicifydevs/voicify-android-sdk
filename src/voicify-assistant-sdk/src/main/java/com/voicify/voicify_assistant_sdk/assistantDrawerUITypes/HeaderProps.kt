@@ -9,6 +9,8 @@ data class HeaderProps(
     val assistantImageColor: String? = null,
     val assistantImageBackgroundColor: String? = null,
     val assistantImagePadding: Int? = null,
+    val assistantImageWidth: Int? = null,
+    val assistantImageHeight: Int? = null,
     val assistantName: String? = null,
     val assistantNameTextColor: String? = null,
     val assistantImageBorderRadius: Float? = null,

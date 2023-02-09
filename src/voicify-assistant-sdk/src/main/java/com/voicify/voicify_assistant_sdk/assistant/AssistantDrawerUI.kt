@@ -465,6 +465,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         drawerText.textSize = toolbarProps?.helpTextFontSize ?: configurationToolbarProps?.helpTextFontSize ?: 18f
         drawerText.typeface = Typeface.create(toolbarProps?.helpTextFontFamily ?: configurationToolbarProps?.helpTextFontFamily ?: "sans-serif", Typeface.NORMAL)
 
+        assistantStateText.setTextColor(Color.parseColor(toolbarProps?.assistantStateTextColor ?: configurationToolbarProps?.assistantStateTextColor ?: "#8F97A1"))
         assistantStateText.textSize = toolbarProps?.assistantStateFontSize ?: configurationToolbarProps?.assistantStateFontSize ?: 16f
         assistantStateText.typeface = Typeface.create(toolbarProps?.assistantStateFontFamily ?: configurationToolbarProps?.assistantStateFontFamily ?: "sans-serif", Typeface.NORMAL)
 
@@ -475,7 +476,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         spokenTextViewStyle.setColor(Color.parseColor(toolbarProps?.speechResultBoxBackgroundColor ?: configurationToolbarProps?.speechResultBoxBackgroundColor ?: "#80000000"))
         spokenText.background = spokenTextViewStyle
 
-        assistantNameText.setTextColor(Color.parseColor(toolbarProps?.assistantStateTextColor ?: configurationToolbarProps?.assistantStateTextColor ?: "#8F97A1"))
         assistantNameText.typeface = Typeface.create(headerProps?.fontFamily ?: configurationHeaderProps?.fontFamily ?: "sans-serif", Typeface.NORMAL)
         assistantNameText.text = headerProps?.assistantName ?: configurationHeaderProps?.assistantName ?: "Voicify Assistant"
         assistantNameText.textSize = headerProps?.fontSize ?: configurationHeaderProps?.fontSize ?: 18f
@@ -516,6 +516,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             if(!(assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == "textbox") && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) == false) toolbarProps?.sendInactiveColor ?: configurationToolbarProps?.sendInactiveColor else toolbarProps?.sendActiveColor ?: configurationToolbarProps?.sendActiveColor)
 
         loadImageFromUrl(headerProps?.assistantImage ?: configurationHeaderProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png", assistantAvatar, headerProps?.assistantImageColor ?: configurationHeaderProps?.assistantImageColor, true)
+        val assistantImageLayoutParams = LinearLayout.LayoutParams(headerProps?.assistantImageWidth ?: configurationHeaderProps?.assistantImageWidth ?: getPixelsFromDp(34), headerProps?.assistantImageHeight ?: configurationHeaderProps?.assistantImageWidth ?: getPixelsFromDp(34))
+        assistantAvatar.layoutParams = assistantImageLayoutParams
 
         val micImageLayoutParams = LinearLayout.LayoutParams(toolbarProps?.micImageWidth ?: configurationToolbarProps?.micImageWidth ?: getPixelsFromDp(48), toolbarProps?.micImageHeight ?: configurationToolbarProps?.micImageHeight ?: getPixelsFromDp(48))
         micImageLayoutParams.setMargins(0,getPixelsFromDp(12),0,0)

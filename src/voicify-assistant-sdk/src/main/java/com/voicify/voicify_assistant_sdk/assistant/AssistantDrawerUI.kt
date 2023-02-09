@@ -483,9 +483,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         inputTextMessage.hint = toolbarProps?.placeholder ?: configurationToolbarProps?.placeholder ?: "Enter a message..."
         inputTextMessage.typeface = Typeface.create(toolbarProps?.textboxFontFamily ?: configurationToolbarProps?.textboxFontFamily ?: "sans-serif", Typeface.NORMAL)
-        inputTextMessage.setCursorDrawableColor(Color.parseColor(toolbarProps?.textInputCursorColor ?: configurationToolbarProps?.textInputCursorColor ?: "#000000"))
+        inputTextMessage.setCursorDrawableColor(Color.parseColor(toolbarProps?.textInputCursorColor ?: configurationToolbarProps?.textInputCursorColor ?: "#A3A3A3"))
         inputTextMessage.setTextColor(Color.parseColor(toolbarProps?.textInputTextColor ?: configurationToolbarProps?.textInputTextColor ?: "#000000"))
-        val colorStateList = ColorStateList.valueOf(Color.parseColor(if(isUsingSpeech) {toolbarProps?.textInputLineColor ?: configurationToolbarProps?.textInputLineColor ?: "#000000"} else {toolbarProps?.textInputActiveLineColor ?: configurationToolbarProps?.textInputActiveLineColor ?: "#000000"}))
+        val colorStateList = ColorStateList.valueOf(Color.parseColor(if(isUsingSpeech) {toolbarProps?.textInputLineColor ?: configurationToolbarProps?.textInputLineColor ?: "#CCCCCC"} else {toolbarProps?.textInputActiveLineColor ?: configurationToolbarProps?.textInputLineColor ?: "#CCCCCC"}))
         ViewCompat.setBackgroundTintList(inputTextMessage,colorStateList)
         val inputTextMessageEditTextViewStyle = GradientDrawable()
         inputTextMessageEditTextViewStyle.setColor(Color.parseColor("#1f1e7eb9"))
@@ -835,7 +835,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                                     sendMessage: ImageView){
         micImage.setOnClickListener{
             clearAnimationValues()
-            val colorStateList = ColorStateList.valueOf(Color.parseColor(toolbarProps?.textInputLineColor ?: configurationToolbarProps?.textInputLineColor ?: "#000000"))
+            val colorStateList = ColorStateList.valueOf(Color.parseColor(toolbarProps?.textInputLineColor ?: configurationToolbarProps?.textInputLineColor ?: "#CCCCCC"))
             ViewCompat.setBackgroundTintList(inputTextMessage,colorStateList)
             if(!isUsingSpeech)
             {
@@ -895,7 +895,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                 when(event?.action) {
                     MotionEvent.ACTION_UP -> {
-                        val colorStateList = ColorStateList.valueOf(Color.parseColor(toolbarProps?.textInputActiveLineColor ?: configurationToolbarProps?.textInputActiveLineColor ?: "#000000"))
+                        val colorStateList = ColorStateList.valueOf(Color.parseColor(toolbarProps?.textInputActiveLineColor ?: configurationToolbarProps?.textInputLineColor ?: "#CCCCCC"))
                         ViewCompat.setBackgroundTintList(inputTextMessage,colorStateList)
                         if (assistantIsListening) {
                             cancelSpeech()

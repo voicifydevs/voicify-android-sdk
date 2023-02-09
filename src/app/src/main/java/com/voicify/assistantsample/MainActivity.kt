@@ -28,15 +28,14 @@ class MainActivity : AppCompatActivity() {
 //                effects = arrayOf("Play")
 //            )
 //        )
+
         val voiceAssistant = AssistantDrawerUI.newInstance(
             AssistantSettingsProps(
-//                configurationId = "a0326b82-000e-4bbd-aa21-6f5b2e414b11",
-                serverRootUrl = "https://dev-assistant.voicify.com",
-                appId = "52dfe3a1-b44e-4ff1-ac02-04f0a139cd51",
-                appKey = "NmYxNjM3ZDAtYzdiOC00NGVjLWE1OGMtZGNmMjJlOWYxMDAx"
-            ),
-//            headerProps = HeaderProps(assistantImageBorderRadius = 0f),
-//            bodyProps = BodyProps(assistantImageBackgroundColor = "#ffffff")
+         configurationId = "fe96b768-2c07-4fb8-9c86-2448c3b3b196",
+         serverRootUrl = "https://dev-assistant.voicify.com",
+         appId = "c7681d20-b19e-407a-a475-320c681880e8",
+         appKey = "MzA4ZTQ5MWQtMzQzNy00N2Q0LTg5OWEtMzQzMGYwMTk5Y2Ex"
+        )
         )
 
         binding.assistantMic.setOnClickListener {

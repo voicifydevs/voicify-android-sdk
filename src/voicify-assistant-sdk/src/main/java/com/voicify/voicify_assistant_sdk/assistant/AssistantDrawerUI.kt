@@ -1217,6 +1217,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                         }
                     }
                 }
+                else{
+                    NotificationCenter.postNotification(requireContext(), NotificationType.LOADING_COMPLETE)
+                }
             }
     }
 }

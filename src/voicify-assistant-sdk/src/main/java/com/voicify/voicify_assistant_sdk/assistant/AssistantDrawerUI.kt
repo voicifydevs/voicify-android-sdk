@@ -18,11 +18,8 @@ import android.graphics.drawable.VectorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.speech.SpeechRecognizer
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
+import android.view.*
 import android.view.View.OnTouchListener
-import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.annotation.ColorInt
@@ -514,6 +511,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         loadImageFromUrl(if(!(assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == "textbox") && assistantSettingProps?.useVoiceInput != true) toolbarProps?.sendInactiveImage ?: configurationToolbarProps?.sendInactiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/0c5aa61c-7d6c-4272-abd2-75d9f5771214/Send-2-.png"
         else toolbarProps?.sendActiveImage ?: configurationToolbarProps?.sendActiveImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/7a39bc6f-eef5-4185-bcf8-2a645aff53b2/Send-3-.png", sendMessage,
             if(!(assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == "textbox") && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) == false) toolbarProps?.sendInactiveColor ?: configurationToolbarProps?.sendInactiveColor else toolbarProps?.sendActiveColor ?: configurationToolbarProps?.sendActiveColor)
+        val sendImageLayoutParams = LinearLayout.LayoutParams(toolbarProps?.sendImageWidth ?: configurationToolbarProps?.sendImageWidth ?: getPixelsFromDp(25), toolbarProps?.sendImageHeight ?: configurationToolbarProps?.sendImageHeight ?: getPixelsFromDp(25))
+        sendImageLayoutParams.gravity = Gravity.CENTER
+        sendMessage.layoutParams = sendImageLayoutParams
 
         loadImageFromUrl(headerProps?.assistantImage ?: configurationHeaderProps?.assistantImage ?: "https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png", assistantAvatar, headerProps?.assistantImageColor ?: configurationHeaderProps?.assistantImageColor, true)
         val assistantImageLayoutParams = LinearLayout.LayoutParams(headerProps?.assistantImageWidth ?: configurationHeaderProps?.assistantImageWidth ?: getPixelsFromDp(34), headerProps?.assistantImageHeight ?: configurationHeaderProps?.assistantImageWidth ?: getPixelsFromDp(34))

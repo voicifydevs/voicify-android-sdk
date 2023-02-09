@@ -18,6 +18,8 @@ data class ToolbarProps(
     val micInactiveHighlightColor: String? = null,
     val sendActiveImage: String? = null,
     val sendActiveColor: String? = null,
+    val sendImageWidth: Int? = null,
+    val sendImageHeight: Int? = null,
     val sendInactiveImage: String? = null,
     val sendInactiveColor: String? = null,
     val speakFontSize: Float? = null,

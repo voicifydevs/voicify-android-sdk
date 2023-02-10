@@ -1,16 +1,11 @@
 package com.voicify.assistantsample
 
 import android.app.AlertDialog
-import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.voicify.assistantsample.databinding.ActivityMainBinding
-import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.ToolbarProps
 import com.voicify.voicify_assistant_sdk.assistant.AssistantDrawerUI
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.AssistantSettingsProps
-import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.BodyProps
-import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.HeaderProps
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantRequest
 
 class MainActivity : AppCompatActivity() {
@@ -19,8 +14,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        
         //config needed for UI tests
-
         val voiceAssistant = AssistantDrawerUI.newInstance(
             AssistantSettingsProps(
                 configurationId = "b8ee863c-6e8e-4aef-8e59-a10082430d50",
@@ -37,12 +32,10 @@ class MainActivity : AppCompatActivity() {
                     if(effectName == "Dismiss")
 
                     {
-                        Log.d("JAMES","CLOSING")
                         voiceAssistant.dismiss()
                     }
                     if(effectName == "Navigate")
                     {
-                        Log.d("JAMES", "TIME TO NAVIGATE")
                         val effectData = voiceAssistant.deserializeEffectData(data, NavigateEffectData::class.java)
                         this.runOnUiThread {
                             voiceAssistant.dismiss()
@@ -53,7 +46,6 @@ class MainActivity : AppCompatActivity() {
                     {
                         val effectData = voiceAssistant.deserializeEffectData(data, PlayEffectData::class.java)
                         this.runOnUiThread {
-                            Log.d("JAMES", effectData.title.toString())
                             voiceAssistant.dismiss()
                             binding.nowPlayingTextView.text = "Now playing ${effectData.title}"
                         }

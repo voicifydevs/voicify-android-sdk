@@ -26,7 +26,6 @@ import androidx.annotation.ColorInt
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.core.graphics.drawable.RoundedBitmapDrawable
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
@@ -107,6 +106,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             bodyProps = it.getSerializable(BODY) as BodyProps?
             toolbarProps = it.getSerializable(TOOLBAR) as ToolbarProps?
         }
+        isDrawer = assistantSettingProps?.initializeWithWelcomeMessage != true
         if(configurationKotlin == null && !assistantSettingProps?.configurationId.isNullOrEmpty() && !isLoadingConfiguration)
         {
             // if the configuration call returns null, but the configuration id is specified, try to grab the config from shared preferences
@@ -141,7 +141,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         scale = requireContext().resources.displayMetrics.density
         isUsingSpeech = (assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == "textbox") != true && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) != false
-        isDrawer = assistantSettingProps?.initializeWithWelcomeMessage != true
         //Linear Layouts
         val containerLayout = window.findViewById<LinearLayout>(R.id.container)
         val drawerLayout = window.findViewById<LinearLayout>(R.id.drawerLayout)
@@ -701,6 +700,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 if(isDrawer)
                 {
                     hideKeyboard()
+                    isKeyboardActive = false
                 }
                 drawer.visibility = View.VISIBLE
                 bodyLayout.visibility = View.VISIBLE
@@ -963,9 +963,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                             isUsingSpeech = false
                             if(isRotated)
                             {
-                                val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(200))
-                                layoutParams1.weight = 0f
-                                bodyContainerLayout.layoutParams = layoutParams1
+                                val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(200))
+                                layoutParams.weight = 0f
+                                bodyContainerLayout.layoutParams = layoutParams
                             }
                             if(!isDrawer)
                             {
@@ -1021,7 +1021,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             window.getWindowVisibleDisplayFrame(r)
             val heightDiff = window.rootView.height - (r.bottom - r.top)
             if (heightDiff > 500) {
-                if(!isKeyboardActive)
+                if(!isKeyboardActive && !isRotated)
                 {
                     val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(320))
                     layoutParams1.weight = 0f
@@ -1039,6 +1039,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     layoutParams1.weight = 1f
                     bodyContainerLayout.layoutParams = layoutParams1
                     isKeyboardActive = false
+                }
+                else if(isKeyboardActive && isRotated && !isUsingSpeech) {
+                    val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(200))
+                    layoutParams.weight = 0f
+                    bodyContainerLayout.layoutParams = layoutParams
                 }
             }
         }

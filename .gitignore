@@ -88,3 +88,6 @@ lint/tmp/
 *.hprof
 
 .DS_Store
+
+src/.idea
+src/app/.idea

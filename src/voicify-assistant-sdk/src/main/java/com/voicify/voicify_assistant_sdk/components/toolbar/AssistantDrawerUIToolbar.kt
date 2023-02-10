@@ -1,17 +1,22 @@
-package com.voicify.voicify_assistant_sdk.components
+package com.voicify.voicify_assistant_sdk.components.toolbar
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.View
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.view.ViewCompat
 import com.voicify.voicify_assistant_sdk.R
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.AssistantSettingsProps
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.HelperMethods
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.ToolbarProps
+import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.setCursorDrawableColor
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantConfigurationResponse
 
 class AssistantDrawerUIToolbar(
@@ -27,12 +32,20 @@ class AssistantDrawerUIToolbar(
         micImageView: ImageView,
         sendMessageImageView: ImageView,
         speakTextView: TextView,
-        typeTextView: TextView
+        typeTextView: TextView,
+        drawerHelpTextView: TextView,
+        assistantStateTextView: TextView,
+        spokenTextView: TextView,
+        inputeMessageEditText: EditText
     ) {
         initializeMicButton(micImageView)
         initializeSendMessageButton(sendMessageImageView)
         initializeSpeakTextView(speakTextView)
         initializeTypeTextView(typeTextView)
+        initializeDrawerHelpTextView(drawerHelpTextView)
+        initializeAssistantStateTextView(assistantStateTextView)
+        initializeSpokenTextView(spokenTextView)
+        initializeInputMessageEditTextView(inputeMessageEditText)
     }
 
     private fun initializeMicButton(micImageView: ImageView) {
@@ -165,5 +178,57 @@ class AssistantDrawerUIToolbar(
         typeTextView.setTextColor(typeTextColor)
         typeTextView.textSize = toolbarProps?.typeFontSize ?: configurationToolbarProps?.typeFontSize ?: 12f
         typeTextView.typeface = Typeface.create(toolbarProps?.typeFontFamily ?: configurationToolbarProps?.typeFontFamily ?: context.getString(R.string.default_font), Typeface.NORMAL)
+    }
+
+    private fun initializeDrawerHelpTextView(drawerHelpTextView: TextView){
+        drawerHelpTextView.text = toolbarProps?.helpText ?: configurationToolbarProps?.helpText ?: context.getString(R.string.drawer_welcome_text)
+        drawerHelpTextView.setTextColor(Color.parseColor(toolbarProps?.helpTextFontColor ?: configurationToolbarProps?.helpTextFontColor ?: context.getString(R.string.dark_gray)))
+        drawerHelpTextView.textSize = toolbarProps?.helpTextFontSize ?: configurationToolbarProps?.helpTextFontSize ?: 18f
+        drawerHelpTextView.typeface = Typeface.create(
+            toolbarProps?.helpTextFontFamily ?: configurationToolbarProps?.helpTextFontFamily ?: context.getString(R.string.default_font),
+            Typeface.NORMAL
+        )
+    }
+
+    private fun initializeAssistantStateTextView(assistantStateTextView: TextView){
+        assistantStateTextView.setTextColor(Color.parseColor(toolbarProps?.assistantStateTextColor ?: configurationToolbarProps?.assistantStateTextColor ?: context.getString(R.string.dark_gray)))
+        assistantStateTextView.textSize = toolbarProps?.assistantStateFontSize ?: configurationToolbarProps?.assistantStateFontSize ?: 16f
+        assistantStateTextView.typeface = Typeface.create(
+            toolbarProps?.assistantStateFontFamily ?: configurationToolbarProps?.assistantStateFontFamily ?: context.getString(R.string.default_font),
+            Typeface.NORMAL
+        )
+
+    }
+
+    private fun initializeSpokenTextView(spokenTextView: TextView){
+        spokenTextView.textSize = 16f
+        spokenTextView.typeface = Typeface.create(
+            toolbarProps?.partialSpeechResultFontFamily ?: configurationToolbarProps?.partialSpeechResultFontFamily ?: context.getString(R.string.default_font),
+            Typeface.NORMAL
+        )
+        val spokenTextViewStyle = GradientDrawable()
+        spokenTextViewStyle.cornerRadius = 24f
+        spokenTextViewStyle.setColor(Color.parseColor(toolbarProps?.speechResultBoxBackgroundColor ?: configurationToolbarProps?.speechResultBoxBackgroundColor ?: context.getString(R.string.black_50_percent)))
+        spokenTextView.background = spokenTextViewStyle
+    }
+
+    private fun initializeInputMessageEditTextView(inputeMessageEditText: EditText){
+        var inputMessageLineColor: Int
+        if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == context.getString(R.string.textbox)) != true &&
+            (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) != false) {
+            inputMessageLineColor = Color.parseColor(toolbarProps?.textInputLineColor ?: configurationToolbarProps?.textInputLineColor ?: context.getString(R.string.silver))
+        }
+        else {
+            inputMessageLineColor = Color.parseColor(toolbarProps?.textInputActiveLineColor ?: configurationToolbarProps?.textInputLineColor ?: context.getString(R.string.silver))
+        }
+        inputeMessageEditText.hint = toolbarProps?.placeholder ?: configurationToolbarProps?.placeholder ?: context.getString(R.string.textbox_placeholder_text)
+        inputeMessageEditText.typeface = Typeface.create(toolbarProps?.textboxFontFamily ?: configurationToolbarProps?.textboxFontFamily ?: context.getString(R.string.default_font), Typeface.NORMAL)
+        inputeMessageEditText.setCursorDrawableColor(Color.parseColor(toolbarProps?.textInputCursorColor ?: configurationToolbarProps?.textInputCursorColor ?: context.getString(R.string.dark_light_gray)))
+        inputeMessageEditText.setTextColor(Color.parseColor(toolbarProps?.textInputTextColor ?: configurationToolbarProps?.textInputTextColor ?: context.getString(R.string.black)))
+        val colorStateList = ColorStateList.valueOf(inputMessageLineColor)
+        ViewCompat.setBackgroundTintList(inputeMessageEditText,colorStateList)
+        val inputTextMessageEditTextViewStyle = GradientDrawable()
+        inputTextMessageEditTextViewStyle.setColor(Color.parseColor(context.getString(R.string.blue_12_percent)))
+        inputeMessageEditText.textSize = toolbarProps?.textboxFontSize ?: configurationToolbarProps?.textboxFontSize ?: 18f
     }
 }

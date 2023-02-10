@@ -32,10 +32,7 @@
     <string name="header_avatar_image">https://voicify-prod-files.s3.amazonaws.com/99a803b7-5b37-426c-a02e-63c8215c71eb/eb7d2538-a3dc-4304-b58c-06fdb34e9432/Mark-Color-3-.png</string>
     <string name="body_avatar_image">https://voicify-dev-files.s3.amazonaws.com/52dfe3a1-b44e-4ff1-ac02-04f0a139cd51/f78ab9db-6708-4e16-a247-ef0a93aeb79f/voicify-logo.png</string>
 <!--    Misc-->
-    <string name="textbox_cursor_editor_field_name">mEditor</string>
     <string name="animation_scale_y">scaleY</string>
-    <string name="cursor_drawable_res">mCursorDrawableRes</string>
-    <string name="drawable_for_cursor">mDrawableForCursor</string>
     <string name="default_assistant_name">Voicify Assistant</string>
     <string name="textbox_placeholder_text">Enter a message...</string>
     <string name="default_server_root_url">https://assistant.voicify.com/</string>

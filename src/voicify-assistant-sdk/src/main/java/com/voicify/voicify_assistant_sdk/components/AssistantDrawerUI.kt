@@ -43,6 +43,7 @@ import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.*
 import com.voicify.voicify_assistant_sdk.components.body.AssistantDrawerUIBody
 import com.voicify.voicify_assistant_sdk.components.body.HintsRecyclerViewAdapter
 import com.voicify.voicify_assistant_sdk.components.body.MessagesRecyclerViewAdapter
+import com.voicify.voicify_assistant_sdk.components.toolbar.AssistantDrawerUIToolbar
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantConfigurationResponse
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantRequest
 import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.*
@@ -229,7 +230,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 micImageView = micImageView,
                 sendMessageImageView = sendMessageImageView,
                 speakTextView = speakTextView,
-                typeTextView = typeTextView
+                typeTextView = typeTextView,
+                drawerHelpTextView = drawerWelcomeTextView,
+                assistantStateTextView = assistantStateTextView,
+                spokenTextView = spokenTextView,
+                inputeMessageEditText = inputTextMessageEditTextView
             )
             containerLayout.visibility = View.VISIBLE
             activityIndicator.visibility = View.GONE
@@ -253,7 +258,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
             initializeRecyclerViews(messagesRecyclerView, hintsRecyclerView, messagesList, hintsList, onHintClicked)
             initializeViews(speakingAnimationBars)
-            initializeTextViews(drawerWelcomeTextView, spokenTextView, assistantStateTextView, inputTextMessageEditTextView)
 
             startNewAssistantSession(assistant)
 
@@ -303,7 +307,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
                     initializeRecyclerViews(messagesRecyclerView, hintsRecyclerView, messagesList, hintsList, onHintClicked)
                     initializeViews(speakingAnimationBars)
-                    initializeTextViews(drawerWelcomeTextView, spokenTextView, assistantStateTextView, inputTextMessageEditTextView)
 
                     //UI Initialization
                     checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
@@ -502,35 +505,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 bar.setBackgroundColor(Color.parseColor(getString(R.string.black_50_percent)))
             }
         }
-    }
-
-    private fun initializeTextViews(drawerText: TextView, spokenText: TextView, assistantStateText: TextView, inputTextMessage: EditText){
-
-        drawerText.text = toolbarProps?.helpText ?: configurationToolbarProps?.helpText ?: getString(R.string.drawer_welcome_text)
-        drawerText.setTextColor(Color.parseColor(toolbarProps?.helpTextFontColor ?: configurationToolbarProps?.helpTextFontColor ?: getString(R.string.dark_gray)))
-        drawerText.textSize = toolbarProps?.helpTextFontSize ?: configurationToolbarProps?.helpTextFontSize ?: 18f
-        drawerText.typeface = Typeface.create(toolbarProps?.helpTextFontFamily ?: configurationToolbarProps?.helpTextFontFamily ?: getString(R.string.default_font), Typeface.NORMAL)
-
-        assistantStateText.setTextColor(Color.parseColor(toolbarProps?.assistantStateTextColor ?: configurationToolbarProps?.assistantStateTextColor ?: getString(R.string.dark_gray)))
-        assistantStateText.textSize = toolbarProps?.assistantStateFontSize ?: configurationToolbarProps?.assistantStateFontSize ?: 16f
-        assistantStateText.typeface = Typeface.create(toolbarProps?.assistantStateFontFamily ?: configurationToolbarProps?.assistantStateFontFamily ?: getString(R.string.default_font), Typeface.NORMAL)
-
-        spokenText.textSize = 16f
-        spokenText.typeface = Typeface.create(toolbarProps?.partialSpeechResultFontFamily ?: configurationToolbarProps?.partialSpeechResultFontFamily ?: getString(R.string.default_font), Typeface.NORMAL)
-        val spokenTextViewStyle = GradientDrawable()
-        spokenTextViewStyle.cornerRadius = 24f
-        spokenTextViewStyle.setColor(Color.parseColor(toolbarProps?.speechResultBoxBackgroundColor ?: configurationToolbarProps?.speechResultBoxBackgroundColor ?: getString(R.string.black_50_percent)))
-        spokenText.background = spokenTextViewStyle
-
-        inputTextMessage.hint = toolbarProps?.placeholder ?: configurationToolbarProps?.placeholder ?: getString(R.string.textbox_placeholder_text)
-        inputTextMessage.typeface = Typeface.create(toolbarProps?.textboxFontFamily ?: configurationToolbarProps?.textboxFontFamily ?: getString(R.string.default_font), Typeface.NORMAL)
-        inputTextMessage.setCursorDrawableColor(Color.parseColor(toolbarProps?.textInputCursorColor ?: configurationToolbarProps?.textInputCursorColor ?: getString(R.string.dark_light_gray)))
-        inputTextMessage.setTextColor(Color.parseColor(toolbarProps?.textInputTextColor ?: configurationToolbarProps?.textInputTextColor ?: getString(R.string.black)))
-        val colorStateList = ColorStateList.valueOf(Color.parseColor(if(isUsingSpeech) {toolbarProps?.textInputLineColor ?: configurationToolbarProps?.textInputLineColor ?: getString(R.string.silver)} else {toolbarProps?.textInputActiveLineColor ?: configurationToolbarProps?.textInputLineColor ?:getString(R.string.silver)}))
-        ViewCompat.setBackgroundTintList(inputTextMessage,colorStateList)
-        val inputTextMessageEditTextViewStyle = GradientDrawable()
-        inputTextMessageEditTextViewStyle.setColor(Color.parseColor(getString(R.string.blue_12_percent)))
-        inputTextMessage.textSize = toolbarProps?.textboxFontSize ?: configurationToolbarProps?.textboxFontSize ?: 18f
     }
 
     private fun initializeRecyclerViews(messagesRecycler: RecyclerView, hintsRecycler: RecyclerView, messages: ArrayList<Message>, hints: ArrayList<String>, hintClicked: (String) -> Unit){
@@ -1115,59 +1089,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         AnimatorSet().apply {
             playTogether(bar1, bar2, bar3,bar4,bar5,bar6,bar7,bar8)
             start()
-        }
-    }
-
-    private fun TextView.setCursorDrawableColor(@ColorInt color: Int) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            textCursorDrawable?.tinted(color)
-            return
-        }
-
-        try {
-            val editorField = TextView::class.java.getFieldByName(getString(R.string.textbox_cursor_editor_field_name))
-            val editor = editorField?.get(this) ?: this
-            val editorClass: Class<*> = if (editorField != null) editor.javaClass else TextView::class.java
-            val cursorRes = TextView::class.java.getFieldByName(getString(R.string.cursor_drawable_res))?.get(this) as? Int ?: return
-
-            val tintedCursorDrawable = ContextCompat.getDrawable(context, cursorRes)?.tinted(color) ?: return
-
-            val cursorField = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                editorClass.getFieldByName(getString(R.string.drawable_for_cursor))
-            } else {
-                null
-            }
-            if (cursorField != null) {
-                cursorField.set(editor, tintedCursorDrawable)
-            } else {
-                editorClass.getFieldByName(getString(R.string.cursor_drawable_res), getString(R.string.drawable_for_cursor))
-                    ?.set(editor, arrayOf(tintedCursorDrawable, tintedCursorDrawable))
-            }
-        } catch (t: Throwable) {
-            t.printStackTrace()
-        }
-    }
-
-    private fun Class<*>.getFieldByName(vararg name: String): Field? {
-        name.forEach {
-            try{
-                return this.getDeclaredField(it).apply { isAccessible = true }
-            } catch (t: Throwable) { }
-        }
-        return null
-    }
-
-    private fun Drawable.tinted(@ColorInt color: Int): Drawable = when {
-        this is VectorDrawableCompat -> {
-            this.apply { setTintList(ColorStateList.valueOf(color)) }
-        }
-        this is VectorDrawable -> {
-            this.apply { setTintList(ColorStateList.valueOf(color)) }
-        }
-        else -> {
-            DrawableCompat.wrap(this)
-                .also { DrawableCompat.setTint(it, color) }
-                .let { DrawableCompat.unwrap(it) }
         }
     }
 

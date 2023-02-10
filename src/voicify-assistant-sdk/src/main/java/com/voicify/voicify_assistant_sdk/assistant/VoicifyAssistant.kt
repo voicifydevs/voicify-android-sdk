@@ -11,7 +11,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.util.UUID
 
-@Suppress("unused")
+
 class VoicifyAssistant(
     var speechToTextProvider: VoicifySpeechToTextProvider?,
     var textToSpeechProvider: VoicifyTextToSpeechProvider?,

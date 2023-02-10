@@ -3,12 +3,9 @@ package com.voicify.voicify_assistant_sdk.assistant
 import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import com.voicify.voicify_assistant_sdk.models.*
 import okhttp3.*
 import com.google.gson.Gson
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException

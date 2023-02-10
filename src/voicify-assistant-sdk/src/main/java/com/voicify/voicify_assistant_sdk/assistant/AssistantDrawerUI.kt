@@ -143,7 +143,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         scale = requireContext().resources.displayMetrics.density
         isUsingSpeech = (assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == "textbox") != true && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) != false
-
+        isDrawer = assistantSettingProps?.initializeWithWelcomeMessage != true
         //Linear Layouts
         val containerLayout = window.findViewById<LinearLayout>(R.id.container)
         val drawerLayout = window.findViewById<LinearLayout>(R.id.drawerLayout)
@@ -354,21 +354,41 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         if (orientation == Configuration.ORIENTATION_PORTRAIT)
         {
             Log.d("tag", "Portrait");
-            val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(0))
-            layoutParams1.weight = 1f
-            bodyContainerLayout.layoutParams = layoutParams1
-            val metrics = activity?.resources?.displayMetrics
-            val params = drawerLayout.layoutParams
-            params.height = metrics?.heightPixels as Int
-            drawerLayout.layoutParams = params
+            hideKeyboard()
+            if(isDrawer)
+            {
+                val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                drawerLayout.layoutParams = layoutParams
+            }
+            else{
+                val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(0))
+                layoutParams.weight = 1f
+                bodyContainerLayout.layoutParams = layoutParams
+                val metrics = activity?.resources?.displayMetrics
+                val params = drawerLayout.layoutParams
+                params.height = metrics?.heightPixels as Int
+                drawerLayout.layoutParams = params
+            }
+
             isRotated = false
         }
         else if (orientation == Configuration.ORIENTATION_LANDSCAPE)
         {
-            Log.d("tag", "Landscape");
-            val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(if(isUsingSpeech) {50} else {200}))
-            layoutParams1.weight = 0f
-            bodyContainerLayout.layoutParams = layoutParams1
+            hideKeyboard()
+            if(isDrawer)
+            {
+                bottomSheetBehavior?.peekHeight = (getPixelsFromDp(500))
+            }
+            else{
+                if(messagesRecyclerViewAdapter?.itemCount ?: 0 > 0)
+                {
+                    messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int)
+                }
+                Log.d("tag", "Landscape");
+                val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(if(isUsingSpeech) {50} else {200}))
+                layoutParams.weight = 0f
+                bodyContainerLayout.layoutParams = layoutParams
+            }
             isRotated = true
         }
     }
@@ -682,6 +702,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                                     avatarImage: ImageView, assistantName: TextView, bodyTopBorder: View, bodyBottomBorder: View){
         assistant.onResponseReceived { response ->
             activity?.runOnUiThread{
+                Log.d("JAMES",isDrawer.toString())
+                if(isDrawer)
+                {
+                    hideKeyboard()
+                }
                 drawer.visibility = View.VISIBLE
                 bodyLayout.visibility = View.VISIBLE
                 spokenText.text = ""
@@ -1013,7 +1038,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             }
             else
             {
-                if(isKeyboardActive)
+                if(isKeyboardActive && !isRotated)
                 {
                     val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(0))
                     layoutParams1.weight = 1f

@@ -17,7 +17,7 @@
     <Button
         android:id="@+id/assistantMic"
         android:layout_width="124dp"
-        android:layout_height="139dp"
+        android:layout_height="100dp"
         android:text="Click Me To Open Assistant" />
 
     <TextView

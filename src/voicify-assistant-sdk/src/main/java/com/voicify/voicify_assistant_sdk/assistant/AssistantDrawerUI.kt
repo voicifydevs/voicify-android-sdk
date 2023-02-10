@@ -947,7 +947,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                                         sendTextLayoutStyle: GradientDrawable, sendLayout: LinearLayout, drawerFooter: LinearLayout, dashedLineView: ImageView,
                                         speakText: TextView, typeText: TextView, micImage: ImageView, sendMessage: ImageView) {
         inputTextMessage.setOnTouchListener(object : OnTouchListener {
-            @SuppressLint("ClickableViewAccessibility")
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                 when(event?.action) {
                     MotionEvent.ACTION_UP -> {

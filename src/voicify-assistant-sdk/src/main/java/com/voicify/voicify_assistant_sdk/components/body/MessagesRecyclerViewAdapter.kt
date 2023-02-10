@@ -116,6 +116,7 @@ internal class MessagesRecyclerViewAdapter(
                 bodyProps?.assistantImagePadding ?: configurationBodyProps?.assistantImagePadding ?:12
             )
             avatarBackground.visibility = View.VISIBLE
+
             messagesAvatar.visibility = View.VISIBLE
             HelperMethods.loadImageFromUrl(
                 url = bodyProps?.assistantImage ?: configurationBodyProps?.assistantImage ?: context.getString(R.string.body_avatar_image),
@@ -135,6 +136,7 @@ internal class MessagesRecyclerViewAdapter(
                 messagesAvatarLayoutParams.height = messagesAvatarLayoutParams.height - HelperMethods.getPixelsFromDp(6, scale)
             }
             messagesAvatar.layoutParams = messagesAvatarLayoutParams
+
             val messagesTextViewStyle = GradientDrawable()
             messagesTextViewStyle.shape = GradientDrawable.RECTANGLE
             messagesTextViewStyle.setStroke(

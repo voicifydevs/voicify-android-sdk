@@ -18,6 +18,7 @@ class AssistantDrawerUIHeader(
     private var configurationHeaderProps: HeaderProps?,
     private var resources: Resources
 ) {
+    private val scale = context.resources.displayMetrics.density
 
     fun initializeHeader(
         closeAssistantImageView: ImageView,
@@ -71,8 +72,8 @@ class AssistantDrawerUIHeader(
             borderRadius = headerProps?.assistantImageBorderRadius ?: configurationHeaderProps?.assistantImageBorderRadius ?: 200f
         )
         val assistantImageLayoutParams = LinearLayout.LayoutParams(
-            headerProps?.assistantImageWidth ?: configurationHeaderProps?.assistantImageWidth ?: HelperMethods.getPixelsFromDp(34, context.resources.displayMetrics.density),
-            headerProps?.assistantImageHeight ?: configurationHeaderProps?.assistantImageWidth ?: HelperMethods.getPixelsFromDp(34, context.resources.displayMetrics.density)
+            headerProps?.assistantImageWidth ?: configurationHeaderProps?.assistantImageWidth ?: HelperMethods.getPixelsFromDp(34, scale),
+            headerProps?.assistantImageHeight ?: configurationHeaderProps?.assistantImageWidth ?: HelperMethods.getPixelsFromDp(34, scale)
         )
         avatarImageView.layoutParams = assistantImageLayoutParams
     }

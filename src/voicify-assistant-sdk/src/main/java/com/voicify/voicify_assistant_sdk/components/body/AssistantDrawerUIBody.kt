@@ -11,13 +11,10 @@ import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.BodyProps
 class AssistantDrawerUIBody (
     private var context: Context,
     private var bodyProps: BodyProps?,
-    private var configurationBodyProps: BodyProps?,
+    private var configurationBodyProps: BodyProps?
 ) {
     fun initializeBody(bodyBorderTopView: View, bodyBorderBottomView: View){
-        initializeBorders(
-            bodyBorderTopView = bodyBorderTopView,
-            bodyBorderBottomView = bodyBorderBottomView
-        )
+        initializeBorders(bodyBorderTopView = bodyBorderTopView, bodyBorderBottomView = bodyBorderBottomView)
     }
 
     private fun initializeBorders(bodyBorderTopView: View, bodyBorderBottomView: View){

@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        //configuration id config
+//        configuration id config
 //        val voiceAssistant = AssistantDrawerUI.newInstance(
 //            AssistantSettingsProps(
 //                configurationId = "b8ee863c-6e8e-4aef-8e59-a10082430d50",

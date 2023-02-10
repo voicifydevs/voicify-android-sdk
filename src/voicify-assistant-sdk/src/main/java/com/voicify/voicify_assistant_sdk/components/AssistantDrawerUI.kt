@@ -149,6 +149,13 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             bodyProps = bodyProps,
             configurationBodyProps = configurationBodyProps
         )
+        val assistantDrawerUIToolbar = AssistantDrawerUIToolbar(
+            context = requireContext(),
+            toolbarProps = toolbarProps,
+            configurationToolbarProps = configurationToolbarProps,
+            assistantSettingProps = assistantSettingProps,
+            configuration = configurationKotlin
+        )
         scale = requireContext().resources.displayMetrics.density
         isUsingSpeech = (assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == getString(R.string.textbox)) != true && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) != false
 
@@ -218,6 +225,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 bodyBorderTopView = bodyBorderTopView,
                 bodyBorderBottomView = bodyBorderBottomView
             )
+            assistantDrawerUIToolbar.initializeToolbar(
+                micImageView = micImageView,
+                sendMessageImageView = sendMessageImageView
+            )
             containerLayout.visibility = View.VISIBLE
             activityIndicator.visibility = View.GONE
             val assistant = initializeAssistant()
@@ -236,7 +247,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
             //UI Initialization
             addGradientBackground(containerLayout)
-            initializeImageViews(micImageView, sendMessageImageView, speakTextView)
+            initializeImageViews(speakTextView)
             initializeLinearLayouts(drawerLayout, bodyContainerLayout)
             checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
             initializeRecyclerViews(messagesRecyclerView, hintsRecyclerView, messagesList, hintsList, onHintClicked)
@@ -287,7 +298,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     }
 
                     addGradientBackground(containerLayout)
-                    initializeImageViews(micImageView, sendMessageImageView, speakTextView)
+                    initializeImageViews(speakTextView)
                     initializeLinearLayouts(drawerLayout, bodyContainerLayout)
                     checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
                     initializeRecyclerViews(messagesRecyclerView, hintsRecyclerView, messagesList, hintsList, onHintClicked)
@@ -529,31 +540,16 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         inputTextMessage.textSize = toolbarProps?.textboxFontSize ?: configurationToolbarProps?.textboxFontSize ?: 18f
     }
 
-    private fun initializeImageViews(micImage: ImageView,  sendMessage: ImageView, speakText: TextView){
+    private fun initializeImageViews( speakText: TextView){
         if((assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) == false)
         {
-            micImage.visibility = View.GONE
+
             speakText.visibility = View.GONE
         }
         else{
-            loadImageFromUrl(if((assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == getString(R.string.textbox)) != true) toolbarProps?.micActiveImage ?: configurationToolbarProps?.micActiveImage ?: getString(R.string.mic_active_image)
-            else toolbarProps?.micInactiveImage ?: configurationToolbarProps?.micInactiveImage ?: getString(R.string.mic_inactive_image), micImage,
-                if(!(assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == getString(R.string.textbox))) toolbarProps?.micActiveColor ?: configurationToolbarProps?.micActiveColor else toolbarProps?.micInactiveColor ?: configurationToolbarProps?.micInactiveColor)
+
         }
 
-
-
-        loadImageFromUrl(if(!(assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == getString(R.string.textbox)) && assistantSettingProps?.useVoiceInput != true) toolbarProps?.sendInactiveImage ?: configurationToolbarProps?.sendInactiveImage ?: getString(R.string.send_inactive_image)
-        else toolbarProps?.sendActiveImage ?: configurationToolbarProps?.sendActiveImage ?: getString(R.string.send_active_image), sendMessage,
-            if(!(assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == getString(R.string.textbox)) && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) == false) toolbarProps?.sendInactiveColor ?: configurationToolbarProps?.sendInactiveColor else toolbarProps?.sendActiveColor ?: configurationToolbarProps?.sendActiveColor)
-        val sendImageLayoutParams = LinearLayout.LayoutParams(toolbarProps?.sendImageWidth ?: configurationToolbarProps?.sendImageWidth ?: getPixelsFromDp(25), toolbarProps?.sendImageHeight ?: configurationToolbarProps?.sendImageHeight ?: getPixelsFromDp(25))
-        sendImageLayoutParams.gravity = Gravity.CENTER
-        sendMessage.layoutParams = sendImageLayoutParams
-
-        val micImageLayoutParams = LinearLayout.LayoutParams(toolbarProps?.micImageWidth ?: configurationToolbarProps?.micImageWidth ?: getPixelsFromDp(48), toolbarProps?.micImageHeight ?: configurationToolbarProps?.micImageHeight ?: getPixelsFromDp(48))
-        micImageLayoutParams.setMargins(0,getPixelsFromDp(12),0,0)
-        micImage.layoutParams = micImageLayoutParams
-        micImage.setPadding(toolbarProps?.micImagePadding ?: configurationToolbarProps?.micImagePadding ?: getPixelsFromDp(4), toolbarProps?.micImagePadding ?: configurationToolbarProps?.micImagePadding ?: getPixelsFromDp(4),toolbarProps?.micImagePadding ?: configurationToolbarProps?.micImagePadding ?: getPixelsFromDp(4),toolbarProps?.micImagePadding ?: configurationToolbarProps?.micImagePadding ?: getPixelsFromDp(4))
     }
 
     private fun initializeRecyclerViews(messagesRecycler: RecyclerView, hintsRecycler: RecyclerView, messages: ArrayList<Message>, hints: ArrayList<String>, hintClicked: (String) -> Unit){

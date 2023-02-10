@@ -1,5 +1,6 @@
 package com.voicify.voicify_assistant_sdk.components
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -12,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.voicify.voicify_assistant_sdk.R
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.BodyProps
 
-internal class HintsRecyclerViewAdapter(private var hintsList: List<String>, private var bodyProps: BodyProps?, private var configurationBodyProps: BodyProps?, private var onHintClicked: ((hint: String) -> Unit) ) :
+internal class HintsRecyclerViewAdapter(private var hintsList: List<String>, private var bodyProps: BodyProps?, private var configurationBodyProps: BodyProps?, private var onHintClicked: ((hint: String) -> Unit), private var context: Context) :
     RecyclerView.Adapter<HintsRecyclerViewAdapter.MyViewHolder>() {
     internal inner class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         var hintsTextView: TextView = view.findViewById(R.id.hintTextView)

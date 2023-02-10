@@ -572,7 +572,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
     private fun initializeRecyclerViews(messagesRecycler: RecyclerView, hintsRecycler: RecyclerView, messages: ArrayList<Message>, hints: ArrayList<String>, hintClicked: (String) -> Unit){
         messagesRecyclerViewAdapter = MessagesRecyclerViewAdapter(messages, bodyProps, configurationBodyProps, requireContext())
-        hintsRecyclerViewAdapter = HintsRecyclerViewAdapter(hints, bodyProps, configurationBodyProps, hintClicked)
+        hintsRecyclerViewAdapter = HintsRecyclerViewAdapter(hints, bodyProps, configurationBodyProps, hintClicked, requireContext())
         messagesRecycler.layoutManager = LinearLayoutManager(context)
         messagesRecycler.adapter = messagesRecyclerViewAdapter
         hintsRecycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)

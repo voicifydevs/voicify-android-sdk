@@ -2,7 +2,6 @@ package com.voicify.voicify_assistant_sdk.components
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.*
 import android.content.Context.MODE_PRIVATE
@@ -41,8 +40,9 @@ import com.squareup.picasso.Picasso
 import com.voicify.voicify_assistant_sdk.R
 import com.voicify.voicify_assistant_sdk.assistant.*
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.*
-import com.voicify.voicify_assistant_sdk.components.HintsRecyclerViewAdapter
-import com.voicify.voicify_assistant_sdk.components.MessagesRecyclerViewAdapter
+import com.voicify.voicify_assistant_sdk.components.body.AssistantDrawerUIBody
+import com.voicify.voicify_assistant_sdk.components.body.HintsRecyclerViewAdapter
+import com.voicify.voicify_assistant_sdk.components.body.MessagesRecyclerViewAdapter
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantConfigurationResponse
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantRequest
 import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.*
@@ -144,7 +144,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             configurationHeaderProps = configurationHeaderProps,
             resources = resources
         )
-
+        val assistantDrawerUIBody = AssistantDrawerUIBody(
+            context = requireContext(),
+            bodyProps = bodyProps,
+            configurationBodyProps = configurationBodyProps
+        )
         scale = requireContext().resources.displayMetrics.density
         isUsingSpeech = (assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == getString(R.string.textbox)) != true && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) != false
 
@@ -210,6 +214,10 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 avatarBackgroundLayout = assistantAvatarBackground,
                 assistantNameTextView = assistantNameTextView
             )
+            assistantDrawerUIBody.initializeBody(
+                bodyBorderTopView = bodyBorderTopView,
+                bodyBorderBottomView = bodyBorderBottomView
+            )
             containerLayout.visibility = View.VISIBLE
             activityIndicator.visibility = View.GONE
             val assistant = initializeAssistant()
@@ -232,7 +240,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             initializeLinearLayouts(drawerLayout, bodyContainerLayout)
             checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
             initializeRecyclerViews(messagesRecyclerView, hintsRecyclerView, messagesList, hintsList, onHintClicked)
-            initializeViews(bodyBorderTopView,bodyBorderBottomView,speakingAnimationBars)
+            initializeViews(speakingAnimationBars)
             initializeTextViews(speakTextView, typeTextView, drawerWelcomeTextView, spokenTextView, assistantStateTextView, inputTextMessageEditTextView)
 
             startNewAssistantSession(assistant)
@@ -283,7 +291,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     initializeLinearLayouts(drawerLayout, bodyContainerLayout)
                     checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
                     initializeRecyclerViews(messagesRecyclerView, hintsRecyclerView, messagesList, hintsList, onHintClicked)
-                    initializeViews(bodyBorderTopView,bodyBorderBottomView,speakingAnimationBars)
+                    initializeViews(speakingAnimationBars)
                     initializeTextViews(speakTextView, typeTextView, drawerWelcomeTextView, spokenTextView, assistantStateTextView, inputTextMessageEditTextView)
 
                     //UI Initialization
@@ -431,15 +439,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         )
     }
 
-    private fun initializeViews(bodyBorderTop: View, bodyBorderBottom: View, animationBars: Array<View>){
-        bodyBorderTop.setBackgroundColor(Color.parseColor(bodyProps?.borderTopColor ?: configurationBodyProps?.borderTopColor ?: getString(R.string.gray)))
-        val bodyBorderTopViewLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, bodyProps?.borderTopWidth ?: configurationBodyProps?.borderTopWidth ?: 4)
-        bodyBorderTop.layoutParams = bodyBorderTopViewLayoutParams
-
-        bodyBorderBottom.setBackgroundColor(Color.parseColor(bodyProps?.borderBottomColor ?: configurationBodyProps?.borderBottomColor ?: getString(R.string.gray)))
-        val bodyBorderBottomViewLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, bodyProps?.borderBottomWidth ?: configurationBodyProps?.borderBottomWidth ?: 4)
-        bodyBorderBottom.layoutParams = bodyBorderBottomViewLayoutParams
-
+    private fun initializeViews(animationBars: Array<View>){
         if(!toolbarProps?.equalizerColor.isNullOrEmpty())
         {
             val splitColors = toolbarProps?.equalizerColor?.split(",")

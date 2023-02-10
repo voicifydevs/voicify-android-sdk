@@ -26,7 +26,6 @@ class CustomAssistantConfigurationService {
             {
                 val gson = Gson()
                 val configurationResult = response.body?.string()
-                Log.d("JAMES", configurationResult.toString())
                 return gson.fromJson(configurationResult, CustomAssistantConfigurationResponse::class.java)
             }
             return null

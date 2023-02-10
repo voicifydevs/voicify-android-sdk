@@ -8,7 +8,6 @@ import android.content.*
 import android.content.Context.MODE_PRIVATE
 import android.content.res.ColorStateList
 import android.content.res.Configuration
-import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.Typeface
@@ -19,7 +18,6 @@ import android.graphics.drawable.VectorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.speech.SpeechRecognizer
-import android.util.Log
 import android.view.*
 import android.view.View.OnTouchListener
 import android.view.inputmethod.InputMethodManager
@@ -353,7 +351,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val orientation = newConfig.orientation
         if (orientation == Configuration.ORIENTATION_PORTRAIT)
         {
-            Log.d("tag", "Portrait");
             hideKeyboard()
             if(isDrawer)
             {
@@ -384,7 +381,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 {
                     messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int)
                 }
-                Log.d("tag", "Landscape");
                 val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(if(isUsingSpeech) {50} else {200}))
                 layoutParams.weight = 0f
                 bodyContainerLayout.layoutParams = layoutParams
@@ -702,7 +698,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                                     avatarImage: ImageView, assistantName: TextView, bodyTopBorder: View, bodyBottomBorder: View){
         assistant.onResponseReceived { response ->
             activity?.runOnUiThread{
-                Log.d("JAMES",isDrawer.toString())
                 if(isDrawer)
                 {
                     hideKeyboard()

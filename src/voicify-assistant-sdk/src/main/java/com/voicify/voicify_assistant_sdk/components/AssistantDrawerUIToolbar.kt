@@ -23,10 +23,16 @@ class AssistantDrawerUIToolbar(
 ) {
     private val scale = context.resources.displayMetrics.density
 
-    fun initializeToolbar(micImageView: ImageView, sendMessageImageView: ImageView, speakTextView: TextView) {
+    fun initializeToolbar(
+        micImageView: ImageView,
+        sendMessageImageView: ImageView,
+        speakTextView: TextView,
+        typeTextView: TextView
+    ) {
         initializeMicButton(micImageView)
         initializeSendMessageButton(sendMessageImageView)
         initializeSpeakTextView(speakTextView)
+        initializeTypeTextView(typeTextView)
     }
 
     private fun initializeMicButton(micImageView: ImageView) {
@@ -137,5 +143,27 @@ class AssistantDrawerUIToolbar(
                 Typeface.NORMAL
             )
         }
+    }
+
+    private fun initializeTypeTextView(typeTextView: TextView){
+        var typeTextColor: Int
+        if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == context.getString(R.string.textbox)) != true &&
+            (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) != false) {
+            typeTextColor = Color.parseColor(
+                toolbarProps?.typeInactiveTitleColor
+                    ?: configurationToolbarProps?.typeInactiveTitleColor
+                    ?: context.getString(R.string.dark_gray)
+            )
+        }
+        else {
+            typeTextColor = Color.parseColor(
+                toolbarProps?.typeActiveTitleColor
+                    ?: configurationToolbarProps?.typeActiveTitleColor
+                    ?: context.getString(R.string.dark_blue)
+            )
+        }
+        typeTextView.setTextColor(typeTextColor)
+        typeTextView.textSize = toolbarProps?.typeFontSize ?: configurationToolbarProps?.typeFontSize ?: 12f
+        typeTextView.typeface = Typeface.create(toolbarProps?.typeFontFamily ?: configurationToolbarProps?.typeFontFamily ?: context.getString(R.string.default_font), Typeface.NORMAL)
     }
 }

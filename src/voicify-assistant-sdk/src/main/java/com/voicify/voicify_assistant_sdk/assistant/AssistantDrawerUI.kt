@@ -7,6 +7,7 @@ import android.app.Activity
 import android.content.*
 import android.content.Context.MODE_PRIVATE
 import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
@@ -18,6 +19,7 @@ import android.graphics.drawable.VectorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.speech.SpeechRecognizer
+import android.util.Log
 import android.view.*
 import android.view.View.OnTouchListener
 import android.view.inputmethod.InputMethodManager
@@ -97,6 +99,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private var userAttributes: Map<String, Any> = emptyMap()
     private var customAssistantConfigurationService: CustomAssistantConfigurationService = CustomAssistantConfigurationService()
     private val gson = Gson()
+    private var isRotated = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -316,6 +319,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         bottomSheetBehavior = BottomSheetBehavior.from((view.parent as View))
         bottomSheetBehavior?.isDraggable = false
+        bottomSheetBehavior?.maxWidth = ViewGroup.LayoutParams.MATCH_PARENT
         if(!isLoadingConfiguration) {
             checkInitializeWithWelcome(drawerLayout, bodyContainerLayout, spokenTextView, hintsRecyclerView,
                 drawerFooterLayout, dashedLineImageView, toolbarLayout, assistantAvatarBackgroundContainerLayout,
@@ -342,6 +346,31 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     override fun onDestroy() {
         super.onDestroy()
         NotificationCenter.removeObserver(requireContext(), loginResponseReceiver)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        val orientation = newConfig.orientation
+        if (orientation == Configuration.ORIENTATION_PORTRAIT)
+        {
+            Log.d("tag", "Portrait");
+            val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(0))
+            layoutParams1.weight = 1f
+            bodyContainerLayout.layoutParams = layoutParams1
+            val metrics = activity?.resources?.displayMetrics
+            val params = drawerLayout.layoutParams
+            params.height = metrics?.heightPixels as Int
+            drawerLayout.layoutParams = params
+            isRotated = false
+        }
+        else if (orientation == Configuration.ORIENTATION_LANDSCAPE)
+        {
+            Log.d("tag", "Landscape");
+            val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(if(isUsingSpeech) {50} else {200}))
+            layoutParams1.weight = 0f
+            bodyContainerLayout.layoutParams = layoutParams1
+            isRotated = true
+        }
     }
 
     private fun initializeLinearLayouts(drawer: LinearLayout, closeBackground: LinearLayout, avatarBackground: LinearLayout, bodyLayout: LinearLayout){
@@ -839,6 +868,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             ViewCompat.setBackgroundTintList(inputTextMessage,colorStateList)
             if(!isUsingSpeech)
             {
+                if(isRotated){
+                    val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(50))
+                    layoutParams1.weight = 0f
+                    bodyContainerLayout.layoutParams = layoutParams1
+                }
                 voicifySTT?.cancel = false
                 isUsingSpeech = true
                 messagesRecyclerViewAdapter?.notifyDataSetChanged()
@@ -907,6 +941,12 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                             speakingAnimationLayout.visibility = View.GONE
                             sendLayout.background = sendTextLayoutStyle
                             isUsingSpeech = false
+                            if(isRotated)
+                            {
+                                val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(200))
+                                layoutParams1.weight = 0f
+                                bodyContainerLayout.layoutParams = layoutParams1
+                            }
                             if(!isDrawer)
                             {
                                 val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)

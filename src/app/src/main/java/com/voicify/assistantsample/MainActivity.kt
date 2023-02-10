@@ -31,11 +31,11 @@ class MainActivity : AppCompatActivity() {
 
         val voiceAssistant = AssistantDrawerUI.newInstance(
             AssistantSettingsProps(
-         configurationId = "fe96b768-2c07-4fb8-9c86-2448c3b3b196",
-         serverRootUrl = "https://dev-assistant.voicify.com",
-         appId = "c7681d20-b19e-407a-a475-320c681880e8",
-         appKey = "MzA4ZTQ5MWQtMzQzNy00N2Q0LTg5OWEtMzQzMGYwMTk5Y2Ex"
-        )
+                configurationId = "b8ee863c-6e8e-4aef-8e59-a10082430d50",
+                serverRootUrl = "https://dev-assistant.voicify.com",
+                appId = "c7681d20-b19e-407a-a475-320c681880e8",
+                appKey = "MzA4ZTQ5MWQtMzQzNy00N2Q0LTg5OWEtMzQzMGYwMTk5Y2Ex"
+            )
         )
 
         binding.assistantMic.setOnClickListener {

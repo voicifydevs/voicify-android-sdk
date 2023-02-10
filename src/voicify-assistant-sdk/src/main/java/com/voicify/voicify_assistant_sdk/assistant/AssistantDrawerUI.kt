@@ -1247,7 +1247,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
          * @param toolbarProps Parameter 4.
          * @return A new instance of fragment AssistantDrawerUI.
          */
-        // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance( assistantSettingsProperties: AssistantSettingsProps, headerProps: HeaderProps? = null, bodyProps: BodyProps? = null, toolbarProps: ToolbarProps? = null) =
             AssistantDrawerUI().apply {

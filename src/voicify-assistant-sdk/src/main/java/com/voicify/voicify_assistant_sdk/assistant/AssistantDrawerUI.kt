@@ -141,6 +141,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         scale = requireContext().resources.displayMetrics.density
         isUsingSpeech = (assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == "textbox") != true && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) != false
+
         //Linear Layouts
         val containerLayout = window.findViewById<LinearLayout>(R.id.container)
         val drawerLayout = window.findViewById<LinearLayout>(R.id.drawerLayout)
@@ -317,6 +318,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         bottomSheetBehavior = BottomSheetBehavior.from((view.parent as View))
         bottomSheetBehavior?.isDraggable = false
         bottomSheetBehavior?.maxWidth = ViewGroup.LayoutParams.MATCH_PARENT
+        bottomSheetBehavior?.peekHeight = (getPixelsFromDp(500))
         if(!isLoadingConfiguration) {
             checkInitializeWithWelcome(drawerLayout, bodyContainerLayout, spokenTextView, hintsRecyclerView,
                 drawerFooterLayout, dashedLineImageView, toolbarLayout, assistantAvatarBackgroundContainerLayout,

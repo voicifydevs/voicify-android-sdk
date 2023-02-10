@@ -1,11 +1,13 @@
 package com.voicify.voicify_assistant_sdk.components
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.Typeface
 import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
-import androidx.constraintlayout.solver.widgets.Helper
+import android.widget.TextView
 import com.voicify.voicify_assistant_sdk.R
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.AssistantSettingsProps
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.HelperMethods
@@ -21,9 +23,10 @@ class AssistantDrawerUIToolbar(
 ) {
     private val scale = context.resources.displayMetrics.density
 
-    fun initializeToolbar(micImageView: ImageView, sendMessageImageView: ImageView, ) {
+    fun initializeToolbar(micImageView: ImageView, sendMessageImageView: ImageView, speakTextView: TextView) {
         initializeMicButton(micImageView)
         initializeSendMessageButton(sendMessageImageView)
+        initializeSpeakTextView(speakTextView)
     }
 
     private fun initializeMicButton(micImageView: ImageView) {
@@ -71,9 +74,10 @@ class AssistantDrawerUIToolbar(
     }
 
     private fun initializeSendMessageButton(sendMessageImageView: ImageView){
-        var sendImageUrl = ""
+        var sendImageUrl: String
         val sendImageColor: String?
-        if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == context.getString(R.string.textbox)) && assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput != true)
+        if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == context.getString(R.string.textbox))
+            && assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput != false)
         {
             sendImageUrl = toolbarProps?.sendInactiveImage ?: configurationToolbarProps?.sendInactiveImage ?: context.getString(R.string.send_inactive_image)
         }
@@ -81,7 +85,9 @@ class AssistantDrawerUIToolbar(
             sendImageUrl = toolbarProps?.sendActiveImage ?: configurationToolbarProps?.sendActiveImage ?: context.getString(R.string.send_active_image)
         }
 
-        if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == context.getString(R.string.textbox)) && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == false){
+        if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == context.getString(R.string.textbox))
+            && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == false)
+        {
             sendImageColor = toolbarProps?.sendInactiveColor ?: configurationToolbarProps?.sendInactiveColor
         }
         else{
@@ -98,5 +104,38 @@ class AssistantDrawerUIToolbar(
             toolbarProps?.sendImageHeight ?: configurationToolbarProps?.sendImageHeight ?: HelperMethods.getPixelsFromDp(25, scale))
         sendImageLayoutParams.gravity = Gravity.CENTER
         sendMessageImageView.layoutParams = sendImageLayoutParams
+    }
+
+    private fun initializeSpeakTextView(speakTextView: TextView){
+        var speakTextColor: Int
+        if((assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == false)
+        {
+
+            speakTextView.visibility = View.GONE
+        }
+        else{
+            if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == context.getString(R.string.textbox)) != true &&
+                (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) != false) {
+                speakTextColor = Color.parseColor(
+                    toolbarProps?.speakActiveTitleColor
+                        ?: configurationToolbarProps?.speakActiveTitleColor
+                        ?: context.getString(R.string.dark_blue)
+                )
+            }
+            else {
+                speakTextColor = Color.parseColor(
+                    toolbarProps?.speakInactiveTitleColor
+                        ?: configurationToolbarProps?.speakInactiveTitleColor
+                        ?: context.getString(R.string.dark_gray)
+                )
+            }
+
+            speakTextView.setTextColor(speakTextColor)
+            speakTextView.textSize = toolbarProps?.speakFontSize ?: configurationToolbarProps?.speakFontSize ?: 12f
+            speakTextView.typeface = Typeface.create(
+                toolbarProps?.speakFontFamily ?: configurationToolbarProps?.speakFontFamily ?: context.getString(R.string.default_font),
+                Typeface.NORMAL
+            )
+        }
     }
 }

@@ -227,7 +227,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             )
             assistantDrawerUIToolbar.initializeToolbar(
                 micImageView = micImageView,
-                sendMessageImageView = sendMessageImageView
+                sendMessageImageView = sendMessageImageView,
+                speakTextView = speakTextView
             )
             containerLayout.visibility = View.VISIBLE
             activityIndicator.visibility = View.GONE
@@ -247,12 +248,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
             //UI Initialization
             addGradientBackground(containerLayout)
-            initializeImageViews(speakTextView)
             initializeLinearLayouts(drawerLayout, bodyContainerLayout)
             checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
             initializeRecyclerViews(messagesRecyclerView, hintsRecyclerView, messagesList, hintsList, onHintClicked)
             initializeViews(speakingAnimationBars)
-            initializeTextViews(speakTextView, typeTextView, drawerWelcomeTextView, spokenTextView, assistantStateTextView, inputTextMessageEditTextView)
+            initializeTextViews(typeTextView, drawerWelcomeTextView, spokenTextView, assistantStateTextView, inputTextMessageEditTextView)
 
             startNewAssistantSession(assistant)
 
@@ -298,12 +298,11 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     }
 
                     addGradientBackground(containerLayout)
-                    initializeImageViews(speakTextView)
                     initializeLinearLayouts(drawerLayout, bodyContainerLayout)
                     checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
                     initializeRecyclerViews(messagesRecyclerView, hintsRecyclerView, messagesList, hintsList, onHintClicked)
                     initializeViews(speakingAnimationBars)
-                    initializeTextViews(speakTextView, typeTextView, drawerWelcomeTextView, spokenTextView, assistantStateTextView, inputTextMessageEditTextView)
+                    initializeTextViews(typeTextView, drawerWelcomeTextView, spokenTextView, assistantStateTextView, inputTextMessageEditTextView)
 
                     //UI Initialization
                     checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
@@ -504,10 +503,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
     }
 
-    private fun initializeTextViews(speakText: TextView, typeText: TextView, drawerText: TextView, spokenText: TextView, assistantStateText: TextView, inputTextMessage: EditText){
-        speakText.setTextColor(if((assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == getString(R.string.textbox)) != true && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) != false) Color.parseColor(toolbarProps?.speakActiveTitleColor ?: configurationToolbarProps?.speakActiveTitleColor ?: getString(R.string.dark_blue)) else Color.parseColor(toolbarProps?.speakInactiveTitleColor ?: configurationToolbarProps?.speakInactiveTitleColor ?:getString(R.string.dark_gray)))
-        speakText.textSize = toolbarProps?.speakFontSize ?: configurationToolbarProps?.speakFontSize ?: 12f
-        speakText.typeface = Typeface.create(toolbarProps?.speakFontFamily ?: configurationToolbarProps?.speakFontFamily ?: getString(R.string.default_font), Typeface.NORMAL)
+    private fun initializeTextViews( typeText: TextView, drawerText: TextView, spokenText: TextView, assistantStateText: TextView, inputTextMessage: EditText){
+
 
         typeText.setTextColor(if((assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == getString(R.string.textbox)) != true && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) != false) Color.parseColor(toolbarProps?.typeInactiveTitleColor ?: configurationToolbarProps?.typeInactiveTitleColor ?:getString(R.string.dark_gray)) else Color.parseColor(toolbarProps?.typeActiveTitleColor ?: configurationToolbarProps?.typeActiveTitleColor ?:getString(R.string.dark_blue)))
         typeText.textSize = toolbarProps?.typeFontSize ?: configurationToolbarProps?.typeFontSize ?: 12f
@@ -538,18 +535,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val inputTextMessageEditTextViewStyle = GradientDrawable()
         inputTextMessageEditTextViewStyle.setColor(Color.parseColor(getString(R.string.blue_12_percent)))
         inputTextMessage.textSize = toolbarProps?.textboxFontSize ?: configurationToolbarProps?.textboxFontSize ?: 18f
-    }
-
-    private fun initializeImageViews( speakText: TextView){
-        if((assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) == false)
-        {
-
-            speakText.visibility = View.GONE
-        }
-        else{
-
-        }
-
     }
 
     private fun initializeRecyclerViews(messagesRecycler: RecyclerView, hintsRecycler: RecyclerView, messages: ArrayList<Message>, hints: ArrayList<String>, hintClicked: (String) -> Unit){

@@ -260,7 +260,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 assistantStateTextView = assistantStateTextView,
                 spokenTextView = spokenTextView,
                 inputeMessageEditText = inputTextMessageEditTextView,
-                drawerLayout = drawerLayout
+                drawerLayout = drawerLayout,
+                animationBars = speakingAnimationBars
             )
             containerLayout.visibility = View.VISIBLE
             activityIndicator.visibility = View.GONE
@@ -268,8 +269,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             //UI Initialization
             addGradientBackground(containerLayout)
             checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
-            initializeViews(speakingAnimationBars)
-
             startNewAssistantSession(assistant)
 
             //Add Listeners
@@ -338,14 +337,14 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                         assistantStateTextView = assistantStateTextView,
                         spokenTextView = spokenTextView,
                         inputeMessageEditText = inputTextMessageEditTextView,
-                        drawerLayout = drawerLayout
+                        drawerLayout = drawerLayout,
+                        animationBars = speakingAnimationBars
                     )
                     containerLayout.visibility = View.VISIBLE
                     activityIndicator.visibility = View.GONE
 
                     addGradientBackground(containerLayout)
                     checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
-                    initializeViews(speakingAnimationBars)
 
                     //UI Initialization
                     checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
@@ -464,58 +463,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
     }
 
-    private fun initializeViews(animationBars: Array<View>){
-        if(!toolbarProps?.equalizerColor.isNullOrEmpty())
-        {
-            val splitColors = toolbarProps?.equalizerColor?.split(",")
-            if (splitColors!!.size > 1)
-            {
-                var colors = intArrayOf()
-                splitColors.forEach {
-                    colors = colors.plus(Color.parseColor(it))
-                }
-                val gradientDrawable = GradientDrawable(
-                    GradientDrawable.Orientation.TOP_BOTTOM,
-                    colors)
-                animationBars.forEach { bar ->
-                    bar.background = gradientDrawable
-                }
-            }
-            else
-            {
-                animationBars.forEach { bar ->
-                    bar.setBackgroundColor(Color.parseColor(toolbarProps?.equalizerColor))
-                }
-            }
-        }
-        else if (!configurationToolbarProps?.equalizerColor.isNullOrEmpty())
-        {
-            val splitColors = configurationToolbarProps?.equalizerColor?.split(",")
-            if (splitColors!!.size > 1)
-            {
-                var colors = intArrayOf()
-                splitColors.forEach {
-                    colors = colors.plus(Color.parseColor(it))
-                }
-                val gradientDrawable = GradientDrawable(
-                    GradientDrawable.Orientation.TOP_BOTTOM,
-                    colors)
-                animationBars.forEach { bar ->
-                    bar.background = gradientDrawable
-                }
-            }
-            else
-            {
-                animationBars.forEach { bar ->
-                    bar.setBackgroundColor(Color.parseColor(configurationToolbarProps?.equalizerColor))
-                }
-            }
-        }
-        else{
-            animationBars.forEach { bar ->
-                bar.setBackgroundColor(Color.parseColor(getString(R.string.black_50_percent)))
-            }
-        }
+    private fun initializeViews(){
+
     }
 
     private fun initializeAssistant(): VoicifyAssistant {

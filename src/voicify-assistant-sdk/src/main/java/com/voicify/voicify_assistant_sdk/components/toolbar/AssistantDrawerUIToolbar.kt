@@ -27,6 +27,7 @@ class AssistantDrawerUIToolbar(
     private var configuration: CustomAssistantConfigurationResponse?
 ) {
     private val scale = context.resources.displayMetrics.density
+    private val speakingAnimation = SpeakingAnimation(context, toolbarProps, configurationToolbarProps)
 
     fun initializeToolbar(
         micImageView: ImageView,
@@ -38,6 +39,7 @@ class AssistantDrawerUIToolbar(
         spokenTextView: TextView,
         inputeMessageEditText: EditText,
         drawerLayout: LinearLayout,
+        animationBars: Array<View>
     ) {
         initializeMicButton(micImageView)
         initializeSendMessageButton(sendMessageImageView)
@@ -48,6 +50,7 @@ class AssistantDrawerUIToolbar(
         initializeSpokenTextView(spokenTextView)
         initializeInputMessageEditTextView(inputeMessageEditText)
         initializeDrawerLayout(drawerLayout)
+        speakingAnimation.initializeSpeakingAnimation(animationBars)
     }
 
     private fun initializeMicButton(micImageView: ImageView) {

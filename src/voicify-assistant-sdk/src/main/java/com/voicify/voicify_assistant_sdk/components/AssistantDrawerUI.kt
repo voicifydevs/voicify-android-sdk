@@ -148,7 +148,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val assistantDrawerUIBody = AssistantDrawerUIBody(
             context = requireContext(),
             bodyProps = bodyProps,
-            configurationBodyProps = configurationBodyProps
+            configurationBodyProps = configurationBodyProps,
+            assistantSettingProps = assistantSettingProps,
+            configuration = configurationKotlin,
         )
         val assistantDrawerUIToolbar = AssistantDrawerUIToolbar(
             context = requireContext(),
@@ -215,30 +217,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         if(!isLoadingConfiguration)
         {
-            assistantDrawerUIHeader.initializeHeader(
-                closeAssistantImageView = closeAssistantImageView,
-                avatarImageView = assistantAvatarImageView,
-                closeBackgroundLayout =  closeAssistantBackground,
-                avatarBackgroundLayout = assistantAvatarBackground,
-                assistantNameTextView = assistantNameTextView
-            )
-            assistantDrawerUIBody.initializeBody(
-                bodyBorderTopView = bodyBorderTopView,
-                bodyBorderBottomView = bodyBorderBottomView
-            )
-            assistantDrawerUIToolbar.initializeToolbar(
-                micImageView = micImageView,
-                sendMessageImageView = sendMessageImageView,
-                speakTextView = speakTextView,
-                typeTextView = typeTextView,
-                drawerHelpTextView = drawerWelcomeTextView,
-                assistantStateTextView = assistantStateTextView,
-                spokenTextView = spokenTextView,
-                inputeMessageEditText = inputTextMessageEditTextView,
-                drawerLayout = drawerLayout
-            )
-            containerLayout.visibility = View.VISIBLE
-            activityIndicator.visibility = View.GONE
             val assistant = initializeAssistant()
             val onHintClicked: (String) -> Unit = {  hint ->
                 messagesList.add(Message(hint, getString(R.string.sent)))
@@ -252,12 +230,44 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 hintsRecyclerViewAdapter?.notifyDataSetChanged()
                 assistant.makeTextRequest(hint ,null, getString(R.string.text))
             }
+            assistantDrawerUIHeader.initializeHeader(
+                closeAssistantImageView = closeAssistantImageView,
+                avatarImageView = assistantAvatarImageView,
+                closeBackgroundLayout =  closeAssistantBackground,
+                avatarBackgroundLayout = assistantAvatarBackground,
+                assistantNameTextView = assistantNameTextView
+            )
+            messagesRecyclerViewAdapter
+            hintsRecyclerViewAdapter
+            val (messagesAdapter,hintsAdapter) = assistantDrawerUIBody.initializeBody(
+                bodyBorderTopView = bodyBorderTopView,
+                bodyBorderBottomView = bodyBorderBottomView,
+                bodyLayout = bodyContainerLayout,
+                messagesRecycler = messagesRecyclerView,
+                hintsRecycler = hintsRecyclerView,
+                messages = messagesList,
+                hints = hintsList,
+                onHintClicked = onHintClicked
+            )
+            messagesRecyclerViewAdapter = messagesAdapter
+            hintsRecyclerViewAdapter = hintsAdapter
+            assistantDrawerUIToolbar.initializeToolbar(
+                micImageView = micImageView,
+                sendMessageImageView = sendMessageImageView,
+                speakTextView = speakTextView,
+                typeTextView = typeTextView,
+                drawerHelpTextView = drawerWelcomeTextView,
+                assistantStateTextView = assistantStateTextView,
+                spokenTextView = spokenTextView,
+                inputeMessageEditText = inputTextMessageEditTextView,
+                drawerLayout = drawerLayout
+            )
+            containerLayout.visibility = View.VISIBLE
+            activityIndicator.visibility = View.GONE
 
             //UI Initialization
             addGradientBackground(containerLayout)
-            initializeLinearLayouts(bodyContainerLayout)
             checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
-            initializeRecyclerViews(messagesRecyclerView, hintsRecyclerView, messagesList, hintsList, onHintClicked)
             initializeViews(speakingAnimationBars)
 
             startNewAssistantSession(assistant)
@@ -287,8 +297,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         loginResponseReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 activity?.runOnUiThread{
-                    containerLayout.visibility = View.VISIBLE
-                    activityIndicator.visibility = View.GONE
                     val assistant = initializeAssistant()
                     val onHintClicked: (String) -> Unit = {  hint ->
                         messagesList.add(Message(hint, getString(R.string.sent)))
@@ -302,11 +310,41 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                         hintsRecyclerViewAdapter?.notifyDataSetChanged()
                         assistant.makeTextRequest(hint ,null, getString(R.string.text))
                     }
+                    assistantDrawerUIHeader.initializeHeader(
+                        closeAssistantImageView = closeAssistantImageView,
+                        avatarImageView = assistantAvatarImageView,
+                        closeBackgroundLayout =  closeAssistantBackground,
+                        avatarBackgroundLayout = assistantAvatarBackground,
+                        assistantNameTextView = assistantNameTextView
+                    )
+                    val (messagesAdapter,hintsAdapter) = assistantDrawerUIBody.initializeBody(
+                        bodyBorderTopView = bodyBorderTopView,
+                        bodyBorderBottomView = bodyBorderBottomView,
+                        bodyLayout = bodyContainerLayout,
+                        messagesRecycler = messagesRecyclerView,
+                        hintsRecycler = hintsRecyclerView,
+                        messages = messagesList,
+                        hints = hintsList,
+                        onHintClicked = onHintClicked
+                    )
+                    messagesRecyclerViewAdapter = messagesAdapter
+                    hintsRecyclerViewAdapter = hintsAdapter
+                    assistantDrawerUIToolbar.initializeToolbar(
+                        micImageView = micImageView,
+                        sendMessageImageView = sendMessageImageView,
+                        speakTextView = speakTextView,
+                        typeTextView = typeTextView,
+                        drawerHelpTextView = drawerWelcomeTextView,
+                        assistantStateTextView = assistantStateTextView,
+                        spokenTextView = spokenTextView,
+                        inputeMessageEditText = inputTextMessageEditTextView,
+                        drawerLayout = drawerLayout
+                    )
+                    containerLayout.visibility = View.VISIBLE
+                    activityIndicator.visibility = View.GONE
 
                     addGradientBackground(containerLayout)
-                    initializeLinearLayouts(bodyContainerLayout)
                     checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
-                    initializeRecyclerViews(messagesRecyclerView, hintsRecyclerView, messagesList, hintsList, onHintClicked)
                     initializeViews(speakingAnimationBars)
 
                     //UI Initialization
@@ -426,24 +464,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
     }
 
-    private fun initializeLinearLayouts(bodyLayout: LinearLayout){
-        val bodyContainerLayoutStyle = GradientDrawable()
-        if(!(bodyProps?.backgroundColor ?: configurationBodyProps?.backgroundColor).isNullOrEmpty()){
-            bodyContainerLayoutStyle.setColor(Color.parseColor(bodyProps?.backgroundColor ?: configurationBodyProps?.backgroundColor))
-        }
-        else if ((assistantSettingProps?.backgroundColor ?: configurationKotlin?.styles?.assistant?.backgroundColor).isNullOrEmpty())
-        {
-            bodyContainerLayoutStyle.setColor(Color.parseColor(getString(R.string.light_gray)))
-        }
-        bodyLayout.background = bodyContainerLayoutStyle
-        bodyLayout.setPadding(
-            bodyProps?.paddingLeft ?: configurationBodyProps?.paddingLeft ?: 20,
-            bodyProps?.paddingTop ?: configurationBodyProps?.paddingTop ?: 0,
-            bodyProps?.paddingRight ?: configurationBodyProps?.paddingRight ?: 20,
-            bodyProps?.paddingBottom ?: configurationBodyProps?.paddingBottom ?: 0
-        )
-    }
-
     private fun initializeViews(animationBars: Array<View>){
         if(!toolbarProps?.equalizerColor.isNullOrEmpty())
         {
@@ -496,15 +516,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 bar.setBackgroundColor(Color.parseColor(getString(R.string.black_50_percent)))
             }
         }
-    }
-
-    private fun initializeRecyclerViews(messagesRecycler: RecyclerView, hintsRecycler: RecyclerView, messages: ArrayList<Message>, hints: ArrayList<String>, hintClicked: (String) -> Unit){
-        messagesRecyclerViewAdapter = MessagesRecyclerViewAdapter(messages, bodyProps, configurationBodyProps, requireContext())
-        hintsRecyclerViewAdapter = HintsRecyclerViewAdapter(hints, bodyProps, configurationBodyProps, hintClicked, requireContext())
-        messagesRecycler.layoutManager = LinearLayoutManager(context)
-        messagesRecycler.adapter = messagesRecyclerViewAdapter
-        hintsRecycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        hintsRecycler.adapter = hintsRecyclerViewAdapter
     }
 
     private fun initializeAssistant(): VoicifyAssistant {

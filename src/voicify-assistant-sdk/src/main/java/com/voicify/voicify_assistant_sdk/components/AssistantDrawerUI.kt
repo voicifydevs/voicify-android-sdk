@@ -266,7 +266,15 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             toolbarProps = toolbarProps,
             configurationToolbarProps = configurationToolbarProps,
             assistantSettingProps = assistantSettingProps,
-            configuration = configurationKotlin
+            configuration = configurationKotlin,
+            isRotated,
+            isUsingSpeech,
+            animation,
+            assistantIsListening,
+            isDrawer,
+            messagesRecyclerViewAdapter,
+            voicifySTT,
+            voicifyTTS
         )
         val speakAnimation = SpeakingAnimation(
             context = requireContext(),
@@ -321,6 +329,14 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 spokenTextView = spokenTextView,
                 inputeMessageEditText = inputTextMessageEditTextView,
                 drawerLayout = drawerLayout,
+                messagesRecyclerView,
+                speakingAnimationLayout,
+                sendTextLayout,
+                dashedLineImageView,
+                drawerFooterLayout,
+                speakAnimation,
+                this@AssistantDrawerUI,
+                bodyContainerLayout
             )
             speakAnimation.initializeSpeakingAnimation()
             containerLayout.visibility = View.VISIBLE
@@ -334,8 +350,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             //Add Listeners
             addKeyboardActiveListener(window)
             addSpeechToTextListeners(assistant, spokenTextView, assistantStateTextView, micImageView, speakAnimation)
-            addMicClickListener(micImageView, messagesRecyclerView, speakingAnimationLayout, sendTextLayout, dashedLineImageView, drawerFooterLayout,
-                spokenTextView, assistantStateTextView, speakTextView, typeTextView, sendMessageImageView, speakAnimation)
+//            addMicClickListener(micImageView, messagesRecyclerView, speakingAnimationLayout, sendTextLayout, dashedLineImageView, drawerFooterLayout,
+//                spokenTextView, assistantStateTextView, speakTextView, typeTextView, sendMessageImageView, speakAnimation)
 
             addSendMessageClickListener(sendMessageImageView, inputTextMessageEditTextView, messagesList, messagesRecyclerView, assistant)
             addAssistantHandlers(assistant, drawerLayout, bodyContainerLayout, spokenTextView, hintsRecyclerView, closeAssistantImageView, closeAssistantNoInternetImageView,
@@ -398,6 +414,14 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                         spokenTextView = spokenTextView,
                         inputeMessageEditText = inputTextMessageEditTextView,
                         drawerLayout = drawerLayout,
+                        messagesRecyclerView,
+                        speakingAnimationLayout,
+                        sendTextLayout,
+                        dashedLineImageView,
+                        drawerFooterLayout,
+                        speakAnimation,
+                        this@AssistantDrawerUI,
+                        bodyContainerLayout
                     )
                     speakAnimation.initializeSpeakingAnimation()
                     containerLayout.visibility = View.VISIBLE
@@ -417,8 +441,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     //Add Listeners
                     addKeyboardActiveListener(window)
                     addSpeechToTextListeners(assistant, spokenTextView, assistantStateTextView, micImageView, speakAnimation)
-                    addMicClickListener(micImageView, messagesRecyclerView, speakingAnimationLayout, sendTextLayout, dashedLineImageView, drawerFooterLayout,
-                        spokenTextView, assistantStateTextView, speakTextView, typeTextView, sendMessageImageView, speakAnimation)
+//                    addMicClickListener(micImageView, messagesRecyclerView, speakingAnimationLayout, sendTextLayout, dashedLineImageView, drawerFooterLayout,
+//                        spokenTextView, assistantStateTextView, speakTextView, typeTextView, sendMessageImageView, speakAnimation)
                     addSendMessageClickListener(sendMessageImageView, inputTextMessageEditTextView, messagesList, messagesRecyclerView, assistant)
                     addAssistantHandlers(assistant, drawerLayout, bodyContainerLayout, spokenTextView, hintsRecyclerView, closeAssistantImageView, closeAssistantNoInternetImageView,
                         hintsList, drawerWelcomeTextView, drawerFooterLayout, dashedLineImageView, messagesList, messagesRecyclerView, toolbarLayout, headerLayout,

@@ -896,6 +896,61 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         })
     }
 
+    private fun addMicClickListener(micImage: ImageView, messagesRecycler: RecyclerView, speakingAnimationLayout: LinearLayout, sendLayout: LinearLayout, dashedLineView: ImageView,
+                                    drawerFooter: LinearLayout, spokenText: TextView, assistantStateText: TextView, speakText: TextView, typeText: TextView,
+                                    sendMessage: ImageView, speakAnimation: SpeakingAnimation){
+        micImage.setOnClickListener{
+            speakAnimation.clearAnimationValues(animation)
+            val colorStateList = ColorStateList.valueOf(Color.parseColor(toolbarProps?.textInputLineColor ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.textInputLineColor ?: getString(R.string.silver)))
+            ViewCompat.setBackgroundTintList(inputTextMessage,colorStateList)
+            if(!isUsingSpeech)
+            {
+                if(isRotated){
+                    val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, HelperMethods.getPixelsFromDp(50, scale))
+                    layoutParams1.weight = 0f
+                    bodyContainerLayout.layoutParams = layoutParams1
+                }
+                voicifySTT?.cancel = false
+                isUsingSpeech = true
+                messagesRecyclerViewAdapter?.notifyDataSetChanged()
+                messagesRecycler.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int)
+                speakingAnimationLayout.visibility = View.VISIBLE
+                sendLayout.setBackgroundColor(Color.parseColor(toolbarProps?.textboxInactiveHighlightColor ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.textboxInactiveHighlightColor ?: getString(R.string.transparent)))
+                dashedLineView.visibility = View.VISIBLE
+                hideKeyboard()
+                if(!isDrawer){
+                    val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                    drawerFooterLayoutParams.setMargins(0,HelperMethods.getPixelsFromDp(20, scale),0,0)
+                    drawerFooter.layoutParams = drawerFooterLayoutParams
+                }
+                spokenText.visibility = View.VISIBLE
+                assistantStateText.visibility = View.VISIBLE
+                speakText.setTextColor(Color.parseColor(toolbarProps?.speakActiveTitleColor ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.speakActiveTitleColor ?: getString(R.string.dark_blue)))
+                typeText.setTextColor(Color.parseColor(toolbarProps?.typeInactiveTitleColor ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.speakInactiveTitleColor ?: getString(R.string.dark_gray)))
+                HelperMethods.loadImageFromUrl(
+                    url = toolbarProps?.micActiveImage ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.micActiveImage ?: getString(R.string.mic_active_image),
+                    view = micImage,
+                    imageColor = toolbarProps?.micActiveColor ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.micActiveColor
+                )
+                HelperMethods.loadImageFromUrl(
+                    url = toolbarProps?.sendInactiveImage ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.sendInactiveImage ?: getString(R.string.send_inactive_image),
+                    view = sendMessage,
+                    imageColor = toolbarProps?.sendInactiveColor ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.sendInactiveColor
+                )
+            }
+            if(!assistantIsListening)
+            {
+                voicifyTTS?.stop()
+                voicifySTT?.startListening()
+            }
+            else
+            {
+                cancelSpeech()
+                assistantStateTextView.text = getString(R.string.assistant_state_misunderstood)
+            }
+        }
+    }
+
     private fun cancelSpeech() {
         voicifySTT?.stopListening()
         voicifySTT?.cancelListening()

@@ -24,9 +24,6 @@ class AssistantDrawerUIToolbar(
     private var configurationToolbarProps: ToolbarProps?,
     private var assistantSettingProps: AssistantSettingsProps?,
     private var configuration: CustomAssistantConfigurationResponse?,
-    private var isRotated: Boolean,
-    private var isUsingSpeech: Boolean,
-
 ) {
     private val scale = context.resources.displayMetrics.density
 
@@ -50,7 +47,6 @@ class AssistantDrawerUIToolbar(
         initializeSpokenTextView(spokenTextView)
         initializeInputMessageEditTextView(inputeMessageEditText)
         initializeDrawerLayout(drawerLayout)
-        addMicClickListener()
     }
 
     private fun initializeMicButton(micImageView: ImageView) {
@@ -252,60 +248,5 @@ class AssistantDrawerUIToolbar(
             toolbarProps?.paddingRight ?: configurationToolbarProps?.paddingRight ?: HelperMethods.getPixelsFromDp(16, scale),
             toolbarProps?.paddingBottom ?: configurationToolbarProps?.paddingBottom ?: HelperMethods.getPixelsFromDp(16, scale)
         )
-    }
-
-    private fun addMicClickListener(micImage: ImageView, messagesRecycler: RecyclerView, speakingAnimationLayout: LinearLayout, sendLayout: LinearLayout, dashedLineView: ImageView,
-                                    drawerFooter: LinearLayout, spokenText: TextView, assistantStateText: TextView, speakText: TextView, typeText: TextView,
-                                    sendMessage: ImageView, speakAnimation: SpeakingAnimation){
-        micImage.setOnClickListener{
-            speakAnimation.clearAnimationValues(animation)
-            val colorStateList = ColorStateList.valueOf(Color.parseColor(toolbarProps?.textInputLineColor ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.textInputLineColor ?: getString(R.string.silver)))
-            ViewCompat.setBackgroundTintList(inputTextMessage,colorStateList)
-            if(!isUsingSpeech)
-            {
-                if(isRotated){
-                    val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, HelperMethods.getPixelsFromDp(50, scale))
-                    layoutParams1.weight = 0f
-                    bodyContainerLayout.layoutParams = layoutParams1
-                }
-                voicifySTT?.cancel = false
-                isUsingSpeech = true
-                messagesRecyclerViewAdapter?.notifyDataSetChanged()
-                messagesRecycler.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int)
-                speakingAnimationLayout.visibility = View.VISIBLE
-                sendLayout.setBackgroundColor(Color.parseColor(toolbarProps?.textboxInactiveHighlightColor ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.textboxInactiveHighlightColor ?: getString(R.string.transparent)))
-                dashedLineView.visibility = View.VISIBLE
-                hideKeyboard()
-                if(!isDrawer){
-                    val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                    drawerFooterLayoutParams.setMargins(0,HelperMethods.getPixelsFromDp(20, scale),0,0)
-                    drawerFooter.layoutParams = drawerFooterLayoutParams
-                }
-                spokenText.visibility = View.VISIBLE
-                assistantStateText.visibility = View.VISIBLE
-                speakText.setTextColor(Color.parseColor(toolbarProps?.speakActiveTitleColor ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.speakActiveTitleColor ?: getString(R.string.dark_blue)))
-                typeText.setTextColor(Color.parseColor(toolbarProps?.typeInactiveTitleColor ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.speakInactiveTitleColor ?: getString(R.string.dark_gray)))
-                HelperMethods.loadImageFromUrl(
-                    url = toolbarProps?.micActiveImage ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.micActiveImage ?: getString(R.string.mic_active_image),
-                    view = micImage,
-                    imageColor = toolbarProps?.micActiveColor ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.micActiveColor
-                )
-                HelperMethods.loadImageFromUrl(
-                    url = toolbarProps?.sendInactiveImage ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.sendInactiveImage ?: getString(R.string.send_inactive_image),
-                    view = sendMessage,
-                    imageColor = toolbarProps?.sendInactiveColor ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.sendInactiveColor
-                )
-            }
-            if(!assistantIsListening)
-            {
-                voicifyTTS?.stop()
-                voicifySTT?.startListening()
-            }
-            else
-            {
-                cancelSpeech()
-                assistantStateTextView.text = getString(R.string.assistant_state_misunderstood)
-            }
-        }
     }
 }

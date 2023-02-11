@@ -234,7 +234,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 drawerHelpTextView = drawerWelcomeTextView,
                 assistantStateTextView = assistantStateTextView,
                 spokenTextView = spokenTextView,
-                inputeMessageEditText = inputTextMessageEditTextView
+                inputeMessageEditText = inputTextMessageEditTextView,
+                drawerLayout = drawerLayout
             )
             containerLayout.visibility = View.VISIBLE
             activityIndicator.visibility = View.GONE
@@ -254,7 +255,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
             //UI Initialization
             addGradientBackground(containerLayout)
-            initializeLinearLayouts(drawerLayout, bodyContainerLayout)
+            initializeLinearLayouts(bodyContainerLayout)
             checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
             initializeRecyclerViews(messagesRecyclerView, hintsRecyclerView, messagesList, hintsList, onHintClicked)
             initializeViews(speakingAnimationBars)
@@ -303,7 +304,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     }
 
                     addGradientBackground(containerLayout)
-                    initializeLinearLayouts(drawerLayout, bodyContainerLayout)
+                    initializeLinearLayouts(bodyContainerLayout)
                     checkInitializeWithText(speakingAnimationLayout, sendTextLayoutStyle, sendTextLayout, spokenTextView, assistantStateTextView)
                     initializeRecyclerViews(messagesRecyclerView, hintsRecyclerView, messagesList, hintsList, onHintClicked)
                     initializeViews(speakingAnimationBars)
@@ -425,17 +426,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
     }
 
-    private fun initializeLinearLayouts(drawer: LinearLayout, bodyLayout: LinearLayout){
-        if(!(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor).isNullOrEmpty()){
-            drawer.setBackgroundColor(Color.parseColor(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor))
-        }
-        else if ((assistantSettingProps?.backgroundColor ?: configurationKotlin?.styles?.assistant?.backgroundColor).isNullOrEmpty())
-        {
-            drawer.setBackgroundColor(Color.parseColor(getString(R.string.white)))
-        }
-
-        drawer.setPadding(toolbarProps?.paddingLeft ?: configurationToolbarProps?.paddingLeft ?: getPixelsFromDp(16),toolbarProps?.paddingTop ?: configurationToolbarProps?.paddingTop ?: getPixelsFromDp(16),toolbarProps?.paddingRight ?: configurationToolbarProps?.paddingRight ?: getPixelsFromDp(16),toolbarProps?.paddingBottom ?: configurationToolbarProps?.paddingBottom ?: getPixelsFromDp(16))
-
+    private fun initializeLinearLayouts(bodyLayout: LinearLayout){
         val bodyContainerLayoutStyle = GradientDrawable()
         if(!(bodyProps?.backgroundColor ?: configurationBodyProps?.backgroundColor).isNullOrEmpty()){
             bodyContainerLayoutStyle.setColor(Color.parseColor(bodyProps?.backgroundColor ?: configurationBodyProps?.backgroundColor))

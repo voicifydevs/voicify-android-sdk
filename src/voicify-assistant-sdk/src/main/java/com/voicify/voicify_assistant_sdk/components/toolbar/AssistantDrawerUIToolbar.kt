@@ -36,7 +36,8 @@ class AssistantDrawerUIToolbar(
         drawerHelpTextView: TextView,
         assistantStateTextView: TextView,
         spokenTextView: TextView,
-        inputeMessageEditText: EditText
+        inputeMessageEditText: EditText,
+        drawerLayout: LinearLayout,
     ) {
         initializeMicButton(micImageView)
         initializeSendMessageButton(sendMessageImageView)
@@ -46,6 +47,7 @@ class AssistantDrawerUIToolbar(
         initializeAssistantStateTextView(assistantStateTextView)
         initializeSpokenTextView(spokenTextView)
         initializeInputMessageEditTextView(inputeMessageEditText)
+        initializeDrawerLayout(drawerLayout)
     }
 
     private fun initializeMicButton(micImageView: ImageView) {
@@ -230,5 +232,22 @@ class AssistantDrawerUIToolbar(
         val inputTextMessageEditTextViewStyle = GradientDrawable()
         inputTextMessageEditTextViewStyle.setColor(Color.parseColor(context.getString(R.string.blue_12_percent)))
         inputeMessageEditText.textSize = toolbarProps?.textboxFontSize ?: configurationToolbarProps?.textboxFontSize ?: 18f
+    }
+
+    private fun initializeDrawerLayout(draweLayout: LinearLayout){
+        if(!(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor).isNullOrEmpty()){
+            draweLayout.setBackgroundColor(Color.parseColor(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor))
+        }
+        else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
+        {
+            draweLayout.setBackgroundColor(Color.parseColor(context.getString(R.string.white)))
+        }
+
+        draweLayout.setPadding(
+            toolbarProps?.paddingLeft ?: configurationToolbarProps?.paddingLeft ?: HelperMethods.getPixelsFromDp(16, scale),
+            toolbarProps?.paddingTop ?: configurationToolbarProps?.paddingTop ?: HelperMethods.getPixelsFromDp(16, scale),
+            toolbarProps?.paddingRight ?: configurationToolbarProps?.paddingRight ?: HelperMethods.getPixelsFromDp(16, scale),
+            toolbarProps?.paddingBottom ?: configurationToolbarProps?.paddingBottom ?: HelperMethods.getPixelsFromDp(16, scale)
+        )
     }
 }

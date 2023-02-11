@@ -101,6 +101,59 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private val gson = Gson()
     private var isRotated = false
 
+    companion object {
+        /**
+         * Use this factory method to create a new instance of
+         * this fragment using the provided parameters.
+         *
+         * @param assistantSettingsProperties Parameter 1.
+         * @param headerProps Parameter 2.
+         * @param bodyProps Parameter 3.
+         * @param toolbarProps Parameter 4.
+         * @return A new instance of fragment AssistantDrawerUI.
+         */
+        @JvmStatic
+        fun newInstance( assistantSettingsProperties: AssistantSettingsProps, headerProps: HeaderProps? = null, bodyProps: BodyProps? = null, toolbarProps: ToolbarProps? = null) =
+            AssistantDrawerUI().apply {
+                arguments = Bundle().apply {
+                    putSerializable(SETTINGS, assistantSettingsProperties)
+                    putSerializable(HEADER, headerProps)
+                    putSerializable(BODY, bodyProps)
+                    putSerializable(TOOLBAR, toolbarProps)
+                }
+                if(configurationKotlin == null)
+                {
+                    val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
+                        configurationKotlin = null
+                        isLoadingConfiguration = false
+                        NotificationCenter.postNotification(requireContext(), NotificationType.LOADING_COMPLETE)
+                    }
+
+                    GlobalScope.async (Dispatchers.IO + coroutineExceptionHandler){
+                        try{
+                            configurationKotlin = customAssistantConfigurationService.getCustomAssistantConfiguration(
+                                assistantSettingsProperties?.configurationId ?: "",
+                                assistantSettingsProperties.serverRootUrl,
+                                assistantSettingsProperties.appId,
+                                assistantSettingsProperties.appKey
+                            )
+                            configurationHeaderProps = configurationKotlin?.styles?.header
+                            configurationBodyProps = configurationKotlin?.styles?.body
+                            configurationToolbarProps = configurationKotlin?.styles?.toolbar
+                            isLoadingConfiguration = false
+                            NotificationCenter.postNotification(requireContext(), NotificationType.LOADING_COMPLETE)
+                        }
+                        catch(e: Exception){
+                            NotificationCenter.postNotification(requireContext(), NotificationType.LOADING_COMPLETE)
+                        }
+                    }
+                }
+                else{
+                    NotificationCenter.postNotification(requireContext(), NotificationType.LOADING_COMPLETE)
+                }
+            }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -187,6 +240,14 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val speakTextView = window.findViewById<TextView>(R.id.speakTextView)
         val sendTextLayoutStyle = GradientDrawable()
 
+        //Image Views
+        val micImageView = window.findViewById<ImageView>(R.id.micImageView)
+        val closeAssistantImageView = window.findViewById<ImageView>(R.id.closeAssistantImageView)
+        val closeAssistantNoInternetImageView = window.findViewById<ImageView>(R.id.closeAssistantNoInternetImageView)
+        val sendMessageImageView = window.findViewById<ImageView>(R.id.sendMessageButtonImageView)
+        val assistantAvatarImageView = window.findViewById<ImageView>(R.id.assistantAvatarImageView)
+        val dashedLineImageView = window.findViewById<ImageView>(R.id.dashedLineImageView)
+
         val assistantDrawerUIHeader = AssistantDrawerUIHeader(
             context = requireContext(),
             headerProps = headerProps,
@@ -215,14 +276,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         )
         sendTextLayoutStyle.setColor(Color.parseColor(toolbarProps?.textboxActiveHighlightColor ?: configurationToolbarProps?.textboxActiveHighlightColor ?: getString(R.string.blue_12_percent)))
         sendTextLayoutStyle.cornerRadius = 24f
-
-        //Image Views
-        val micImageView = window.findViewById<ImageView>(R.id.micImageView)
-        val closeAssistantImageView = window.findViewById<ImageView>(R.id.closeAssistantImageView)
-        val closeAssistantNoInternetImageView = window.findViewById<ImageView>(R.id.closeAssistantNoInternetImageView)
-        val sendMessageImageView = window.findViewById<ImageView>(R.id.sendMessageButtonImageView)
-        val assistantAvatarImageView = window.findViewById<ImageView>(R.id.assistantAvatarImageView)
-        val dashedLineImageView = window.findViewById<ImageView>(R.id.dashedLineImageView)
 
         if(!isLoadingConfiguration)
         {
@@ -398,7 +451,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         bottomSheetBehavior = BottomSheetBehavior.from((view.parent as View))
         bottomSheetBehavior?.isDraggable = false
         bottomSheetBehavior?.maxWidth = ViewGroup.LayoutParams.MATCH_PARENT
-        bottomSheetBehavior?.peekHeight = (getPixelsFromDp(500))
+        bottomSheetBehavior?.peekHeight = HelperMethods.getPixelsFromDp(500, scale)
         if(!isLoadingConfiguration) {
             checkInitializeWithWelcome(drawerLayout, bodyContainerLayout, spokenTextView, hintsRecyclerView,
                 drawerFooterLayout, dashedLineImageView, toolbarLayout, assistantAvatarBackgroundContainerLayout,
@@ -439,7 +492,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 drawerLayout.layoutParams = layoutParams
             }
             else{
-                val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(0))
+                val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, HelperMethods.getPixelsFromDp(0, scale))
                 layoutParams.weight = 1f
                 bodyContainerLayout.layoutParams = layoutParams
                 val metrics = activity?.resources?.displayMetrics
@@ -455,14 +508,14 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             hideKeyboard()
             if(isDrawer)
             {
-                bottomSheetBehavior?.peekHeight = (getPixelsFromDp(500))
+                bottomSheetBehavior?.peekHeight = HelperMethods.getPixelsFromDp(500,scale)
             }
             else{
                 if(messagesRecyclerViewAdapter?.itemCount ?: 0 > 0)
                 {
                     messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int)
                 }
-                val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(if(isUsingSpeech) {50} else {200}))
+                val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, HelperMethods.getPixelsFromDp(if(isUsingSpeech) {50} else {200}, scale))
                 layoutParams.weight = 0f
                 bodyContainerLayout.layoutParams = layoutParams
             }
@@ -539,7 +592,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 {
                     toolbar.setBackgroundColor(Color.parseColor(getString(R.string.white)))
                 }
-                toolbar.setPadding(toolbarProps?.paddingLeft ?: configurationToolbarProps?.paddingLeft ?: getPixelsFromDp(16), getPixelsFromDp(0),toolbarProps?.paddingRight ?: configurationToolbarProps?.paddingRight ?: getPixelsFromDp(16),toolbarProps?.paddingBottom ?: configurationToolbarProps?.paddingBottom ?: getPixelsFromDp(16))
+                toolbar.setPadding(toolbarProps?.paddingLeft ?: configurationToolbarProps?.paddingLeft ?: HelperMethods.getPixelsFromDp(16, scale), HelperMethods.getPixelsFromDp(0, scale),toolbarProps?.paddingRight ?: configurationToolbarProps?.paddingRight ?: HelperMethods.getPixelsFromDp(16, scale),toolbarProps?.paddingBottom ?: configurationToolbarProps?.paddingBottom ?: HelperMethods.getPixelsFromDp(16, scale))
                 assistantAvatarBackground.visibility = View.VISIBLE
                 if(!(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor).isNullOrEmpty()){
                     header.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor))
@@ -548,7 +601,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 {
                     header.setBackgroundColor(Color.parseColor(getString(R.string.white)))
                 }
-                header.setPadding(headerProps?.paddingLeft ?: configurationHeaderProps?.paddingLeft ?: getPixelsFromDp(16), headerProps?.paddingTop ?: configurationHeaderProps?.paddingTop ?: getPixelsFromDp(16), headerProps?.paddingRight ?: configurationHeaderProps?.paddingRight ?: getPixelsFromDp(16), headerProps?.paddingBottom ?: configurationHeaderProps?.paddingBottom ?: getPixelsFromDp(16))
+                header.setPadding(headerProps?.paddingLeft ?: configurationHeaderProps?.paddingLeft ?: HelperMethods.getPixelsFromDp(16, scale), headerProps?.paddingTop ?: configurationHeaderProps?.paddingTop ?: HelperMethods.getPixelsFromDp(16, scale), headerProps?.paddingRight ?: configurationHeaderProps?.paddingRight ?: HelperMethods.getPixelsFromDp(16, scale), headerProps?.paddingBottom ?: configurationHeaderProps?.paddingBottom ?: HelperMethods.getPixelsFromDp(16, scale))
                 bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
                 isDrawer = false
                 micImage.setBackgroundColor(Color.parseColor(toolbarProps?.micInactiveHighlightColor ?: configurationToolbarProps?.micInactiveHighlightColor ?: getString(R.string.transparent)))
@@ -642,7 +695,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 {
                     toolbar.setBackgroundColor(Color.parseColor(getString(R.string.white)))
                 }
-                toolbar.setPadding(toolbarProps?.paddingLeft ?: configurationToolbarProps?.paddingLeft ?: getPixelsFromDp(16), getPixelsFromDp(0),toolbarProps?.paddingRight ?: configurationToolbarProps?.paddingRight ?: getPixelsFromDp(16),toolbarProps?.paddingBottom ?: configurationToolbarProps?.paddingBottom ?: getPixelsFromDp(16))
+                toolbar.setPadding(toolbarProps?.paddingLeft ?: configurationToolbarProps?.paddingLeft ?: HelperMethods.getPixelsFromDp(16, scale), HelperMethods.getPixelsFromDp(0, scale),toolbarProps?.paddingRight ?: configurationToolbarProps?.paddingRight ?: HelperMethods.getPixelsFromDp(16, scale),toolbarProps?.paddingBottom ?: configurationToolbarProps?.paddingBottom ?: HelperMethods.getPixelsFromDp(16, scale))
                 avatarBackground.visibility = View.VISIBLE
                 if(!(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor).isNullOrEmpty()){
                     header.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor))
@@ -651,7 +704,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 {
                     header.setBackgroundColor(Color.parseColor(getString(R.string.white)))
                 }
-                header.setPadding(headerProps?.paddingLeft ?: configurationHeaderProps?.paddingLeft ?: getPixelsFromDp(16), headerProps?.paddingTop ?: configurationHeaderProps?.paddingTop ?: getPixelsFromDp(16), headerProps?.paddingRight ?: configurationHeaderProps?.paddingRight ?: getPixelsFromDp(16), headerProps?.paddingBottom ?: configurationHeaderProps?.paddingBottom ?: getPixelsFromDp(16))
+                header.setPadding(headerProps?.paddingLeft ?: configurationHeaderProps?.paddingLeft ?: HelperMethods.getPixelsFromDp(16, scale), headerProps?.paddingTop ?: configurationHeaderProps?.paddingTop ?: HelperMethods.getPixelsFromDp(16, scale), headerProps?.paddingRight ?: configurationHeaderProps?.paddingRight ?: HelperMethods.getPixelsFromDp(16, scale), headerProps?.paddingBottom ?: configurationHeaderProps?.paddingBottom ?: HelperMethods.getPixelsFromDp(16, scale))
                 bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
                 isDrawer = false
                 micImage.setBackgroundColor(Color.parseColor(toolbarProps?.micInactiveHighlightColor ?: configurationToolbarProps?.micInactiveHighlightColor ?: getString(R.string.transparent)))
@@ -773,53 +826,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
     }
 
-    private fun addMicClickListener(micImage: ImageView, messagesRecycler: RecyclerView, speakingAnimationLayout: LinearLayout, sendLayout: LinearLayout, dashedLineView: ImageView,
-                                    drawerFooter: LinearLayout, spokenText: TextView, assistantStateText: TextView, speakText: TextView, typeText: TextView,
-                                    sendMessage: ImageView, speakAnimation: SpeakingAnimation){
-        micImage.setOnClickListener{
-            speakAnimation.clearAnimationValues(animation)
-            val colorStateList = ColorStateList.valueOf(Color.parseColor(toolbarProps?.textInputLineColor ?: configurationToolbarProps?.textInputLineColor ?: getString(R.string.silver)))
-            ViewCompat.setBackgroundTintList(inputTextMessage,colorStateList)
-            if(!isUsingSpeech)
-            {
-                if(isRotated){
-                    val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(50))
-                    layoutParams1.weight = 0f
-                    bodyContainerLayout.layoutParams = layoutParams1
-                }
-                voicifySTT?.cancel = false
-                isUsingSpeech = true
-                messagesRecyclerViewAdapter?.notifyDataSetChanged()
-                messagesRecycler.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int)
-                speakingAnimationLayout.visibility = View.VISIBLE
-                sendLayout.setBackgroundColor(Color.parseColor(toolbarProps?.textboxInactiveHighlightColor ?: configurationToolbarProps?.textboxInactiveHighlightColor ?: getString(R.string.transparent)))
-                dashedLineView.visibility = View.VISIBLE
-                hideKeyboard()
-                if(!isDrawer){
-                    val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                    drawerFooterLayoutParams.setMargins(0,getPixelsFromDp(20),0,0)
-                    drawerFooter.layoutParams = drawerFooterLayoutParams
-                }
-                spokenText.visibility = View.VISIBLE
-                assistantStateText.visibility = View.VISIBLE
-                speakText.setTextColor(Color.parseColor(toolbarProps?.speakActiveTitleColor ?: configurationToolbarProps?.speakActiveTitleColor ?: getString(R.string.dark_blue)))
-                typeText.setTextColor(Color.parseColor(toolbarProps?.typeInactiveTitleColor ?: configurationToolbarProps?.speakInactiveTitleColor ?: getString(R.string.dark_gray)))
-                loadImageFromUrl(toolbarProps?.micActiveImage ?: configurationToolbarProps?.micActiveImage ?: getString(R.string.mic_active_image), micImage, toolbarProps?.micActiveColor ?: configurationToolbarProps?.micActiveColor)
-                loadImageFromUrl(toolbarProps?.sendInactiveImage ?: configurationToolbarProps?.sendInactiveImage ?: getString(R.string.send_inactive_image), sendMessage, toolbarProps?.sendInactiveColor ?: configurationToolbarProps?.sendInactiveColor)
-            }
-            if(!assistantIsListening)
-            {
-                voicifyTTS?.stop()
-                voicifySTT?.startListening()
-            }
-            else
-            {
-                cancelSpeech()
-                assistantStateTextView.text = getString(R.string.assistant_state_misunderstood)
-            }
-        }
-    }
-
     private fun addSendMessageClickListener(sendMessage: ImageView, inputTextMessage: EditText, messagesList: ArrayList<Message>, messagesRecycler: RecyclerView, assistant: VoicifyAssistant) {
         sendMessage.setOnClickListener{
             if(inputTextMessage.text.toString().isNotEmpty())
@@ -856,7 +862,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                             isUsingSpeech = false
                             if(isRotated)
                             {
-                                val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(200))
+                                val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, HelperMethods.getPixelsFromDp(200, scale))
                                 layoutParams.weight = 0f
                                 bodyContainerLayout.layoutParams = layoutParams
                             }
@@ -871,15 +877,15 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                             assistantStateText.visibility = View.GONE
                             speakText.setTextColor(Color.parseColor(toolbarProps?.speakInactiveTitleColor ?: configurationToolbarProps?.speakInactiveTitleColor ?: getString(R.string.dark_gray)))
                             typeText.setTextColor(Color.parseColor(toolbarProps?.typeActiveTitleColor ?: configurationToolbarProps?.speakActiveTitleColor ?: getString(R.string.dark_blue)))
-                            loadImageFromUrl(
-                                toolbarProps?.micInactiveImage ?: configurationToolbarProps?.micInactiveImage ?: getString(R.string.mic_inactive_image),
-                                micImage,
-                                toolbarProps?.micInactiveColor ?: configurationToolbarProps?.micInactiveColor
+                            HelperMethods.loadImageFromUrl(
+                                url = toolbarProps?.micInactiveImage ?: configurationToolbarProps?.micInactiveImage ?: getString(R.string.mic_inactive_image),
+                                view = micImage,
+                                imageColor = toolbarProps?.micInactiveColor ?: configurationToolbarProps?.micInactiveColor
                             )
-                            loadImageFromUrl(
-                                toolbarProps?.sendActiveImage ?: configurationToolbarProps?.sendActiveImage ?: getString(R.string.send_active_image),
-                                sendMessage,
-                                toolbarProps?.sendActiveColor ?: configurationToolbarProps?.sendActiveColor
+                            HelperMethods.loadImageFromUrl(
+                                url = toolbarProps?.sendActiveImage ?: configurationToolbarProps?.sendActiveImage ?: getString(R.string.send_active_image),
+                                view = sendMessage,
+                                imageColor = toolbarProps?.sendActiveColor ?: configurationToolbarProps?.sendActiveColor
                             )
                         }
                     }
@@ -907,7 +913,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             if (heightDiff > 500) {
                 if(!isKeyboardActive && !isRotated)
                 {
-                    val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(320))
+                    val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, HelperMethods.getPixelsFromDp(320, scale))
                     layoutParams1.weight = 0f
                     bodyContainerLayout.layoutParams = layoutParams1
                     messagesRecyclerViewAdapter?.notifyDataSetChanged()
@@ -919,13 +925,13 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             {
                 if(isKeyboardActive && !isRotated)
                 {
-                    val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(0))
+                    val layoutParams1 = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, HelperMethods.getPixelsFromDp(0, scale))
                     layoutParams1.weight = 1f
                     bodyContainerLayout.layoutParams = layoutParams1
                     isKeyboardActive = false
                 }
                 else if(isKeyboardActive && isRotated && !isUsingSpeech) {
-                    val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getPixelsFromDp(200))
+                    val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, HelperMethods.getPixelsFromDp(200, scale))
                     layoutParams.weight = 0f
                     bodyContainerLayout.layoutParams = layoutParams
                 }
@@ -973,45 +979,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
     }
 
-    private fun loadImageFromUrl(url: String, view: ImageView, imageColor: String? = null, isAssistantAvatar: Boolean = false){
-        if(isAssistantAvatar)
-        {
-            Picasso.get().load(url).into(view , object: Callback {
-                override fun onSuccess() {
-                    val imageBitmap = view.drawable as BitmapDrawable
-                    val bitmap = imageBitmap.bitmap
-                    val imageDrawable = RoundedBitmapDrawableFactory.create(resources, bitmap);
-                    imageDrawable.isCircular = true;
-                    imageDrawable.cornerRadius = headerProps?.assistantImageBorderRadius ?: configurationHeaderProps?.assistantImageBorderRadius ?: 200f
-                    view.setImageDrawable(imageDrawable);
-                    if(!imageColor.isNullOrEmpty())
-                    {
-                        DrawableCompat.setTint(view.drawable, Color.parseColor(imageColor))
-                    }
-                }
-                override fun onError(e: Exception?) {
-                }
-            });
-        }
-        else if(imageColor.isNullOrEmpty())
-        {
-            Picasso.get().load(url).into(view)
-        }
-        else{
-            Picasso.get().load(url).into(view, object: Callback {
-                override fun onSuccess() {
-                    DrawableCompat.setTint(view.drawable, Color.parseColor(imageColor))
-                }
-
-                override fun onError(e: Exception?) {
-                }
-            })
-        }
-    }
-    private fun getPixelsFromDp(dp: Int): Int {
-        return (dp * scale + 0.5f).toInt()
-    }
-
     fun <T> deserializeEffectData(data: Any, type: Class<T>): T {
         val gson = Gson()
         val dataString = gson.toJson(data)
@@ -1040,56 +1007,5 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         this.userAttributes = userAttributes
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param assistantSettingsProperties Parameter 1.
-         * @param headerProps Parameter 2.
-         * @param bodyProps Parameter 3.
-         * @param toolbarProps Parameter 4.
-         * @return A new instance of fragment AssistantDrawerUI.
-         */
-        @JvmStatic
-        fun newInstance( assistantSettingsProperties: AssistantSettingsProps, headerProps: HeaderProps? = null, bodyProps: BodyProps? = null, toolbarProps: ToolbarProps? = null) =
-            AssistantDrawerUI().apply {
-                arguments = Bundle().apply {
-                    putSerializable(SETTINGS, assistantSettingsProperties)
-                    putSerializable(HEADER, headerProps)
-                    putSerializable(BODY, bodyProps)
-                    putSerializable(TOOLBAR, toolbarProps)
-                }
-                if(configurationKotlin == null)
-                {
-                    val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
-                        configurationKotlin = null
-                        isLoadingConfiguration = false
-                        NotificationCenter.postNotification(requireContext(), NotificationType.LOADING_COMPLETE)
-                    }
 
-                    GlobalScope.async (Dispatchers.IO + coroutineExceptionHandler){
-                        try{
-                            configurationKotlin = customAssistantConfigurationService.getCustomAssistantConfiguration(
-                                assistantSettingsProperties?.configurationId ?: "",
-                                assistantSettingsProperties.serverRootUrl,
-                                assistantSettingsProperties.appId,
-                                assistantSettingsProperties.appKey
-                            )
-                            configurationHeaderProps = configurationKotlin?.styles?.header
-                            configurationBodyProps = configurationKotlin?.styles?.body
-                            configurationToolbarProps = configurationKotlin?.styles?.toolbar
-                            isLoadingConfiguration = false
-                            NotificationCenter.postNotification(requireContext(), NotificationType.LOADING_COMPLETE)
-                        }
-                        catch(e: Exception){
-                            NotificationCenter.postNotification(requireContext(), NotificationType.LOADING_COMPLETE)
-                        }
-                    }
-                }
-                else{
-                    NotificationCenter.postNotification(requireContext(), NotificationType.LOADING_COMPLETE)
-                }
-            }
-    }
 }

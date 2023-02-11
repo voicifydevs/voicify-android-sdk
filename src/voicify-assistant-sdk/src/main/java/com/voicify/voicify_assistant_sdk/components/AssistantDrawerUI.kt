@@ -44,6 +44,7 @@ import com.voicify.voicify_assistant_sdk.components.body.AssistantDrawerUIBody
 import com.voicify.voicify_assistant_sdk.components.body.HintsRecyclerViewAdapter
 import com.voicify.voicify_assistant_sdk.components.body.MessagesRecyclerViewAdapter
 import com.voicify.voicify_assistant_sdk.components.toolbar.AssistantDrawerUIToolbar
+import com.voicify.voicify_assistant_sdk.components.toolbar.SpeakingAnimation
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantConfigurationResponse
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantRequest
 import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.*
@@ -139,26 +140,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val window = inflater.inflate(R.layout.fragment_assistant_drawer_u_i, container, false)
         val hintsList = ArrayList<String>()
         val messagesList = ArrayList<Message>()
-        val assistantDrawerUIHeader = AssistantDrawerUIHeader(
-            context = requireContext(),
-            headerProps = headerProps,
-            configurationHeaderProps = configurationHeaderProps,
-            resources = resources
-        )
-        val assistantDrawerUIBody = AssistantDrawerUIBody(
-            context = requireContext(),
-            bodyProps = bodyProps,
-            configurationBodyProps = configurationBodyProps,
-            assistantSettingProps = assistantSettingProps,
-            configuration = configurationKotlin,
-        )
-        val assistantDrawerUIToolbar = AssistantDrawerUIToolbar(
-            context = requireContext(),
-            toolbarProps = toolbarProps,
-            configurationToolbarProps = configurationToolbarProps,
-            assistantSettingProps = assistantSettingProps,
-            configuration = configurationKotlin
-        )
+
         scale = requireContext().resources.displayMetrics.density
         isUsingSpeech = (assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == getString(R.string.textbox)) != true && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) != false
 
@@ -204,6 +186,33 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         val assistantNameTextView = window.findViewById<TextView>(R.id.assistantNameTextView)
         val speakTextView = window.findViewById<TextView>(R.id.speakTextView)
         val sendTextLayoutStyle = GradientDrawable()
+
+        val assistantDrawerUIHeader = AssistantDrawerUIHeader(
+            context = requireContext(),
+            headerProps = headerProps,
+            configurationHeaderProps = configurationHeaderProps,
+            resources = resources
+        )
+        val assistantDrawerUIBody = AssistantDrawerUIBody(
+            context = requireContext(),
+            bodyProps = bodyProps,
+            configurationBodyProps = configurationBodyProps,
+            assistantSettingProps = assistantSettingProps,
+            configuration = configurationKotlin,
+        )
+        val assistantDrawerUIToolbar = AssistantDrawerUIToolbar(
+            context = requireContext(),
+            toolbarProps = toolbarProps,
+            configurationToolbarProps = configurationToolbarProps,
+            assistantSettingProps = assistantSettingProps,
+            configuration = configurationKotlin
+        )
+        val speakAnimation = SpeakingAnimation(
+            context = requireContext(),
+            toolbarProps = toolbarProps,
+            configurationToolbarProps = configurationToolbarProps,
+            animationBars = speakingAnimationBars
+        )
         sendTextLayoutStyle.setColor(Color.parseColor(toolbarProps?.textboxActiveHighlightColor ?: configurationToolbarProps?.textboxActiveHighlightColor ?: getString(R.string.blue_12_percent)))
         sendTextLayoutStyle.cornerRadius = 24f
 
@@ -220,7 +229,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             val assistant = initializeAssistant()
             val onHintClicked: (String) -> Unit = {  hint ->
                 messagesList.add(Message(hint, getString(R.string.sent)))
-                clearAnimationValues()
+                speakAnimation.clearAnimationValues(animation)
                 messagesRecyclerViewAdapter?.notifyDataSetChanged()
                 messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int)
                 hideKeyboard()
@@ -237,8 +246,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 avatarBackgroundLayout = assistantAvatarBackground,
                 assistantNameTextView = assistantNameTextView
             )
-            messagesRecyclerViewAdapter
-            hintsRecyclerViewAdapter
             val (messagesAdapter,hintsAdapter) = assistantDrawerUIBody.initializeBody(
                 bodyBorderTopView = bodyBorderTopView,
                 bodyBorderBottomView = bodyBorderBottomView,
@@ -261,8 +268,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 spokenTextView = spokenTextView,
                 inputeMessageEditText = inputTextMessageEditTextView,
                 drawerLayout = drawerLayout,
-                animationBars = speakingAnimationBars
             )
+            speakAnimation.initializeSpeakingAnimation()
             containerLayout.visibility = View.VISIBLE
             activityIndicator.visibility = View.GONE
 
@@ -273,14 +280,14 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
             //Add Listeners
             addKeyboardActiveListener(window)
-            addSpeechToTextListeners(assistant, spokenTextView, assistantStateTextView, micImageView)
+            addSpeechToTextListeners(assistant, spokenTextView, assistantStateTextView, micImageView, speakAnimation)
             addMicClickListener(micImageView, messagesRecyclerView, speakingAnimationLayout, sendTextLayout, dashedLineImageView, drawerFooterLayout,
-                spokenTextView, assistantStateTextView, speakTextView, typeTextView, sendMessageImageView)
+                spokenTextView, assistantStateTextView, speakTextView, typeTextView, sendMessageImageView, speakAnimation)
 
             addSendMessageClickListener(sendMessageImageView, inputTextMessageEditTextView, messagesList, messagesRecyclerView, assistant)
             addAssistantHandlers(assistant, drawerLayout, bodyContainerLayout, spokenTextView, hintsRecyclerView, closeAssistantImageView, closeAssistantNoInternetImageView,
                 hintsList, drawerWelcomeTextView, drawerFooterLayout, dashedLineImageView, messagesList, messagesRecyclerView, toolbarLayout, headerLayout,
-                assistantAvatarBackground, micImageView, assistantStateTextView, assistantAvatarImageView, assistantNameTextView, bodyBorderTopView, bodyBorderBottomView)
+                assistantAvatarBackground, micImageView, assistantStateTextView, assistantAvatarImageView, assistantNameTextView, bodyBorderTopView, bodyBorderBottomView, speakAnimation)
 
             addTextboxClickListener(inputTextMessageEditTextView, assistantStateTextView, spokenTextView, speakingAnimationLayout, sendTextLayoutStyle,
                 sendTextLayout, drawerFooterLayout, dashedLineImageView, speakTextView, typeTextView, micImageView, sendMessageImageView)
@@ -299,7 +306,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     val assistant = initializeAssistant()
                     val onHintClicked: (String) -> Unit = {  hint ->
                         messagesList.add(Message(hint, getString(R.string.sent)))
-                        clearAnimationValues()
+                        speakAnimation.clearAnimationValues(animation)
                         messagesRecyclerViewAdapter?.notifyDataSetChanged()
                         messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int)
                         hideKeyboard()
@@ -338,8 +345,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                         spokenTextView = spokenTextView,
                         inputeMessageEditText = inputTextMessageEditTextView,
                         drawerLayout = drawerLayout,
-                        animationBars = speakingAnimationBars
                     )
+                    speakAnimation.initializeSpeakingAnimation()
                     containerLayout.visibility = View.VISIBLE
                     activityIndicator.visibility = View.GONE
 
@@ -356,13 +363,13 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
                     //Add Listeners
                     addKeyboardActiveListener(window)
-                    addSpeechToTextListeners(assistant, spokenTextView, assistantStateTextView, micImageView)
+                    addSpeechToTextListeners(assistant, spokenTextView, assistantStateTextView, micImageView, speakAnimation)
                     addMicClickListener(micImageView, messagesRecyclerView, speakingAnimationLayout, sendTextLayout, dashedLineImageView, drawerFooterLayout,
-                        spokenTextView, assistantStateTextView, speakTextView, typeTextView, sendMessageImageView)
+                        spokenTextView, assistantStateTextView, speakTextView, typeTextView, sendMessageImageView, speakAnimation)
                     addSendMessageClickListener(sendMessageImageView, inputTextMessageEditTextView, messagesList, messagesRecyclerView, assistant)
                     addAssistantHandlers(assistant, drawerLayout, bodyContainerLayout, spokenTextView, hintsRecyclerView, closeAssistantImageView, closeAssistantNoInternetImageView,
                         hintsList, drawerWelcomeTextView, drawerFooterLayout, dashedLineImageView, messagesList, messagesRecyclerView, toolbarLayout, headerLayout,
-                        assistantAvatarBackground, micImageView, assistantStateTextView, assistantAvatarImageView, assistantNameTextView, bodyBorderTopView, bodyBorderBottomView)
+                        assistantAvatarBackground, micImageView, assistantStateTextView, assistantAvatarImageView, assistantNameTextView, bodyBorderTopView, bodyBorderBottomView, speakAnimation)
 
                     addTextboxClickListener(inputTextMessageEditTextView, assistantStateTextView, spokenTextView, speakingAnimationLayout, sendTextLayoutStyle,
                         sendTextLayout, drawerFooterLayout, dashedLineImageView, speakTextView, typeTextView, micImageView, sendMessageImageView)
@@ -461,10 +468,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             }
             isRotated = true
         }
-    }
-
-    private fun initializeViews(){
-
     }
 
     private fun initializeAssistant(): VoicifyAssistant {
@@ -585,7 +588,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                                      closeAssistant: ImageView, closeAssistantNoInternet: ImageView, hintsList: ArrayList<String>, drawerText: TextView,
                                     drawerFooter: LinearLayout, dashedLineView: ImageView, messagesList: ArrayList<Message>, messagesRecycler: RecyclerView,
                                     toolbar: LinearLayout, header: LinearLayout, avatarBackground: LinearLayout, micImage: ImageView, assistantStateText: TextView,
-                                    avatarImage: ImageView, assistantName: TextView, bodyTopBorder: View, bodyBottomBorder: View){
+                                    avatarImage: ImageView, assistantName: TextView, bodyTopBorder: View, bodyBottomBorder: View, speakAnimation: SpeakingAnimation){
         assistant.onResponseReceived { response ->
             activity?.runOnUiThread{
                 if(isDrawer)
@@ -697,7 +700,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
     }
 
-    private fun addSpeechToTextListeners(assistant: VoicifyAssistant, spokenText: TextView, assistantStateText: TextView, micImage: ImageView){
+    private fun addSpeechToTextListeners(assistant: VoicifyAssistant, spokenText: TextView, assistantStateText: TextView, micImage: ImageView, speakAnimation: SpeakingAnimation){
         voicifySTT?.addPartialListener { partialResult ->
             spokenText.setTextColor(Color.parseColor(toolbarProps?.partialSpeechResultTextColor ?: configurationToolbarProps?.partialSpeechResultTextColor ?: getString(R.string.white_20_percent)))
             spokenText.text = partialResult
@@ -705,7 +708,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         voicifySTT?.addFinalResultListener { fullResult ->
             spokenText.setTextColor(Color.parseColor(toolbarProps?.fullSpeechResultTextColor ?: configurationToolbarProps?.fullSpeechResultTextColor ?: getString(R.string.white)))
             speechFullResult = fullResult
-            clearAnimationValues()
+            speakAnimation.clearAnimationValues(animation)
             assistantIsListening = false
             spokenText.text = fullResult
             assistantStateText.text = getString(R.string.assistant_state_processing)
@@ -722,7 +725,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             assistantStateText.text = getString(R.string.assistant_state_listening)
         }
         voicifySTT?.addErrorListener { error ->
-            clearAnimationValues()
+            speakAnimation.clearAnimationValues(animation)
             if (error == SpeechRecognizer.ERROR_NO_MATCH.toString())
             {
                 assistantIsListening = false
@@ -772,9 +775,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
     private fun addMicClickListener(micImage: ImageView, messagesRecycler: RecyclerView, speakingAnimationLayout: LinearLayout, sendLayout: LinearLayout, dashedLineView: ImageView,
                                     drawerFooter: LinearLayout, spokenText: TextView, assistantStateText: TextView, speakText: TextView, typeText: TextView,
-                                    sendMessage: ImageView){
+                                    sendMessage: ImageView, speakAnimation: SpeakingAnimation){
         micImage.setOnClickListener{
-            clearAnimationValues()
+            speakAnimation.clearAnimationValues(animation)
             val colorStateList = ColorStateList.valueOf(Color.parseColor(toolbarProps?.textInputLineColor ?: configurationToolbarProps?.textInputLineColor ?: getString(R.string.silver)))
             ViewCompat.setBackgroundTintList(inputTextMessage,colorStateList)
             if(!isUsingSpeech)
@@ -885,15 +888,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 return v?.onTouchEvent(event) ?: true
             }
         })
-    }
-
-    private fun Fragment.hideKeyboard() {
-        view?.let { activity?.hideKeyboard(it) }
-    }
-
-    private fun Context.hideKeyboard(view: View) {
-        val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     private fun cancelSpeech() {
@@ -1016,31 +1010,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     }
     private fun getPixelsFromDp(dp: Int): Int {
         return (dp * scale + 0.5f).toInt()
-    }
-
-    private fun clearAnimationValues(){
-        animation?.end()
-        val duration = 300L
-        val bar1 = ObjectAnimator.ofFloat(speakingAnimationBar1, getString(R.string.animation_scale_y), 1f)
-        bar1.duration = duration
-        val bar2 = ObjectAnimator.ofFloat(speakingAnimationBar2, getString(R.string.animation_scale_y), 1f)
-        bar2.duration = duration
-        val bar3 = ObjectAnimator.ofFloat(speakingAnimationBar3, getString(R.string.animation_scale_y), 1f)
-        bar3.duration = duration
-        val bar4 = ObjectAnimator.ofFloat(speakingAnimationBar4, getString(R.string.animation_scale_y), 1f)
-        bar4.duration = duration
-        val bar5 = ObjectAnimator.ofFloat(speakingAnimationBar5, getString(R.string.animation_scale_y), 1f)
-        bar5.duration = duration
-        val bar6 = ObjectAnimator.ofFloat(speakingAnimationBar6, getString(R.string.animation_scale_y), 1f)
-        bar6.duration = duration
-        val bar7 = ObjectAnimator.ofFloat(speakingAnimationBar7, getString(R.string.animation_scale_y), 1f)
-        bar7.duration = duration
-        val bar8 = ObjectAnimator.ofFloat(speakingAnimationBar8, getString(R.string.animation_scale_y), 1f)
-        bar8.duration = duration
-        AnimatorSet().apply {
-            playTogether(bar1, bar2, bar3,bar4,bar5,bar6,bar7,bar8)
-            start()
-        }
     }
 
     fun <T> deserializeEffectData(data: Any, type: Class<T>): T {

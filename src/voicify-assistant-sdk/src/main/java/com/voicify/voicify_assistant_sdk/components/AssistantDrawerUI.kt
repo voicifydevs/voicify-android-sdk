@@ -215,6 +215,9 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 hintsRecyclerViewAdapter?.notifyDataSetChanged()
                 assistant.makeTextRequest(hint ,null, getString(R.string.text))
             }
+            window?.container?.visibility = View.VISIBLE
+            window?.activityIndicator?.visibility = View.GONE
+
             assistantDrawerUIHeader.initializeHeader(
                 closeAssistantImageView = window!!.closeAssistantImageView,
                 avatarImageView = window!!.assistantAvatarImageView,
@@ -265,8 +268,6 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 configurationToolbarProps = configurationToolbarProps,
                 animationBars = speakingAnimationBars ?: emptyArray()
             )
-            window?.container?.visibility = View.VISIBLE
-            window?.activityIndicator?.visibility = View.GONE
 
             //UI Initialization
             addGradientBackground()
@@ -277,10 +278,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             addKeyboardActiveListener(window)
             addSpeechToTextListeners(assistant, speakAnimation)
             addMicClickListener(speakAnimation)
-
             addSendMessageClickListener(assistant, messagesList)
             addAssistantHandlers(assistant, hintsList, messagesList)
-
             addTextboxClickListener(sendTextLayoutStyle)
 
             window?.closeAssistantImageView?.setOnClickListener{
@@ -511,54 +510,45 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private fun checkInitializeWithWelcome(){
         if((assistantSettingProps?.initializeWithWelcomeMessage ?: configurationKotlin?.initializeWithWelcomeMessage) == true)
         {
-            val metrics = activity?.resources?.displayMetrics
-            val params = drawerLayout.layoutParams
-            params.height = metrics?.heightPixels as Int
-            window?.drawerLayout?.visibility = View.VISIBLE
-            window?.bodyContainerLayout?.visibility = View.VISIBLE
-            window?.spokenTextView?.text = ""
-            window?.hintsRecyclerView?.visibility = View.VISIBLE
-            window?.drawerLayout?.layoutParams = params
-            window?.assistantStateTextView?.text = ""
-            window?.drawerWelcomeTextView?.text = ""
-            window?.assistantAvatarImageView?.visibility = View.VISIBLE
-            window?.assistantNameTextView?.visibility = View.VISIBLE
-            window?.messagesRecyclerView?.visibility = View.VISIBLE
-            window?.bodyBorderTopView?.visibility = View.VISIBLE
-            window?.bodyBorderBottomView?.visibility = View.VISIBLE
-            window?.drawerLayout?.setPadding(0,0,0,0)
-            window?.drawerLayout?.setBackgroundColor(Color.TRANSPARENT)
-            window?.toolbarLayout?.setPadding(toolbarProps?.paddingLeft ?: configurationToolbarProps?.paddingLeft ?: HelperMethods.getPixelsFromDp(16, scale), HelperMethods.getPixelsFromDp(0, scale),toolbarProps?.paddingRight ?: configurationToolbarProps?.paddingRight ?: HelperMethods.getPixelsFromDp(16, scale),toolbarProps?.paddingBottom ?: configurationToolbarProps?.paddingBottom ?: HelperMethods.getPixelsFromDp(16, scale))
-            window?.assistantAvatarBackgroundContainerLayout?.visibility = View.VISIBLE
-            window?.headerLayout?.setPadding(headerProps?.paddingLeft ?: configurationHeaderProps?.paddingLeft ?: HelperMethods.getPixelsFromDp(16, scale), headerProps?.paddingTop ?: configurationHeaderProps?.paddingTop ?: HelperMethods.getPixelsFromDp(16, scale), headerProps?.paddingRight ?: configurationHeaderProps?.paddingRight ?: HelperMethods.getPixelsFromDp(16, scale), headerProps?.paddingBottom ?: configurationHeaderProps?.paddingBottom ?: HelperMethods.getPixelsFromDp(16, scale))
-            window?.micImageView?.setBackgroundColor(Color.parseColor(toolbarProps?.micInactiveHighlightColor ?: configurationToolbarProps?.micInactiveHighlightColor ?: getString(R.string.transparent)))
-            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
             isDrawer = false
+            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
 
-            if(!isUsingSpeech)
-            {
-                val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                drawerFooterLayoutParams.setMargins(0,0,0,0)
-                window?.drawerFooterLayout?.layoutParams = drawerFooterLayoutParams
-                window?.dashedLineImageView?.visibility = View.INVISIBLE
-            }
+            assistantDrawerUIHeader.setFullScreenView(
+                assistantAvatarImageView = window?.assistantAvatarImageView,
+                assistantNameTextView = window?.assistantNameTextView,
+                assistantAvatarBackgroundContainerLayout = window?.assistantAvatarBackgroundContainerLayout,
+                headerLayout = window?.headerLayout,
+                headerProps = headerProps,
+                configurationHeaderProps = configurationHeaderProps,
+                context = requireContext(),
+                assistantSettingProps = assistantSettingProps,
+                configuration = configurationKotlin
+            )
 
-            if(!(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor).isNullOrEmpty())
-            {
-                window?.toolbarLayout?.setBackgroundColor(Color.parseColor(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor))
-            }
-            else if ((assistantSettingProps?.backgroundColor ?: configurationKotlin?.styles?.assistant?.backgroundColor).isNullOrEmpty())
-            {
-                window?.toolbarLayout?.setBackgroundColor(Color.parseColor(getString(R.string.white)))
-            }
+            assistantDrawerUIBody.setFullScreenView(
+                bodyContainerLayout = window?.bodyContainerLayout,
+                hintsRecyclerView = window?.hintsRecyclerView,
+                messagesRecyclerView = window?.messagesRecyclerView,
+                bodyBorderTopView = window?.bodyBorderTopView,
+                bodyBorderBottomView = window?.bodyBorderBottomView
+            )
 
-            if(!(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor).isNullOrEmpty()){
-                window?.headerLayout?.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor))
-            }
-            else if ((assistantSettingProps?.backgroundColor ?: configurationKotlin?.styles?.assistant?.backgroundColor).isNullOrEmpty())
-            {
-                window?.headerLayout?.setBackgroundColor(Color.parseColor(getString(R.string.white)))
-            }
+            assistantDrawerUIToolbar.setFullScreenView(
+                drawerLayout = window?.drawerLayout,
+                spokenTextView = window?.spokenTextView,
+                assistantStateTextView = window?.assistantStateTextView,
+                drawerWelcomeTextView = window?.drawerWelcomeTextView,
+                toolbarLayout = window?.toolbarLayout,
+                isUsingSpeech = isUsingSpeech,
+                context = requireContext(),
+                toolbarProps = toolbarProps,
+                configurationToolbarProps = configurationToolbarProps,
+                micImageView = window?.micImageView,
+                drawerFooterLayout = window?.drawerFooterLayout,
+                dashedLineImageView = window?.dashedLineImageView,
+                configuration = configurationKotlin,
+                assistantSettingProps = assistantSettingProps
+            )
 
             messagesRecyclerViewAdapter?.notifyDataSetChanged()
 
@@ -584,51 +574,59 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private fun addAssistantHandlers(assistant: VoicifyAssistant, hintsList: ArrayList<String>, messagesList: ArrayList<Message>){
         assistant.onResponseReceived { response ->
             activity?.runOnUiThread{
-                val metrics = activity?.resources?.displayMetrics
-                val params = drawerLayout.layoutParams
-                params.height = metrics?.heightPixels as Int
-                window?.drawerLayout?.layoutParams = params
-                window?.assistantStateTextView?.text = ""
-                window?.drawerWelcomeTextView?.text = ""
-                window?.assistantAvatarImageView?.visibility = View.VISIBLE
-                window?.assistantNameTextView?.visibility = View.VISIBLE
-                window?.messagesRecyclerView?.visibility = View.VISIBLE
-                window?.bodyBorderTopView?.visibility = View.VISIBLE
-                window?.bodyBorderBottomView?.visibility = View.VISIBLE
-                window?.drawerLayout?.visibility = View.VISIBLE
-                window?.bodyContainerLayout?.visibility = View.VISIBLE
-                window?.spokenTextView?.text = ""
-                window?.hintsRecyclerView?.visibility = View.VISIBLE
-                window?.closeAssistantImageView?.visibility = View.VISIBLE
                 window?.closeAssistantNoInternetImageView?.visibility = View.GONE
+                bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
+                isDrawer = false
+                assistantDrawerUIHeader.setFullScreenView(
+                    assistantAvatarImageView = window?.assistantAvatarImageView,
+                    assistantNameTextView = window?.assistantNameTextView,
+                    assistantAvatarBackgroundContainerLayout = window?.assistantAvatarBackgroundContainerLayout,
+                    headerLayout = window?.headerLayout,
+                    headerProps = headerProps,
+                    configurationHeaderProps = configurationHeaderProps,
+                    context = requireContext(),
+                    assistantSettingProps = assistantSettingProps,
+                    configuration = configurationKotlin
+                )
+
+                assistantDrawerUIBody.setFullScreenView(
+                    bodyContainerLayout = window?.bodyContainerLayout,
+                    hintsRecyclerView = window?.hintsRecyclerView,
+                    messagesRecyclerView = window?.messagesRecyclerView,
+                    bodyBorderTopView = window?.bodyBorderTopView,
+                    bodyBorderBottomView = window?.bodyBorderBottomView
+                )
+
+                assistantDrawerUIToolbar.setFullScreenView(
+                    drawerLayout = window?.drawerLayout,
+                    spokenTextView = window?.spokenTextView,
+                    assistantStateTextView = window?.assistantStateTextView,
+                    drawerWelcomeTextView = window?.drawerWelcomeTextView,
+                    toolbarLayout = window?.toolbarLayout,
+                    isUsingSpeech = isUsingSpeech,
+                    context = requireContext(),
+                    toolbarProps = toolbarProps,
+                    configurationToolbarProps = configurationToolbarProps,
+                    micImageView = window?.micImageView,
+                    drawerFooterLayout = window?.drawerFooterLayout,
+                    dashedLineImageView = window?.dashedLineImageView,
+                    configuration = configurationKotlin,
+                    assistantSettingProps = assistantSettingProps
+                )
+
+                assistantDrawerUIBody.setHints(
+                    response = response,
+                    hintsList = hintsList,
+                    hintsRecyclerViewAdapter = hintsRecyclerViewAdapter,
+                    hintsRecyclerView = window?.hintsRecyclerView
+                )
+                
                 if(isDrawer)
                 {
                     hideKeyboard()
                     isKeyboardActive = false
                 }
-                if(!response.hints.isNullOrEmpty())
-                {
-                    if(!hintsList.isNullOrEmpty())
-                    {
-                        hintsList.clear()
-                        hintsRecyclerViewAdapter?.notifyDataSetChanged()
-                    }
-                    response.hints.forEach { hint ->
-                        hintsList.add(hint)
-                        hintsRecyclerViewAdapter?.notifyDataSetChanged()
-                    }
-                }
-                else
-                {
-                    window?.hintsRecyclerView?.visibility = View.GONE
-                }
-                if(!isUsingSpeech)
-                {
-                    val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                    drawerFooterLayoutParams.setMargins(0,0,0,0)
-                    window?.drawerFooterLayout?.layoutParams = drawerFooterLayoutParams
-                    window?.dashedLineImageView?.visibility = View.INVISIBLE
-                }
+
                 if(!speechFullResult.isNullOrEmpty())
                 {
                     messagesList.add(Message(speechFullResult as String, getString(R.string.sent)))
@@ -636,29 +634,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     window?.messagesRecyclerView?.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int)
                 }
                 speechFullResult = null
-                window?.drawerLayout?.setPadding(0,0,0,0)
-                window?.drawerLayout?.setBackgroundColor(Color.TRANSPARENT)
-                if(!(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor).isNullOrEmpty())
-                {
-                    window?.toolbarLayout?.setBackgroundColor(Color.parseColor(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor))
-                }
-                else if ((assistantSettingProps?.backgroundColor ?: configurationKotlin?.styles?.assistant?.backgroundColor).isNullOrEmpty())
-                {
-                    window?.toolbarLayout?.setBackgroundColor(Color.parseColor(getString(R.string.white)))
-                }
-                window?.toolbarLayout?.setPadding(toolbarProps?.paddingLeft ?: configurationToolbarProps?.paddingLeft ?: HelperMethods.getPixelsFromDp(16, scale), HelperMethods.getPixelsFromDp(0, scale),toolbarProps?.paddingRight ?: configurationToolbarProps?.paddingRight ?: HelperMethods.getPixelsFromDp(16, scale),toolbarProps?.paddingBottom ?: configurationToolbarProps?.paddingBottom ?: HelperMethods.getPixelsFromDp(16, scale))
-                window?.assistantAvatarBackgroundContainerLayout?.visibility = View.VISIBLE
-                if(!(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor).isNullOrEmpty()){
-                    window?.headerLayout?.setBackgroundColor(Color.parseColor(headerProps?.backgroundColor ?: configurationHeaderProps?.backgroundColor))
-                }
-                else if ((assistantSettingProps?.backgroundColor ?: configurationKotlin?.styles?.assistant?.backgroundColor).isNullOrEmpty())
-                {
-                    window?.headerLayout?.setBackgroundColor(Color.parseColor(getString(R.string.white)))
-                }
-                window?.headerLayout?.setPadding(headerProps?.paddingLeft ?: configurationHeaderProps?.paddingLeft ?: HelperMethods.getPixelsFromDp(16, scale), headerProps?.paddingTop ?: configurationHeaderProps?.paddingTop ?: HelperMethods.getPixelsFromDp(16, scale), headerProps?.paddingRight ?: configurationHeaderProps?.paddingRight ?: HelperMethods.getPixelsFromDp(16, scale), headerProps?.paddingBottom ?: configurationHeaderProps?.paddingBottom ?: HelperMethods.getPixelsFromDp(16, scale))
-                bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
-                isDrawer = false
-                window?.micImageView?.setBackgroundColor(Color.parseColor(toolbarProps?.micInactiveHighlightColor ?: configurationToolbarProps?.micInactiveHighlightColor ?: getString(R.string.transparent)))
+
                 messagesList.add(Message(response.displayText?.trim() as String, getString(R.string.received)))
                 messagesRecyclerViewAdapter?.notifyDataSetChanged()
                 window?.messagesRecyclerView?.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int)

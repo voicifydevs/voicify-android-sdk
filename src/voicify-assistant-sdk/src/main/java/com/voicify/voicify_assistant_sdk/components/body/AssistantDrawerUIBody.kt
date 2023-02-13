@@ -12,7 +12,10 @@ import com.voicify.voicify_assistant_sdk.R
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.AssistantSettingsProps
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.BodyProps
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.Message
+import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.hideKeyboard
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantConfigurationResponse
+import com.voicify.voicify_assistant_sdk.models.CustomAssistantResponse
+import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.view.*
 
 class AssistantDrawerUIBody{
     internal fun initializeBody(bodyBorderTopView: View,
@@ -75,5 +78,32 @@ class AssistantDrawerUIBody{
         messagesRecycler.layoutManager = LinearLayoutManager(context)
         messagesRecycler.adapter = messagesRecyclerViewAdapter
         return Pair(messagesRecyclerViewAdapter, hintsRecyclerViewAdapter)
+    }
+
+    fun setFullScreenView(bodyContainerLayout: LinearLayout?, hintsRecyclerView: RecyclerView?, messagesRecyclerView: RecyclerView?, bodyBorderTopView: View?, bodyBorderBottomView: View?){
+        bodyContainerLayout?.visibility = View.VISIBLE
+        hintsRecyclerView?.visibility = View.VISIBLE
+        messagesRecyclerView?.visibility = View.VISIBLE
+        bodyBorderTopView?.visibility = View.VISIBLE
+        bodyBorderBottomView?.visibility = View.VISIBLE
+    }
+
+    internal fun setHints(response: CustomAssistantResponse, hintsList: ArrayList<String>, hintsRecyclerViewAdapter: HintsRecyclerViewAdapter?, hintsRecyclerView: RecyclerView?){
+        if(!response.hints.isNullOrEmpty())
+        {
+            if(!hintsList.isNullOrEmpty())
+            {
+                hintsList.clear()
+                hintsRecyclerViewAdapter?.notifyDataSetChanged()
+            }
+            response.hints.forEach { hint ->
+                hintsList.add(hint)
+                hintsRecyclerViewAdapter?.notifyDataSetChanged()
+            }
+        }
+        else
+        {
+            hintsRecyclerView?.visibility = View.GONE
+        }
     }
 }

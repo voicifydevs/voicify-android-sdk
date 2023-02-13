@@ -2,6 +2,7 @@ package com.voicify.voicify_assistant_sdk.components.toolbar
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -12,11 +13,9 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.ViewCompat
-import androidx.recyclerview.widget.RecyclerView
 import com.voicify.voicify_assistant_sdk.R
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.*
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantConfigurationResponse
-import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.*
 
 class AssistantDrawerUIToolbar(){
 
@@ -250,5 +249,58 @@ class AssistantDrawerUIToolbar(){
             toolbarProps?.paddingRight ?: configurationToolbarProps?.paddingRight ?: HelperMethods.getPixelsFromDp(16, scale),
             toolbarProps?.paddingBottom ?: configurationToolbarProps?.paddingBottom ?: HelperMethods.getPixelsFromDp(16, scale)
         )
+    }
+
+    fun setFullScreenView(
+        drawerLayout: LinearLayout?,
+        spokenTextView: TextView?,
+        assistantStateTextView: TextView?,
+        drawerWelcomeTextView: TextView?,
+        toolbarLayout: LinearLayout?,
+        isUsingSpeech: Boolean,
+        context: Context,
+        toolbarProps: ToolbarProps?,
+        configurationToolbarProps: ToolbarProps?,
+        micImageView: ImageView?,
+        drawerFooterLayout: LinearLayout?,
+        dashedLineImageView: ImageView?,
+        configuration: CustomAssistantConfigurationResponse?,
+        assistantSettingProps: AssistantSettingsProps?
+    ) {
+        val scale = context.resources.displayMetrics.density
+        val metrics = context.resources.displayMetrics
+        val params = drawerLayout?.layoutParams
+        params?.height = metrics?.heightPixels as Int
+        drawerLayout?.layoutParams = params
+        assistantStateTextView?.text = ""
+        drawerWelcomeTextView?.text = ""
+        drawerLayout?.setPadding(0,0,0,0)
+        drawerLayout?.setBackgroundColor(Color.TRANSPARENT)
+        drawerLayout?.visibility = View.VISIBLE
+        spokenTextView?.text = ""
+        micImageView?.setBackgroundColor(Color.parseColor(toolbarProps?.micInactiveHighlightColor ?: configurationToolbarProps?.micInactiveHighlightColor ?: context.getString(R.string.transparent)))
+        toolbarLayout?.setPadding(
+            toolbarProps?.paddingLeft ?: configurationToolbarProps?.paddingLeft ?: HelperMethods.getPixelsFromDp(16, scale),
+            HelperMethods.getPixelsFromDp(0, scale),
+            toolbarProps?.paddingRight ?: configurationToolbarProps?.paddingRight ?: HelperMethods.getPixelsFromDp(16, scale),
+            toolbarProps?.paddingBottom ?: configurationToolbarProps?.paddingBottom ?: HelperMethods.getPixelsFromDp(16, scale)
+        )
+
+        if(!isUsingSpeech)
+        {
+            val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            drawerFooterLayoutParams.setMargins(0,0,0,0)
+            drawerFooterLayout?.layoutParams = drawerFooterLayoutParams
+            dashedLineImageView?.visibility = View.INVISIBLE
+        }
+
+        if(!(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor).isNullOrEmpty())
+        {
+            toolbarLayout?.setBackgroundColor(Color.parseColor(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor))
+        }
+        else if ((assistantSettingProps?.backgroundColor ?: configuration?.styles?.assistant?.backgroundColor).isNullOrEmpty())
+        {
+            toolbarLayout?.setBackgroundColor(Color.parseColor(context.getString(R.string.white)))
+        }
     }
 }

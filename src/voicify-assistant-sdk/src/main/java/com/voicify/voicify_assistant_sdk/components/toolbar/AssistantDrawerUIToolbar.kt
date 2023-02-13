@@ -53,14 +53,14 @@ class AssistantDrawerUIToolbar(){
         val micImageColor: String?
         val scale = context.resources.displayMetrics.density
 
-        if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == context.getString(R.string.textbox)) != true) {
+        if((assistantSettingProps?.initializeWithText == true || configuration?.activeInput == context.getString(R.string.textbox)) != true) {
             micImageUrl = toolbarProps?.micActiveImage ?: configurationToolbarProps?.micActiveImage ?: context.getString(R.string.mic_active_image)
         }
         else{
             micImageUrl = toolbarProps?.micInactiveImage ?: configurationToolbarProps?.micInactiveImage ?: context.getString(R.string.mic_inactive_image)
         }
 
-        if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == context.getString(R.string.textbox)))
+        if(!(assistantSettingProps?.initializeWithText == true || configuration?.activeInput == context.getString(R.string.textbox)))
         {
             micImageColor =  toolbarProps?.micActiveColor ?: configurationToolbarProps?.micActiveColor
         }
@@ -97,7 +97,7 @@ class AssistantDrawerUIToolbar(){
         var sendImageUrl: String
         val sendImageColor: String?
         val scale = context.resources.displayMetrics.density
-        if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == context.getString(R.string.textbox))
+        if(!(assistantSettingProps?.initializeWithText == true || configuration?.activeInput == context.getString(R.string.textbox))
             && assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput != false)
         {
             sendImageUrl = toolbarProps?.sendInactiveImage ?: configurationToolbarProps?.sendInactiveImage ?: context.getString(R.string.send_inactive_image)
@@ -106,7 +106,7 @@ class AssistantDrawerUIToolbar(){
             sendImageUrl = toolbarProps?.sendActiveImage ?: configurationToolbarProps?.sendActiveImage ?: context.getString(R.string.send_active_image)
         }
 
-        if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == context.getString(R.string.textbox))
+        if(!(assistantSettingProps?.initializeWithText == true || configuration?.activeInput == context.getString(R.string.textbox))
             && (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == false)
         {
             sendImageColor = toolbarProps?.sendInactiveColor ?: configurationToolbarProps?.sendInactiveColor
@@ -135,7 +135,7 @@ class AssistantDrawerUIToolbar(){
             speakTextView.visibility = View.GONE
         }
         else{
-            if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == context.getString(R.string.textbox)) != true &&
+            if((assistantSettingProps?.initializeWithText == true || configuration?.activeInput == context.getString(R.string.textbox)) != true &&
                 (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) != false) {
                 speakTextColor = Color.parseColor(
                     toolbarProps?.speakActiveTitleColor
@@ -162,7 +162,7 @@ class AssistantDrawerUIToolbar(){
 
     private fun initializeTypeTextView(typeTextView: TextView, context: Context, toolbarProps: ToolbarProps?, configurationToolbarProps: ToolbarProps?, assistantSettingProps: AssistantSettingsProps?, configuration: CustomAssistantConfigurationResponse?,){
         var typeTextColor: Int
-        if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == context.getString(R.string.textbox)) != true &&
+        if((assistantSettingProps?.initializeWithText == true || configuration?.activeInput == context.getString(R.string.textbox)) != true &&
             (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) != false) {
             typeTextColor = Color.parseColor(
                 toolbarProps?.typeInactiveTitleColor
@@ -216,7 +216,7 @@ class AssistantDrawerUIToolbar(){
 
     private fun initializeInputMessageEditTextView(inputeMessageEditText: EditText, context: Context, toolbarProps: ToolbarProps?, configurationToolbarProps: ToolbarProps?, assistantSettingProps: AssistantSettingsProps?, configuration: CustomAssistantConfigurationResponse?,){
         var inputMessageLineColor: Int
-        if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == context.getString(R.string.textbox)) != true &&
+        if((assistantSettingProps?.initializeWithText == true || configuration?.activeInput == context.getString(R.string.textbox)) != true &&
             (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) != false) {
             inputMessageLineColor = Color.parseColor(toolbarProps?.textInputLineColor ?: configurationToolbarProps?.textInputLineColor ?: context.getString(R.string.silver))
         }

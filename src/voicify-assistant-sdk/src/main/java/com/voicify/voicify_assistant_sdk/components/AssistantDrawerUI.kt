@@ -195,7 +195,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         )
 
         scale = requireContext().resources.displayMetrics.density
-        isUsingSpeech = (assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == getString(R.string.textbox)) != true && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) != false
+        isUsingSpeech = (assistantSettingProps?.initializeWithText == true || configurationKotlin?.activeInput == getString(R.string.textbox)) != true && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) != false
         window?.activityIndicator?.setBackgroundColor(Color.parseColor(getString(R.string.black_60_percent)))
 
         val sendTextLayoutStyle = GradientDrawable()
@@ -491,7 +491,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 noTracking = assistantSettingProps?.noTracking ?: configurationKotlin?.noTracking ?: false,
                 autoRunConversation = assistantSettingProps?.autoRunConversation ?: configurationKotlin?.autoRunConversation ?: false,
                 initializeWithWelcomeMessage = assistantSettingProps?.initializeWithWelcomeMessage ?: configurationKotlin?.initializeWithWelcomeMessage ?: false,
-                initializeWithText = assistantSettingProps?.initializeWithText ?: (configurationKotlin?.activeInput == getString(R.string.textbox)),
+                initializeWithText = assistantSettingProps?.initializeWithText == true || (configurationKotlin?.activeInput == getString(R.string.textbox)),
                 useVoiceInput = assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput ?: true,
                 useDraftContent = assistantSettingProps?.useDraftContent ?: configurationKotlin?.useDraftContent ?: false,
                 useOutputSpeech = assistantSettingProps?.useOutputSpeech ?: configurationKotlin?.useOutputSpeech ?: true
@@ -500,7 +500,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     }
 
     private fun checkInitializeWithText(sendTextLayoutStyle: GradientDrawable){
-        if((assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == getString(R.string.textbox)) || (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) == false)
+        if((assistantSettingProps?.initializeWithText == true || configurationKotlin?.activeInput == getString(R.string.textbox)) || (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) == false)
         {
             window?.speakingAnimation?.visibility = View.GONE
             window?.sendTextLayout?.background = sendTextLayoutStyle
@@ -572,7 +572,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
         }
         assistant.initializeAndStart()
         assistant.startNewSession(null, null, this.sessionAttributes, this.userAttributes)
-        if((assistantSettingProps?.initializeWithText ?: configurationKotlin?.activeInput == getString(R.string.textbox)) != true && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) != false && (assistantSettingProps?.initializeWithWelcomeMessage ?: configurationKotlin?.initializeWithWelcomeMessage) != true)
+        if((assistantSettingProps?.initializeWithText == true || configurationKotlin?.activeInput == getString(R.string.textbox)) != true && (assistantSettingProps?.useVoiceInput ?: configurationKotlin?.useVoiceInput) != false && (assistantSettingProps?.initializeWithWelcomeMessage ?: configurationKotlin?.initializeWithWelcomeMessage) != true)
         {
             voicifySTT?.startListening()
         }

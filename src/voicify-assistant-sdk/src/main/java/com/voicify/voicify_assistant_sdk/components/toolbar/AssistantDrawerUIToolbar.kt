@@ -18,14 +18,8 @@ import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.*
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantConfigurationResponse
 import kotlinx.android.synthetic.main.fragment_assistant_drawer_u_i.*
 
-class AssistantDrawerUIToolbar(
-    private var context: Context,
-    private var toolbarProps: ToolbarProps?,
-    private var configurationToolbarProps: ToolbarProps?,
-    private var assistantSettingProps: AssistantSettingsProps?,
-    private var configuration: CustomAssistantConfigurationResponse?,
-) {
-    private val scale = context.resources.displayMetrics.density
+class AssistantDrawerUIToolbar(){
+
 
     fun initializeToolbar(
         micImageView: ImageView,
@@ -37,21 +31,27 @@ class AssistantDrawerUIToolbar(
         spokenTextView: TextView,
         inputeMessageEditText: EditText,
         drawerLayout: LinearLayout,
+        context: Context,
+        toolbarProps: ToolbarProps?,
+        configurationToolbarProps: ToolbarProps?,
+        assistantSettingProps: AssistantSettingsProps?,
+        configuration: CustomAssistantConfigurationResponse?,
     ) {
-        initializeMicButton(micImageView)
-        initializeSendMessageButton(sendMessageImageView)
-        initializeSpeakTextView(speakTextView)
-        initializeTypeTextView(typeTextView)
-        initializeDrawerHelpTextView(drawerHelpTextView)
-        initializeAssistantStateTextView(assistantStateTextView)
-        initializeSpokenTextView(spokenTextView)
-        initializeInputMessageEditTextView(inputeMessageEditText)
-        initializeDrawerLayout(drawerLayout)
+        initializeMicButton(micImageView, context, toolbarProps, configurationToolbarProps, assistantSettingProps, configuration)
+        initializeSendMessageButton(sendMessageImageView, context, toolbarProps, configurationToolbarProps, assistantSettingProps, configuration)
+        initializeSpeakTextView(speakTextView, context, toolbarProps, configurationToolbarProps, assistantSettingProps, configuration)
+        initializeTypeTextView(typeTextView, context, toolbarProps, configurationToolbarProps, assistantSettingProps, configuration)
+        initializeDrawerHelpTextView(drawerHelpTextView, context, toolbarProps, configurationToolbarProps)
+        initializeAssistantStateTextView(assistantStateTextView, context, toolbarProps, configurationToolbarProps)
+        initializeSpokenTextView(spokenTextView, context, toolbarProps, configurationToolbarProps)
+        initializeInputMessageEditTextView(inputeMessageEditText, context, toolbarProps, configurationToolbarProps, assistantSettingProps, configuration)
+        initializeDrawerLayout(drawerLayout, context, toolbarProps, configurationToolbarProps, assistantSettingProps, configuration)
     }
 
-    private fun initializeMicButton(micImageView: ImageView) {
+    private fun initializeMicButton(micImageView: ImageView, context: Context, toolbarProps: ToolbarProps?, configurationToolbarProps: ToolbarProps?, assistantSettingProps: AssistantSettingsProps?, configuration: CustomAssistantConfigurationResponse?) {
         var micImageUrl = ""
         val micImageColor: String?
+        val scale = context.resources.displayMetrics.density
 
         if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == context.getString(R.string.textbox)) != true) {
             micImageUrl = toolbarProps?.micActiveImage ?: configurationToolbarProps?.micActiveImage ?: context.getString(R.string.mic_active_image)
@@ -93,9 +93,10 @@ class AssistantDrawerUIToolbar(
         )
     }
 
-    private fun initializeSendMessageButton(sendMessageImageView: ImageView){
+    private fun initializeSendMessageButton(sendMessageImageView: ImageView, context: Context, toolbarProps: ToolbarProps?, configurationToolbarProps: ToolbarProps?, assistantSettingProps: AssistantSettingsProps?, configuration: CustomAssistantConfigurationResponse?,){
         var sendImageUrl: String
         val sendImageColor: String?
+        val scale = context.resources.displayMetrics.density
         if(!(assistantSettingProps?.initializeWithText ?: configuration?.activeInput == context.getString(R.string.textbox))
             && assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput != false)
         {
@@ -126,7 +127,7 @@ class AssistantDrawerUIToolbar(
         sendMessageImageView.layoutParams = sendImageLayoutParams
     }
 
-    private fun initializeSpeakTextView(speakTextView: TextView){
+    private fun initializeSpeakTextView(speakTextView: TextView, context: Context, toolbarProps: ToolbarProps?, configurationToolbarProps: ToolbarProps?, assistantSettingProps: AssistantSettingsProps?, configuration: CustomAssistantConfigurationResponse?,){
         var speakTextColor: Int
         if((assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) == false)
         {
@@ -159,7 +160,7 @@ class AssistantDrawerUIToolbar(
         }
     }
 
-    private fun initializeTypeTextView(typeTextView: TextView){
+    private fun initializeTypeTextView(typeTextView: TextView, context: Context, toolbarProps: ToolbarProps?, configurationToolbarProps: ToolbarProps?, assistantSettingProps: AssistantSettingsProps?, configuration: CustomAssistantConfigurationResponse?,){
         var typeTextColor: Int
         if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == context.getString(R.string.textbox)) != true &&
             (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) != false) {
@@ -181,7 +182,7 @@ class AssistantDrawerUIToolbar(
         typeTextView.typeface = Typeface.create(toolbarProps?.typeFontFamily ?: configurationToolbarProps?.typeFontFamily ?: context.getString(R.string.default_font), Typeface.NORMAL)
     }
 
-    private fun initializeDrawerHelpTextView(drawerHelpTextView: TextView){
+    private fun initializeDrawerHelpTextView(drawerHelpTextView: TextView,context: Context, toolbarProps: ToolbarProps?, configurationToolbarProps: ToolbarProps?){
         drawerHelpTextView.text = toolbarProps?.helpText ?: configurationToolbarProps?.helpText ?: context.getString(R.string.drawer_welcome_text)
         drawerHelpTextView.setTextColor(Color.parseColor(toolbarProps?.helpTextFontColor ?: configurationToolbarProps?.helpTextFontColor ?: context.getString(R.string.dark_gray)))
         drawerHelpTextView.textSize = toolbarProps?.helpTextFontSize ?: configurationToolbarProps?.helpTextFontSize ?: 18f
@@ -191,7 +192,7 @@ class AssistantDrawerUIToolbar(
         )
     }
 
-    private fun initializeAssistantStateTextView(assistantStateTextView: TextView){
+    private fun initializeAssistantStateTextView(assistantStateTextView: TextView, context: Context, toolbarProps: ToolbarProps?, configurationToolbarProps: ToolbarProps?, ){
         assistantStateTextView.setTextColor(Color.parseColor(toolbarProps?.assistantStateTextColor ?: configurationToolbarProps?.assistantStateTextColor ?: context.getString(R.string.dark_gray)))
         assistantStateTextView.textSize = toolbarProps?.assistantStateFontSize ?: configurationToolbarProps?.assistantStateFontSize ?: 16f
         assistantStateTextView.typeface = Typeface.create(
@@ -201,7 +202,7 @@ class AssistantDrawerUIToolbar(
 
     }
 
-    private fun initializeSpokenTextView(spokenTextView: TextView){
+    private fun initializeSpokenTextView(spokenTextView: TextView, context: Context, toolbarProps: ToolbarProps?, configurationToolbarProps: ToolbarProps?, ){
         spokenTextView.textSize = 16f
         spokenTextView.typeface = Typeface.create(
             toolbarProps?.partialSpeechResultFontFamily ?: configurationToolbarProps?.partialSpeechResultFontFamily ?: context.getString(R.string.default_font),
@@ -213,7 +214,7 @@ class AssistantDrawerUIToolbar(
         spokenTextView.background = spokenTextViewStyle
     }
 
-    private fun initializeInputMessageEditTextView(inputeMessageEditText: EditText){
+    private fun initializeInputMessageEditTextView(inputeMessageEditText: EditText, context: Context, toolbarProps: ToolbarProps?, configurationToolbarProps: ToolbarProps?, assistantSettingProps: AssistantSettingsProps?, configuration: CustomAssistantConfigurationResponse?,){
         var inputMessageLineColor: Int
         if((assistantSettingProps?.initializeWithText ?: configuration?.activeInput == context.getString(R.string.textbox)) != true &&
             (assistantSettingProps?.useVoiceInput ?: configuration?.useVoiceInput) != false) {
@@ -233,7 +234,8 @@ class AssistantDrawerUIToolbar(
         inputeMessageEditText.textSize = toolbarProps?.textboxFontSize ?: configurationToolbarProps?.textboxFontSize ?: 18f
     }
 
-    private fun initializeDrawerLayout(draweLayout: LinearLayout){
+    private fun initializeDrawerLayout(draweLayout: LinearLayout, context: Context, toolbarProps: ToolbarProps?, configurationToolbarProps: ToolbarProps?, assistantSettingProps: AssistantSettingsProps?, configuration: CustomAssistantConfigurationResponse?,){
+        val scale = context.resources.displayMetrics.density
         if(!(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor).isNullOrEmpty()){
             draweLayout.setBackgroundColor(Color.parseColor(toolbarProps?.backgroundColor ?: configurationToolbarProps?.backgroundColor))
         }

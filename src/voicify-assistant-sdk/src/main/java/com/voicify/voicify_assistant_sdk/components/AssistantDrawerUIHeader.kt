@@ -13,26 +13,25 @@ import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.HeaderProps
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.HelperMethods
 
 class AssistantDrawerUIHeader(
-    private var context: Context,
-    private var headerProps: HeaderProps?,
-    private var configurationHeaderProps: HeaderProps?,
-    private var resources: Resources
-) {
-    private val scale = context.resources.displayMetrics.density
 
+) {
     fun initializeHeader(
         closeAssistantImageView: ImageView,
         avatarImageView: ImageView,
         closeBackgroundLayout: LinearLayout,
         avatarBackgroundLayout: LinearLayout,
-        assistantNameTextView: TextView
+        assistantNameTextView: TextView,
+        context: Context,
+        headerProps: HeaderProps?,
+        configurationHeaderProps: HeaderProps?,
+        resources: Resources
     ){
-        initializeCloseAssistantButton(closeBackgroundLayout, closeAssistantImageView)
-        initializeAssistantAvatar(avatarBackgroundLayout, avatarImageView)
-        initializeAssistantName(assistantNameTextView)
+        initializeCloseAssistantButton(closeBackgroundLayout, closeAssistantImageView, context, headerProps, configurationHeaderProps)
+        initializeAssistantAvatar(avatarBackgroundLayout, avatarImageView, context, headerProps, configurationHeaderProps, resources)
+        initializeAssistantName(assistantNameTextView, context, headerProps, configurationHeaderProps)
     }
 
-    private fun initializeCloseAssistantButton(closeBackgroundLayout: LinearLayout, closeAssistantImageView: ImageView){
+    private fun initializeCloseAssistantButton(closeBackgroundLayout: LinearLayout, closeAssistantImageView: ImageView, context: Context, headerProps: HeaderProps?, configurationHeaderProps: HeaderProps?){
         val closeAssistantImageBackgroundStyle = GradientDrawable()
         closeAssistantImageBackgroundStyle.cornerRadius = headerProps?.closeAssistantButtonBorderRadius ?: configurationHeaderProps?.closeAssistantButtonBorderRadius ?: 0f
         closeAssistantImageBackgroundStyle.setStroke(headerProps?.closeAssistantButtonBorderWidth ?: configurationHeaderProps?.closeAssistantButtonBorderWidth ?: 0, Color.parseColor(headerProps?.closeAssistantButtonBorderColor ?: configurationHeaderProps?.closeAssistantButtonBorderColor ?: context.getString(R.string.transparent)))
@@ -47,7 +46,8 @@ class AssistantDrawerUIHeader(
         )
     }
 
-    private fun initializeAssistantAvatar(avatarBackgroundLayout: LinearLayout, avatarImageView: ImageView){
+    private fun initializeAssistantAvatar(avatarBackgroundLayout: LinearLayout, avatarImageView: ImageView, context: Context, headerProps: HeaderProps?, configurationHeaderProps: HeaderProps?, resources: Resources){
+        val scale = context.resources.displayMetrics.density
         val avatarBackgroundStyle = GradientDrawable()
         avatarBackgroundStyle.cornerRadius = headerProps?.assistantImageBorderRadius ?: configurationHeaderProps?.assistantImageBorderRadius ?: 48f
         avatarBackgroundStyle.setStroke(
@@ -78,7 +78,7 @@ class AssistantDrawerUIHeader(
         avatarImageView.layoutParams = assistantImageLayoutParams
     }
 
-    private fun initializeAssistantName(assistantNameTextView: TextView){
+    private fun initializeAssistantName(assistantNameTextView: TextView, context: Context, headerProps: HeaderProps?, configurationHeaderProps: HeaderProps?){
         assistantNameTextView.typeface = Typeface.create(
             headerProps?.fontFamily ?: configurationHeaderProps?.fontFamily ?: context.getString(R.string.default_font),
             Typeface.NORMAL

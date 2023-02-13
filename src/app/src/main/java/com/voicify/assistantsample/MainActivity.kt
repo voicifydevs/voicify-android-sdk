@@ -16,25 +16,25 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         //config needed for UI tests
-        val voiceAssistant = AssistantDrawerUI.newInstance(
-            AssistantSettingsProps(
-                serverRootUrl = "https://assistant.voicify.com",
-                appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
-                appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
-                autoRunConversation = true,
-                effects = arrayOf("Play")
-            )
-        )
-
-//        configuration id config
 //        val voiceAssistant = AssistantDrawerUI.newInstance(
 //            AssistantSettingsProps(
-//                configurationId = "b8ee863c-6e8e-4aef-8e59-a10082430d50",
-//                serverRootUrl = "https://dev-assistant.voicify.com",
-//                appId = "c7681d20-b19e-407a-a475-320c681880e8",
-//                appKey = "MzA4ZTQ5MWQtMzQzNy00N2Q0LTg5OWEtMzQzMGYwMTk5Y2Ex"
+//                serverRootUrl = "https://assistant.voicify.com",
+//                appId = "99a803b7-5b37-426c-a02e-63c8215c71eb",
+//                appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
+//                autoRunConversation = true,
+//                effects = arrayOf("Play")
 //            )
 //        )
+
+//        configuration id config
+        val voiceAssistant = AssistantDrawerUI.newInstance(
+            AssistantSettingsProps(
+                configurationId = "b8ee863c-6e8e-4aef-8e59-a10082430d50",
+                serverRootUrl = "https://dev-assistant.voicify.com",
+                appId = "c7681d20-b19e-407a-a475-320c681880e8",
+                appKey = "MzA4ZTQ5MWQtMzQzNy00N2Q0LTg5OWEtMzQzMGYwMTk5Y2Ex"
+            )
+        )
 
         binding.assistantMic.setOnClickListener {
             if (savedInstanceState == null) {

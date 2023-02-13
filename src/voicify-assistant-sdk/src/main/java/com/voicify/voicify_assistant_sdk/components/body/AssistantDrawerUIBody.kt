@@ -14,13 +14,7 @@ import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.BodyProps
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.Message
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantConfigurationResponse
 
-class AssistantDrawerUIBody (
-    private var context: Context,
-    private var bodyProps: BodyProps?,
-    private var configurationBodyProps: BodyProps?,
-    private var assistantSettingProps: AssistantSettingsProps?,
-    private var configuration: CustomAssistantConfigurationResponse?,
-) {
+class AssistantDrawerUIBody{
     internal fun initializeBody(bodyBorderTopView: View,
                        bodyBorderBottomView: View,
                        bodyLayout: LinearLayout,
@@ -28,14 +22,20 @@ class AssistantDrawerUIBody (
                        hintsRecycler: RecyclerView,
                        messages: ArrayList<Message>,
                        hints: ArrayList<String>,
-                       onHintClicked: (String) -> Unit
+                       onHintClicked: (String) -> Unit,
+                       context: Context,
+                       bodyProps: BodyProps?,
+                       configurationBodyProps: BodyProps?,
+                       assistantSettingProps: AssistantSettingsProps?,
+                       configuration: CustomAssistantConfigurationResponse?
+
     ): Pair<MessagesRecyclerViewAdapter, HintsRecyclerViewAdapter>{
-        initializeBorders(bodyBorderTopView, bodyBorderBottomView)
-        initializeBodyLayout(bodyLayout)
-        return (initializeRecyclerViews(messagesRecycler, hintsRecycler, messages, hints, onHintClicked))
+        initializeBorders(bodyBorderTopView, bodyBorderBottomView, bodyProps, configurationBodyProps, context)
+        initializeBodyLayout(bodyLayout, bodyProps, configurationBodyProps, context, configuration, assistantSettingProps)
+        return (initializeRecyclerViews(messagesRecycler, hintsRecycler, messages, hints, onHintClicked, bodyProps, configurationBodyProps, context))
     }
 
-    private fun initializeBorders(bodyBorderTopView: View, bodyBorderBottomView: View){
+    private fun initializeBorders(bodyBorderTopView: View, bodyBorderBottomView: View, bodyProps: BodyProps?, configurationBodyProps: BodyProps?, context: Context){
         bodyBorderTopView.setBackgroundColor(Color.parseColor(bodyProps?.borderTopColor ?: configurationBodyProps?.borderTopColor ?: context.getString(R.string.gray)))
         val bodyBorderTopViewLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, bodyProps?.borderTopWidth ?: configurationBodyProps?.borderTopWidth ?: 4)
         bodyBorderTopView.layoutParams = bodyBorderTopViewLayoutParams
@@ -48,7 +48,7 @@ class AssistantDrawerUIBody (
         bodyBorderBottomView.layoutParams = bodyBorderBottomViewLayoutParams
     }
 
-    private fun initializeBodyLayout(bodyLayout: LinearLayout){
+    private fun initializeBodyLayout(bodyLayout: LinearLayout, bodyProps: BodyProps?, configurationBodyProps: BodyProps?, context: Context, configuration: CustomAssistantConfigurationResponse?, assistantSettingProps: AssistantSettingsProps?){
         val bodyContainerLayoutStyle = GradientDrawable()
         if(!(bodyProps?.backgroundColor ?: configurationBodyProps?.backgroundColor).isNullOrEmpty()){
             bodyContainerLayoutStyle.setColor(Color.parseColor(bodyProps?.backgroundColor ?: configurationBodyProps?.backgroundColor))
@@ -66,7 +66,7 @@ class AssistantDrawerUIBody (
         )
     }
 
-    private fun initializeRecyclerViews(messagesRecycler: RecyclerView, hintsRecycler: RecyclerView, messages: ArrayList<Message>, hints: ArrayList<String>, onHintClicked: (String) -> Unit): Pair<MessagesRecyclerViewAdapter, HintsRecyclerViewAdapter>{
+    private fun initializeRecyclerViews(messagesRecycler: RecyclerView, hintsRecycler: RecyclerView, messages: ArrayList<Message>, hints: ArrayList<String>, onHintClicked: (String) -> Unit, bodyProps: BodyProps?, configurationBodyProps: BodyProps?, context: Context): Pair<MessagesRecyclerViewAdapter, HintsRecyclerViewAdapter>{
        val hintsRecyclerViewAdapter = HintsRecyclerViewAdapter(hints, bodyProps, configurationBodyProps, onHintClicked, context)
         hintsRecycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         hintsRecycler.adapter = hintsRecyclerViewAdapter

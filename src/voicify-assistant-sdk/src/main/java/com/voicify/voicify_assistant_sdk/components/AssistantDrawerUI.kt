@@ -202,187 +202,18 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
 
         if(!isLoadingConfiguration)
         {
-            val assistant = initializeAssistant()
-            val onHintClicked: (String) -> Unit = {  hint ->
-                messagesList.add(Message(hint, getString(R.string.sent)))
-                speakAnimation.clearAnimationValues(animation, requireContext(), speakingAnimationBars)
-                messagesRecyclerViewAdapter?.notifyDataSetChanged()
-                window?.messagesRecyclerView?.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int)
-                hideKeyboard()
-                hintsList.clear()
-                cancelSpeech()
-                voicifyTTS?.stop()
-                hintsRecyclerViewAdapter?.notifyDataSetChanged()
-                assistant.makeTextRequest(hint ,null, getString(R.string.text))
-            }
-            window?.container?.visibility = View.VISIBLE
-            window?.activityIndicator?.visibility = View.GONE
-
-            assistantDrawerUIHeader.initializeHeader(
-                closeAssistantImageView = window!!.closeAssistantImageView,
-                avatarImageView = window!!.assistantAvatarImageView,
-                closeBackgroundLayout =  window!!.closeAssistantBackgroundContainerLayout,
-                avatarBackgroundLayout = window!!.assistantAvatarBackgroundContainerLayout,
-                assistantNameTextView = window!!.assistantNameTextView,
-                context = requireContext(),
-                headerProps = headerProps,
-                configurationHeaderProps = configurationHeaderProps,
-                resources = resources
-            )
-            val (messagesAdapter,hintsAdapter) = assistantDrawerUIBody.initializeBody(
-                bodyBorderTopView = window!!.bodyBorderTopView,
-                bodyBorderBottomView = window!!.bodyBorderBottomView,
-                bodyLayout = window!!.bodyContainerLayout,
-                messagesRecycler = window!!.messagesRecyclerView,
-                hintsRecycler = window!!.hintsRecyclerView,
-                messages = messagesList,
-                hints = hintsList,
-                onHintClicked = onHintClicked,
-                context = requireContext(),
-                bodyProps = bodyProps,
-                configurationBodyProps = configurationBodyProps,
-                assistantSettingProps = assistantSettingProps,
-                configuration = configurationKotlin,
-            )
-            messagesRecyclerViewAdapter = messagesAdapter
-            hintsRecyclerViewAdapter = hintsAdapter
-            assistantDrawerUIToolbar.initializeToolbar(
-                micImageView = window!!.micImageView,
-                sendMessageImageView = window!!.sendMessageButtonImageView,
-                speakTextView = window!!.speakTextView,
-                typeTextView = window!!.typeTextView,
-                drawerHelpTextView = window!!.drawerWelcomeTextView,
-                assistantStateTextView = window!!.assistantStateTextView,
-                spokenTextView = window!!.spokenTextView,
-                inputeMessageEditText = window!!.inputTextMessage,
-                drawerLayout = window!!.drawerLayout,
-                context = requireContext(),
-                toolbarProps = toolbarProps,
-                configurationToolbarProps = configurationToolbarProps,
-                assistantSettingProps = assistantSettingProps,
-                configuration = configurationKotlin,
-            )
-            speakAnimation.initializeSpeakingAnimation(
-                context = requireContext(),
-                toolbarProps = toolbarProps,
-                configurationToolbarProps = configurationToolbarProps,
-                animationBars = speakingAnimationBars ?: emptyArray()
-            )
-
-            //UI Initialization
-            addGradientBackground()
-            checkInitializeWithText(sendTextLayoutStyle)
-            startNewAssistantSession(assistant)
-
-            //Add Listeners
-            addKeyboardActiveListener(window)
-            addSpeechToTextListeners(assistant, speakAnimation)
-            addMicClickListener(speakAnimation)
-            addSendMessageClickListener(assistant, messagesList)
-            addAssistantHandlers(assistant, hintsList, messagesList)
-            addTextboxClickListener(sendTextLayoutStyle)
-
-            window?.closeAssistantImageView?.setOnClickListener{
-                dismiss()
-            }
-            window?.closeAssistantNoInternetImageView?.setOnClickListener{
-                dismiss()
-            }
+            initializeDrawerUI(messagesList, hintsList, requireContext(), sendTextLayoutStyle)
         }
 
         loginResponseReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 activity?.runOnUiThread{
-                    val assistant = initializeAssistant()
-                    val onHintClicked: (String) -> Unit = {  hint ->
-                        messagesList.add(Message(hint, getString(R.string.sent)))
-                        speakAnimation.clearAnimationValues(animation, context, speakingAnimationBars)
-                        messagesRecyclerViewAdapter?.notifyDataSetChanged()
-                        messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int)
-                        hideKeyboard()
-                        hintsList.clear()
-                        cancelSpeech()
-                        voicifyTTS?.stop()
-                        hintsRecyclerViewAdapter?.notifyDataSetChanged()
-                        assistant.makeTextRequest(hint ,null, getString(R.string.text))
-                    }
-                    assistantDrawerUIHeader.initializeHeader(
-                        closeAssistantImageView = window!!.closeAssistantImageView,
-                        avatarImageView = window!!.assistantAvatarImageView,
-                        closeBackgroundLayout =  window!!.closeAssistantBackgroundContainerLayout,
-                        avatarBackgroundLayout = window!!.assistantAvatarBackgroundContainerLayout,
-                        assistantNameTextView = window!!.assistantNameTextView,
-                        context = requireContext(),
-                        headerProps = headerProps,
-                        configurationHeaderProps = configurationHeaderProps,
-                        resources = resources
-                    )
-                    val (messagesAdapter,hintsAdapter) = assistantDrawerUIBody.initializeBody(
-                        bodyBorderTopView = window!!.bodyBorderTopView,
-                        bodyBorderBottomView = window!!.bodyBorderBottomView,
-                        bodyLayout = window!!.bodyContainerLayout,
-                        messagesRecycler = window!!.messagesRecyclerView,
-                        hintsRecycler = window!!.hintsRecyclerView,
-                        messages = messagesList,
-                        hints = hintsList,
-                        onHintClicked = onHintClicked,
-                        context = requireContext(),
-                        bodyProps = bodyProps,
-                        configurationBodyProps = configurationBodyProps,
-                        assistantSettingProps = assistantSettingProps,
-                        configuration = configurationKotlin,
-                    )
-                    messagesRecyclerViewAdapter = messagesAdapter
-                    hintsRecyclerViewAdapter = hintsAdapter
-                    assistantDrawerUIToolbar.initializeToolbar(
-                        micImageView = window!!.micImageView,
-                        sendMessageImageView = window!!.sendMessageButtonImageView,
-                        speakTextView = window!!.speakTextView,
-                        typeTextView = window!!.typeTextView,
-                        drawerHelpTextView = window!!.drawerWelcomeTextView,
-                        assistantStateTextView = window!!.assistantStateTextView,
-                        spokenTextView = window!!.spokenTextView,
-                        inputeMessageEditText = window!!.inputTextMessage,
-                        drawerLayout = window!!.drawerLayout,
-                        context = requireContext(),
-                        toolbarProps = toolbarProps,
-                        configurationToolbarProps = configurationToolbarProps,
-                        assistantSettingProps = assistantSettingProps,
-                        configuration = configurationKotlin,
-                    )
-                    speakAnimation.initializeSpeakingAnimation(
-                        context = requireContext(),
-                        toolbarProps = toolbarProps,
-                        configurationToolbarProps = configurationToolbarProps,
-                        animationBars = speakingAnimationBars ?: emptyArray()
-                    )
-                    window?.container?.visibility = View.VISIBLE
-                    window?.activityIndicator?.visibility = View.GONE
-
-                    addGradientBackground()
-                    //UI Initialization
-                    checkInitializeWithText(sendTextLayoutStyle)
-                    checkInitializeWithWelcome()
-                    startNewAssistantSession(assistant)
-
-                    //Add Listeners
-                    addKeyboardActiveListener(window)
-                    addSpeechToTextListeners(assistant, speakAnimation)
-                    addMicClickListener(speakAnimation)
-                    addSendMessageClickListener(assistant, messagesList)
-                    addAssistantHandlers(assistant, hintsList, messagesList)
-                    addTextboxClickListener(sendTextLayoutStyle)
-
-                    closeAssistantImageView.setOnClickListener{
-                        dismiss()
-                    }
-                    closeAssistantNoInternetImageView.setOnClickListener{
-                        dismiss()
-                    }
+                    initializeDrawerUI(messagesList, hintsList, requireContext(), sendTextLayoutStyle)
                 }
             }
         }
         NotificationCenter.addObserver(requireContext(), NotificationType.LOADING_COMPLETE, loginResponseReceiver)
+        
         if(isLoadingConfiguration)
         {
             window?.container?.visibility = View.GONE
@@ -463,6 +294,95 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 bodyContainerLayout.layoutParams = layoutParams
             }
             isRotated = true
+        }
+    }
+
+    private fun initializeDrawerUI(messagesList: ArrayList<Message>, hintsList: ArrayList<String>, context: Context, sendTextLayoutStyle: GradientDrawable){
+        val assistant = initializeAssistant()
+        val onHintClicked: (String) -> Unit = {  hint ->
+            messagesList.add(Message(hint, getString(R.string.sent)))
+            speakAnimation.clearAnimationValues(animation, context, speakingAnimationBars)
+            messagesRecyclerViewAdapter?.notifyDataSetChanged()
+            messagesRecyclerView.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int)
+            hideKeyboard()
+            hintsList.clear()
+            cancelSpeech()
+            voicifyTTS?.stop()
+            hintsRecyclerViewAdapter?.notifyDataSetChanged()
+            assistant.makeTextRequest(hint ,null, getString(R.string.text))
+        }
+        assistantDrawerUIHeader.initializeHeader(
+            closeAssistantImageView = window!!.closeAssistantImageView,
+            avatarImageView = window!!.assistantAvatarImageView,
+            closeBackgroundLayout =  window!!.closeAssistantBackgroundContainerLayout,
+            avatarBackgroundLayout = window!!.assistantAvatarBackgroundContainerLayout,
+            assistantNameTextView = window!!.assistantNameTextView,
+            context = requireContext(),
+            headerProps = headerProps,
+            configurationHeaderProps = configurationHeaderProps,
+            resources = resources
+        )
+        val (messagesAdapter,hintsAdapter) = assistantDrawerUIBody.initializeBody(
+            bodyBorderTopView = window!!.bodyBorderTopView,
+            bodyBorderBottomView = window!!.bodyBorderBottomView,
+            bodyLayout = window!!.bodyContainerLayout,
+            messagesRecycler = window!!.messagesRecyclerView,
+            hintsRecycler = window!!.hintsRecyclerView,
+            messages = messagesList,
+            hints = hintsList,
+            onHintClicked = onHintClicked,
+            context = requireContext(),
+            bodyProps = bodyProps,
+            configurationBodyProps = configurationBodyProps,
+            assistantSettingProps = assistantSettingProps,
+            configuration = configurationKotlin,
+        )
+        messagesRecyclerViewAdapter = messagesAdapter
+        hintsRecyclerViewAdapter = hintsAdapter
+        assistantDrawerUIToolbar.initializeToolbar(
+            micImageView = window!!.micImageView,
+            sendMessageImageView = window!!.sendMessageButtonImageView,
+            speakTextView = window!!.speakTextView,
+            typeTextView = window!!.typeTextView,
+            drawerHelpTextView = window!!.drawerWelcomeTextView,
+            assistantStateTextView = window!!.assistantStateTextView,
+            spokenTextView = window!!.spokenTextView,
+            inputeMessageEditText = window!!.inputTextMessage,
+            drawerLayout = window!!.drawerLayout,
+            context = requireContext(),
+            toolbarProps = toolbarProps,
+            configurationToolbarProps = configurationToolbarProps,
+            assistantSettingProps = assistantSettingProps,
+            configuration = configurationKotlin,
+        )
+        speakAnimation.initializeSpeakingAnimation(
+            context = requireContext(),
+            toolbarProps = toolbarProps,
+            configurationToolbarProps = configurationToolbarProps,
+            animationBars = speakingAnimationBars ?: emptyArray()
+        )
+        window?.container?.visibility = View.VISIBLE
+        window?.activityIndicator?.visibility = View.GONE
+
+        addGradientBackground()
+        //UI Initialization
+        checkInitializeWithText(sendTextLayoutStyle)
+        checkInitializeWithWelcome()
+        startNewAssistantSession(assistant)
+
+        //Add Listeners
+        addKeyboardActiveListener(window)
+        addSpeechToTextListeners(assistant, speakAnimation)
+        addMicClickListener(speakAnimation)
+        addSendMessageClickListener(assistant, messagesList)
+        addAssistantHandlers(assistant, hintsList, messagesList)
+        addTextboxClickListener(sendTextLayoutStyle)
+
+        window?.closeAssistantImageView?.setOnClickListener{
+            dismiss()
+        }
+        window?.closeAssistantNoInternetImageView?.setOnClickListener{
+            dismiss()
         }
     }
 
@@ -620,7 +540,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     hintsRecyclerViewAdapter = hintsRecyclerViewAdapter,
                     hintsRecyclerView = window?.hintsRecyclerView
                 )
-                
+
                 if(isDrawer)
                 {
                     hideKeyboard()
@@ -633,8 +553,8 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     messagesRecyclerViewAdapter?.notifyDataSetChanged()
                     window?.messagesRecyclerView?.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int)
                 }
-                speechFullResult = null
 
+                speechFullResult = null
                 messagesList.add(Message(response.displayText?.trim() as String, getString(R.string.received)))
                 messagesRecyclerViewAdapter?.notifyDataSetChanged()
                 window?.messagesRecyclerView?.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int)
@@ -693,6 +613,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             assistantIsListening = true
             window?.assistantStateTextView?.text = getString(R.string.assistant_state_listening)
         }
+
         voicifySTT?.addErrorListener { error ->
             speakAnimation.clearAnimationValues(animation, requireContext(), speakingAnimationBars)
             if (error == SpeechRecognizer.ERROR_NO_MATCH.toString())
@@ -702,6 +623,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 window?.assistantStateTextView?.text = getString(R.string.assistant_state_misunderstood)
             }
         }
+
         voicifySTT?.addVolumeListener { volume ->
             val bars = speakAnimation.generateAnimationValues(volume, requireContext(), speakingAnimationBars)
             animation = AnimatorSet().apply {
@@ -740,33 +662,29 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                     MotionEvent.ACTION_UP -> {
                         val colorStateList = ColorStateList.valueOf(Color.parseColor(toolbarProps?.textInputActiveLineColor ?: configurationToolbarProps?.textInputLineColor ?: getString(R.string.silver)))
                         ViewCompat.setBackgroundTintList(window?.inputTextMessage!!,colorStateList)
-                        if (assistantIsListening) {
-                            cancelSpeech()
-                            window?.assistantStateTextView?.text = ""
-                            window?.spokenTextView?.text = ""
-                        }
                         if (isUsingSpeech) {
                             voicifySTT?.cancel = true
-                            window?.speakingAnimation?.visibility = View.GONE
-                            window?.sendTextLayout?.background = sendTextLayoutStyle
                             isUsingSpeech = false
-                            if(isRotated)
-                            {
-                                val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, HelperMethods.getPixelsFromDp(200, scale))
-                                layoutParams.weight = 0f
-                                bodyContainerLayout.layoutParams = layoutParams
+                            if (assistantIsListening) {
+                                cancelSpeech()
                             }
-                            if(!isDrawer)
-                            {
-                                val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                                drawerFooterLayoutParams.setMargins(0,0,0,0)
-                                window?.drawerFooterLayout?.layoutParams = drawerFooterLayoutParams
-                                window?.dashedLineImageView?.visibility = View.INVISIBLE
-                            }
-                            window?.spokenTextView?.visibility = View.GONE
-                            window?.assistantStateTextView?.visibility = View.GONE
-                            window?.speakTextView?.setTextColor(Color.parseColor(toolbarProps?.speakInactiveTitleColor ?: configurationToolbarProps?.speakInactiveTitleColor ?: getString(R.string.dark_gray)))
-                            window?.typeTextView?.setTextColor(Color.parseColor(toolbarProps?.typeActiveTitleColor ?: configurationToolbarProps?.speakActiveTitleColor ?: getString(R.string.dark_blue)))
+                            assistantDrawerUIToolbar.setIsUsingTextView(
+                                isRotated = isRotated,
+                                isDrawer = isDrawer,
+                                bodyContainerLayout = window?.bodyContainerLayout,
+                                assistantStateTextView = window?.assistantStateTextView,
+                                spokenTextView = window?.spokenTextView,
+                                speakingAnimationLayout = window?.speakingAnimation,
+                                sendTextLayout = window?.sendTextLayout,
+                                sendTextLayoutStyle = sendTextLayoutStyle,
+                                drawerFooterLayout = window?.drawerFooterLayout,
+                                dashedLineImageView = window?.dashedLineImageView,
+                                speakTextView = window?.speakTextView,
+                                typeTextView = window?.typeTextView,
+                                toolbarProps = toolbarProps,
+                                configurationToolbarProps = configurationToolbarProps,
+                                context = requireContext()
+                            )
                             HelperMethods.loadImageFromUrl(
                                 url = toolbarProps?.micInactiveImage ?: configurationToolbarProps?.micInactiveImage ?: getString(R.string.mic_inactive_image),
                                 view = window!!.micImageView,
@@ -802,19 +720,21 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 isUsingSpeech = true
                 messagesRecyclerViewAdapter?.notifyDataSetChanged()
                 window?.messagesRecyclerView?.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int)
-                window?.speakingAnimation?.visibility = View.VISIBLE
-                window?.sendTextLayout?.setBackgroundColor(Color.parseColor(toolbarProps?.textboxInactiveHighlightColor ?: configurationToolbarProps?.textboxInactiveHighlightColor ?: getString(R.string.transparent)))
-                window?.dashedLineImageView?.visibility = View.VISIBLE
+                assistantDrawerUIToolbar.setIsUsingSpeechView(
+                    speakinAnimationLayout = window?.speakingAnimation,
+                    sendTextLayout = window?.sendTextLayout,
+                    dashedLineImageView = window?.dashedLineImageView,
+                    toolbarProps = toolbarProps,
+                    configurationToolbarProps = configurationToolbarProps,
+                    context = requireContext(),
+                    isDrawer = isDrawer,
+                    drawerFooterLayout = window?.drawerFooterLayout,
+                    spokenTextView = window?.spokenTextView,
+                    assistantStateTextView = window?.assistantStateTextView,
+                    speakTextView = window?.speakTextView,
+                    typeTextView = window?.typeTextView
+                )
                 hideKeyboard()
-                if(!isDrawer){
-                    val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                    drawerFooterLayoutParams.setMargins(0,HelperMethods.getPixelsFromDp(20, scale),0,0)
-                    drawerFooterLayout.layoutParams = drawerFooterLayoutParams
-                }
-                window?.spokenTextView?.visibility = View.VISIBLE
-                window?.assistantStateTextView?.visibility = View.VISIBLE
-                window?.speakTextView?.setTextColor(Color.parseColor(toolbarProps?.speakActiveTitleColor ?: configurationToolbarProps?.speakActiveTitleColor ?: getString(R.string.dark_blue)))
-                window?.typeTextView?.setTextColor(Color.parseColor(toolbarProps?.typeInactiveTitleColor ?: configurationToolbarProps?.speakInactiveTitleColor ?: getString(R.string.dark_gray)))
                 HelperMethods.loadImageFromUrl(
                     url = toolbarProps?.micActiveImage ?: configurationToolbarProps?.micActiveImage ?: getString(R.string.mic_active_image),
                     view = window!!.micImageView,

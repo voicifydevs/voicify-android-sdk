@@ -2,7 +2,6 @@ package com.voicify.voicify_assistant_sdk.components.toolbar
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -16,10 +15,7 @@ import androidx.core.view.ViewCompat
 import com.voicify.voicify_assistant_sdk.R
 import com.voicify.voicify_assistant_sdk.assistantDrawerUITypes.*
 import com.voicify.voicify_assistant_sdk.models.CustomAssistantConfigurationResponse
-
-class AssistantDrawerUIToolbar(){
-
-
+class AssistantDrawerUIToolbar{
     fun initializeToolbar(
         micImageView: ImageView,
         sendMessageImageView: ImageView,
@@ -302,5 +298,76 @@ class AssistantDrawerUIToolbar(){
         {
             toolbarLayout?.setBackgroundColor(Color.parseColor(context.getString(R.string.white)))
         }
+    }
+
+    fun setIsUsingSpeechView(
+        speakinAnimationLayout: LinearLayout?,
+        sendTextLayout: LinearLayout?,
+        dashedLineImageView: ImageView?,
+        toolbarProps: ToolbarProps?,
+        configurationToolbarProps: ToolbarProps?,
+        context: Context, isDrawer: Boolean,
+        drawerFooterLayout: LinearLayout?,
+        spokenTextView: TextView?,
+        assistantStateTextView: TextView?,
+        speakTextView: TextView?,
+        typeTextView: TextView?
+    ){
+        val scale = context.resources.displayMetrics.density
+        speakinAnimationLayout?.visibility = View.VISIBLE
+        sendTextLayout?.setBackgroundColor(Color.parseColor(toolbarProps?.textboxInactiveHighlightColor ?: configurationToolbarProps?.textboxInactiveHighlightColor ?: context.getString(R.string.transparent)))
+        dashedLineImageView?.visibility = View.VISIBLE
+
+        if(!isDrawer){
+            val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            drawerFooterLayoutParams.setMargins(0,HelperMethods.getPixelsFromDp(20, scale),0,0)
+            drawerFooterLayout?.layoutParams = drawerFooterLayoutParams
+        }
+        spokenTextView?.visibility = View.VISIBLE
+        assistantStateTextView?.visibility = View.VISIBLE
+        speakTextView?.setTextColor(Color.parseColor(toolbarProps?.speakActiveTitleColor ?: configurationToolbarProps?.speakActiveTitleColor ?: context.getString(R.string.dark_blue)))
+        typeTextView?.setTextColor(Color.parseColor(toolbarProps?.typeInactiveTitleColor ?: configurationToolbarProps?.speakInactiveTitleColor ?: context.getString(R.string.dark_gray)))
+    }
+
+    fun setIsUsingTextView(
+        isRotated: Boolean,
+        isDrawer: Boolean,
+        bodyContainerLayout: LinearLayout?,
+        assistantStateTextView: TextView?,
+        spokenTextView: TextView?,
+        speakingAnimationLayout: LinearLayout?,
+        sendTextLayout: LinearLayout?,
+        sendTextLayoutStyle: GradientDrawable?,
+        drawerFooterLayout: LinearLayout?,
+        dashedLineImageView: ImageView?,
+        speakTextView: TextView?,
+        typeTextView: TextView?,
+        toolbarProps: ToolbarProps?,
+        configurationToolbarProps: ToolbarProps?,
+        context: Context
+    ){
+        val scale = context.resources.displayMetrics.density
+        if(isRotated)
+        {
+            val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, HelperMethods.getPixelsFromDp(200, scale))
+            layoutParams.weight = 0f
+            bodyContainerLayout?.layoutParams = layoutParams
+        }
+
+        assistantStateTextView?.text = ""
+        spokenTextView?.text = ""
+        speakingAnimationLayout?.visibility = View.GONE
+        sendTextLayout?.background = sendTextLayoutStyle
+        if(!isDrawer)
+        {
+            val drawerFooterLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            drawerFooterLayoutParams.setMargins(0,0,0,0)
+            drawerFooterLayout?.layoutParams = drawerFooterLayoutParams
+            dashedLineImageView?.visibility = View.INVISIBLE
+        }
+        spokenTextView?.visibility = View.GONE
+        assistantStateTextView?.visibility = View.GONE
+        speakTextView?.setTextColor(Color.parseColor(toolbarProps?.speakInactiveTitleColor ?: configurationToolbarProps?.speakInactiveTitleColor ?: context.getString(R.string.dark_gray)))
+        typeTextView?.setTextColor(Color.parseColor(toolbarProps?.typeActiveTitleColor ?: configurationToolbarProps?.speakActiveTitleColor ?: context.getString(R.string.dark_blue)))
     }
 }

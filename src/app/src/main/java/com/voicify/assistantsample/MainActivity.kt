@@ -23,7 +23,8 @@ class MainActivity : AppCompatActivity() {
                 appKey = "MTAzM2RjNDEtMzkyMC00NWNhLThhOTYtMjljMDc3NWM5NmE3",
                 autoRunConversation = true,
                 effects = arrayOf("Play"),
-                initializeWithText = true
+                initializeWithText = false,
+                initializeWithWelcomeMessage = false
             )
         )
 

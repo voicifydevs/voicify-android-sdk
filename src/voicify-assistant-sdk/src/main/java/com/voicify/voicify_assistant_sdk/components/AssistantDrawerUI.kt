@@ -810,7 +810,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     private fun addMicClickListener(speakAnimation: SpeakingAnimation){
         window?.micImageView?.setOnClickListener{
             speakAnimation.clearAnimationValues(animation, requireContext(), speakingAnimationBars)
-            val colorStateList = ColorStateList.valueOf(Color.parseColor(toolbarProps?.textInputLineColor ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.textInputLineColor ?: getString(R.string.silver)))
+            val colorStateList = ColorStateList.valueOf(Color.parseColor(toolbarProps?.textInputLineColor ?: configurationToolbarProps?.textInputLineColor ?: getString(R.string.silver)))
             ViewCompat.setBackgroundTintList(inputTextMessage,colorStateList)
             if(!isUsingSpeech)
             {
@@ -824,7 +824,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 messagesRecyclerViewAdapter?.notifyDataSetChanged()
                 window?.messagesRecyclerView?.smoothScrollToPosition(messagesRecyclerViewAdapter?.itemCount as Int)
                 window?.speakingAnimation?.visibility = View.VISIBLE
-                window?.sendTextLayout?.setBackgroundColor(Color.parseColor(toolbarProps?.textboxInactiveHighlightColor ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.textboxInactiveHighlightColor ?: getString(R.string.transparent)))
+                window?.sendTextLayout?.setBackgroundColor(Color.parseColor(toolbarProps?.textboxInactiveHighlightColor ?: configurationToolbarProps?.textboxInactiveHighlightColor ?: getString(R.string.transparent)))
                 window?.dashedLineImageView?.visibility = View.VISIBLE
                 hideKeyboard()
                 if(!isDrawer){
@@ -834,17 +834,17 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
                 }
                 window?.spokenTextView?.visibility = View.VISIBLE
                 window?.assistantStateTextView?.visibility = View.VISIBLE
-                window?.speakTextView?.setTextColor(Color.parseColor(toolbarProps?.speakActiveTitleColor ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.speakActiveTitleColor ?: getString(R.string.dark_blue)))
-                window?.typeTextView?.setTextColor(Color.parseColor(toolbarProps?.typeInactiveTitleColor ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.speakInactiveTitleColor ?: getString(R.string.dark_gray)))
+                window?.speakTextView?.setTextColor(Color.parseColor(toolbarProps?.speakActiveTitleColor ?: configurationToolbarProps?.speakActiveTitleColor ?: getString(R.string.dark_blue)))
+                window?.typeTextView?.setTextColor(Color.parseColor(toolbarProps?.typeInactiveTitleColor ?: configurationToolbarProps?.speakInactiveTitleColor ?: getString(R.string.dark_gray)))
                 HelperMethods.loadImageFromUrl(
-                    url = toolbarProps?.micActiveImage ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.micActiveImage ?: getString(R.string.mic_active_image),
+                    url = toolbarProps?.micActiveImage ?: configurationToolbarProps?.micActiveImage ?: getString(R.string.mic_active_image),
                     view = window!!.micImageView,
-                    imageColor = toolbarProps?.micActiveColor ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.micActiveColor
+                    imageColor = toolbarProps?.micActiveColor ?: configurationToolbarProps?.micActiveColor
                 )
                 HelperMethods.loadImageFromUrl(
-                    url = toolbarProps?.sendInactiveImage ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.sendInactiveImage ?: getString(R.string.send_inactive_image),
+                    url = toolbarProps?.sendInactiveImage ?: configurationToolbarProps?.sendInactiveImage ?: getString(R.string.send_inactive_image),
                     view = window!!.sendMessageButtonImageView,
-                    imageColor = toolbarProps?.sendInactiveColor ?: com.voicify.voicify_assistant_sdk.components.configurationToolbarProps?.sendInactiveColor
+                    imageColor = toolbarProps?.sendInactiveColor ?: configurationToolbarProps?.sendInactiveColor
                 )
             }
             if(!assistantIsListening)
@@ -970,6 +970,4 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
     fun addUserAttributes(userAttributes: Map<String, Any>){
         this.userAttributes = userAttributes
     }
-
-
 }

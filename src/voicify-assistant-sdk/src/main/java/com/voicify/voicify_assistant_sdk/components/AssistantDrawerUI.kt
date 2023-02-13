@@ -213,7 +213,7 @@ class AssistantDrawerUI : BottomSheetDialogFragment() {
             }
         }
         NotificationCenter.addObserver(requireContext(), NotificationType.LOADING_COMPLETE, loginResponseReceiver)
-        
+
         if(isLoadingConfiguration)
         {
             window?.container?.visibility = View.GONE

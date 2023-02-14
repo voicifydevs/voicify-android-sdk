@@ -24,7 +24,6 @@ class VoicifySTTProvider (private val context: Context, private val activity: Ac
     private var speechEndHandlers: Array<() -> Unit>? = emptyArray()
     private var speechResultsHandlers: Array<(fullResult: String?) -> Unit>? = emptyArray()
     private var speechErrorHandlers: Array<(error: String) -> Unit>? = emptyArray()
-    //private var speechRecognizedHandlers: Array<() -> Unit>? = emptyArray()
     private var speechVolumeHandlers: Array<(volume: Float) -> Unit>? = emptyArray()
     private var locale: String = ""
     private var speechRecognizer: SpeechRecognizer? = SpeechRecognizer.createSpeechRecognizer(context);
@@ -38,7 +37,7 @@ class VoicifySTTProvider (private val context: Context, private val activity: Ac
     override fun startListening(){
         if(!cancel) {
             if (speechRecognizer != null)  //have to do this because if the speech recognizer ever gets destroyed we need to recreate each time to account for that
-            {                             //checked the react native voice package and they do it the same way
+            {
                 speechRecognizer?.destroy()
             }
             if (ContextCompat.checkSelfPermission(
@@ -48,7 +47,6 @@ class VoicifySTTProvider (private val context: Context, private val activity: Ac
             ) {
                 checkPermission();
             }
-
             speechRecognizerIntent.putExtra(
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM

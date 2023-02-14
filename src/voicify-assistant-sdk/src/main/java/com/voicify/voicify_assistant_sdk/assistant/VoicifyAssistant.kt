@@ -3,18 +3,15 @@ package com.voicify.voicify_assistant_sdk.assistant
 import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import com.voicify.voicify_assistant_sdk.models.*
 import okhttp3.*
 import com.google.gson.Gson
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.util.UUID
 
-@Suppress("unused")
+
 class VoicifyAssistant(
     var speechToTextProvider: VoicifySpeechToTextProvider?,
     var textToSpeechProvider: VoicifyTextToSpeechProvider?,
@@ -153,9 +150,8 @@ class VoicifyAssistant(
                 }
                 if(!fireBeforeSpeechEffects.isNullOrEmpty())
                 {
-                    runBlocking {
-                        launch { fireEffects(fireBeforeSpeechEffects, request) }
-                    }
+                    fireEffects(fireBeforeSpeechEffects, request)
+
                 }
 
                 textToSpeechProvider?.clearHandlers()
@@ -163,9 +159,9 @@ class VoicifyAssistant(
                 {
                     textToSpeechProvider?.addFinishListener {
                         if(!fireAfterSpeechEffects.isNullOrEmpty()){
-                            runBlocking {
-                                launch { fireEffects(fireAfterSpeechEffects, request) }
-                            }
+
+                            fireEffects(fireAfterSpeechEffects, request)
+
                         }
                         else if ((settings.autoRunConversation && settings.useVoiceInput
                                     && inputType == "Speech" && settings.useOutputSpeech &&
@@ -177,9 +173,7 @@ class VoicifyAssistant(
                 }
                 else{
                     if(!fireAfterSpeechEffects.isNullOrEmpty()){
-                        runBlocking {
-                            launch {fireEffects(fireAfterSpeechEffects, request)}
-                        }
+                            fireEffects(fireAfterSpeechEffects, request)
                     }
                 }
 
@@ -206,7 +200,7 @@ class VoicifyAssistant(
                     override fun onFailure(call: Call, e: IOException) {
                         if(!errorHandlers.isNullOrEmpty())
                         {
-                            errorHandlers?.forEach {handle ->  handle.invoke("User Data Call Failed, request", request)}
+                            errorHandlers?.forEach {handle ->  handle.invoke("User Data Call Failed", request)}
                         }
                     }
                     override fun onResponse(call: Call, response: Response) {
@@ -320,7 +314,11 @@ class VoicifyAssistant(
             supportsDisplayText = true,
             supportsTextInput = true,
             supportsSsml = this.settings.useOutputSpeech,
-            supportsVoiceInput = this.settings.useVoiceInput
+            supportsVoiceInput = this.settings.useVoiceInput,
+            supportsAudio = true,
+            supportsVideo = true,
+            supportsBackgroundImage = true,
+            supportsForegroundImage = true
         )
     }
 
